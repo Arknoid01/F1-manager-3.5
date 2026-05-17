@@ -436,5 +436,29 @@ function buildLeg(){
 
 })();
 </script>
+
+<button id="installPwaBtn" style="display:none;position:fixed;top:10px;right:60px;z-index:99999;padding:8px 12px;border:none;border-radius:8px;background:#111;color:white;">
+Installer l’application
+</button>
+
+<script>
+let installPrompt = null;
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  installPrompt = event;
+  const btn = document.querySelector("#installPwaBtn");
+  if (btn) btn.style.display = "block";
+});
+
+document.querySelector("#installPwaBtn")?.addEventListener("click", async () => {
+  if (!installPrompt) return;
+  installPrompt.prompt();
+  await installPrompt.userChoice;
+  installPrompt = null;
+  document.querySelector("#installPwaBtn").style.display = "none";
+});
+</script>
+
 </body>
 </html>
