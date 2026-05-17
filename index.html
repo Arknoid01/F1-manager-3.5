@@ -185,9 +185,55 @@ html,body{
   display:none;
 }
 .btn-go.on{display:block;}
+/* ── PWA INSTALL BTN ── */
+.pwa-btn{
+  width:28px;height:24px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(7,7,13,.72);
+  color:#fff;font-size:14px;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(10px);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.pwa-btn:active{transform:scale(.94);}
+/* Modale */
+.pwa-modal{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(7,7,13,.92);backdrop-filter:blur(16px);
+  align-items:center;justify-content:center;padding:24px;
+}
+.pwa-modal.open{display:flex;}
+.pwa-box{
+  background:#0f0f18;border:1px solid rgba(255,255,255,.12);
+  border-radius:16px;padding:24px 20px;max-width:340px;width:100%;
+  text-align:center;
+}
+.pwa-box h2{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:900;
+  letter-spacing:2px;color:#fff;margin-bottom:6px;}
+.pwa-box p{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:20px;line-height:1.5;}
+.pwa-steps{text-align:left;margin-bottom:20px;}
+.pwa-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;}
+.pwa-step-num{
+  width:22px;height:22px;border-radius:50%;
+  background:#e8003d;color:#fff;
+  font-size:11px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.pwa-step-txt{font-size:12px;color:rgba(255,255,255,.7);line-height:1.4;}
+.pwa-step-txt b{color:#fff;}
+.pwa-install-btn{
+  font-family:'Orbitron',sans-serif;font-weight:700;font-size:12px;
+  letter-spacing:1px;text-transform:uppercase;
+  background:#e8003d;color:#fff;border:none;border-radius:8px;
+  padding:12px;cursor:pointer;width:100%;margin-bottom:10px;
+}
+.pwa-close-btn{
+  font-size:11px;color:rgba(255,255,255,.3);
+  background:none;border:none;cursor:pointer;
+  text-decoration:underline;
+}
+
 </style>
-<link rel="manifest" href="/F1-manager-3.5/manifest.json">
-<meta name="theme-color" content="#07070d">
 </head>
 <body>
 
@@ -204,6 +250,7 @@ html,body{
     </div>
   </div>
   <div class="tb-right">
+    <button class="pwa-btn" id="pwaTopBtn" title="Installer l'app" aria-label="Installer">📲</button>
     <button class="fs-btn" id="fsBtn" type="button" title="Plein écran" aria-label="Plein écran">⛶</button>
     <div class="pill pill-s" id="pS">—</div>
     <div class="pill pill-g" id="pG">—</div>
@@ -439,43 +486,79 @@ function buildLeg(){
 })();
 </script>
 
-<button id="installPwaBtn" style="display:none;position:fixed;top:10px;right:60px;z-index:99999;padding:8px 12px;border:none;border-radius:8px;background:#111;color:white;">
-Installer l’application
-</button>
+
+
+
+<!-- Modale installation PWA -->
+<div class="pwa-modal" id="pwaModal">
+  <div class="pwa-box">
+    <h2>📲 INSTALLER L'APP</h2>
+    <p>Ajoute F1 Manager à ton écran d'accueil pour y accéder comme une vraie application.</p>
+    <div class="pwa-steps">
+      <div class="pwa-step">
+        <div class="pwa-step-num">1</div>
+        <div class="pwa-step-txt">Appuie sur <b>⋮</b> (menu du navigateur) en haut à droite</div>
+      </div>
+      <div class="pwa-step">
+        <div class="pwa-step-num">2</div>
+        <div class="pwa-step-txt">Sélectionne <b>"Ajouter à l'écran d'accueil"</b></div>
+      </div>
+      <div class="pwa-step">
+        <div class="pwa-step-num">3</div>
+        <div class="pwa-step-txt">Confirme en appuyant sur <b>"Ajouter"</b></div>
+      </div>
+    </div>
+    <button class="pwa-install-btn" id="pwaInstallBtn">⚡ Installer automatiquement</button>
+    <button class="pwa-close-btn" id="pwaCloseBtn">Fermer</button>
+  </div>
+</div>
 
 <script>
-let installPrompt = null;
+(function(){
+  let installPromptEvent = null;
 
-window.addEventListener("beforeinstallprompt", (event) => {
-  event.preventDefault();
-  installPrompt = event;
-  const btn = document.querySelector("#installPwaBtn");
-  if (btn) btn.style.display = "block";
-});
-
-document.querySelector("#installPwaBtn")?.addEventListener("click", async () => {
-  if (!installPrompt) return;
-  installPrompt.prompt();
-  await installPrompt.userChoice;
-  installPrompt = null;
-  document.querySelector("#installPwaBtn").style.display = "none";
-});
-</script>
-
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", async () => {
-    try {
-      await navigator.serviceWorker.register("/F1-manager-3.5/sw.js", {
-        scope: "/F1-manager-3.5/"
-      });
-      console.log("SW enregistré");
-    } catch (err) {
-      console.error("Erreur SW", err);
-    }
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    installPromptEvent = e;
+    // Si le prompt natif est dispo, on peut l'utiliser directement
+    document.getElementById('pwaInstallBtn').textContent = '⚡ Installer automatiquement';
   });
-}
+
+  // Bouton topbar ouvre la modale
+  document.getElementById('pwaTopBtn').addEventListener('click', () => {
+    document.getElementById('pwaModal').classList.add('open');
+  });
+
+  // Bouton "Installer automatiquement" = prompt natif si dispo
+  document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
+    if (installPromptEvent) {
+      installPromptEvent.prompt();
+      await installPromptEvent.userChoice;
+      installPromptEvent = null;
+      document.getElementById('pwaModal').classList.remove('open');
+    }
+    // Sinon rien — l'utilisateur suit les étapes manuelles
+  });
+
+  // Fermer
+  document.getElementById('pwaCloseBtn').addEventListener('click', () => {
+    document.getElementById('pwaModal').classList.remove('open');
+  });
+  document.getElementById('pwaModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('pwaModal'))
+      document.getElementById('pwaModal').classList.remove('open');
+  });
+
+  // Cacher le bouton si déjà installé
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('pwaTopBtn').style.display = 'none';
+    document.getElementById('pwaModal').classList.remove('open');
+  });
+  if (window.matchMedia('(display-mode: standalone)').matches) {
+    document.getElementById('pwaTopBtn').style.display = 'none';
+  }
+})();
 </script>
+
 </body>
 </html>
