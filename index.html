@@ -508,7 +508,23 @@ function buildLeg(){
         <div class="pwa-step-txt">Confirme en appuyant sur <b>"Ajouter"</b></div>
       </div>
     </div>
-    <button class="pwa-install-btn" id="pwaInstallBtn">⚡ Installer automatiquement</button>
+    <div id="pwaStepsAuto" style="display:none">
+      <div class="pwa-steps">
+        <div class="pwa-step">
+          <div class="pwa-step-num">1</div>
+          <div class="pwa-step-txt" id="pwaStep1txt"></div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">2</div>
+          <div class="pwa-step-txt">Appuie sur <b>"Ajouter à l'écran d'accueil"</b></div>
+        </div>
+        <div class="pwa-step">
+          <div class="pwa-step-num">3</div>
+          <div class="pwa-step-txt">Confirme en appuyant sur <b>"Ajouter"</b></div>
+        </div>
+      </div>
+    </div>
+    <button class="pwa-install-btn" id="pwaInstallBtn">⚡ Installer</button>
     <button class="pwa-close-btn" id="pwaCloseBtn">Fermer</button>
   </div>
 </div>
@@ -517,11 +533,38 @@ function buildLeg(){
 (function(){
   let installPromptEvent = null;
 
+  // Détecte le navigateur pour adapter les instructions
+  function detectBrowser() {
+    const ua = navigator.userAgent;
+    if (/SamsungBrowser/i.test(ua)) return 'samsung';
+    if (/OPR|Opera/i.test(ua)) return 'opera';
+    if (/Brave/i.test(ua) || navigator.brave) return 'brave';
+    if (/Firefox/i.test(ua)) return 'firefox';
+    return 'chrome'; // défaut
+  }
+
+  function showManualSteps() {
+    const browser = detectBrowser();
+    const stepsEl = document.getElementById('pwaStepsAuto');
+    const step1 = document.getElementById('pwaStep1txt');
+    const btn = document.getElementById('pwaInstallBtn');
+
+    const instructions = {
+      chrome:  'Appuie sur <b>⋮</b> en haut à droite dans Chrome',
+      brave:   'Appuie sur <b>⋮</b> en haut à droite dans Brave',
+      samsung: 'Appuie sur <b>☰</b> en bas à droite dans Samsung Internet',
+      opera:   'Appuie sur <b>l'icône Opera</b> en bas au centre',
+      firefox: 'Appuie sur <b>⋮</b> puis "Installer"',
+    };
+
+    step1.innerHTML = instructions[browser] || instructions.chrome;
+    stepsEl.style.display = 'block';
+    btn.style.display = 'none';
+  }
+
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     installPromptEvent = e;
-    // Si le prompt natif est dispo, on peut l'utiliser directement
-    document.getElementById('pwaInstallBtn').textContent = '⚡ Installer automatiquement';
   });
 
   // Bouton topbar ouvre la modale
@@ -529,15 +572,18 @@ function buildLeg(){
     document.getElementById('pwaModal').classList.add('open');
   });
 
-  // Bouton "Installer automatiquement" = prompt natif si dispo
+  // Bouton installer
   document.getElementById('pwaInstallBtn').addEventListener('click', async () => {
     if (installPromptEvent) {
+      // Prompt natif disponible
       installPromptEvent.prompt();
       await installPromptEvent.userChoice;
       installPromptEvent = null;
       document.getElementById('pwaModal').classList.remove('open');
+    } else {
+      // Pas de prompt natif → instructions manuelles
+      showManualSteps();
     }
-    // Sinon rien — l'utilisateur suit les étapes manuelles
   });
 
   // Fermer
