@@ -1,4 +1,4 @@
-const CACHE = 'f1manager-v17';
+const CACHE = 'f1manager-v18';
 
 const ASSETS = [
   '/F1-manager-3.5/',
