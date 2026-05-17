@@ -1,71 +1,90 @@
-const CACHE = 'f1manager-v13';
+const CACHE = 'f1manager-v14';
+
 const ASSETS = [
-  '/F1-Manager-/',
-  '/F1-Manager-/index.html',
-  '/F1-Manager-/race.html',
-  '/F1-Manager-/weekend.html',
-  '/F1-Manager-/fp-briefing.html',
-  '/F1-Manager-/quali-briefing.html',
-  '/F1-Manager-/race-briefing.html',
-  '/F1-Manager-/immersion.html',
-  '/F1-Manager-/podium.html',
-  '/F1-Manager-/gp-journal.html',
-  '/F1-Manager-/news.html',
-  '/F1-Manager-/standings.html',
-  '/F1-Manager-/drivers.html',
-  '/F1-Manager-/profile.html',
-  '/F1-Manager-/board.html',
-  '/F1-Manager-/rd.html',
-  '/F1-Manager-/sponsors.html',
-  '/F1-Manager-/staff.html',
-  '/F1-Manager-/contracts.html',
-  '/F1-Manager-/season-review.html',
-  '/F1-Manager-/js/data.js',
-  '/F1-Manager-/js/save.js',
-  '/F1-Manager-/js/engine.js',
-  '/F1-Manager-/js/race.js',
-  '/F1-Manager-/js/career.js',
-  '/F1-Manager-/js/events.js',
-  '/F1-Manager-/js/weekend.js',
-  '/F1-Manager-/js/immersion.js',
-  '/F1-Manager-/js/theme.js',
-  '/F1-Manager-/js/weather.js',
-  '/F1-Manager-/js/sponsors.js',
-  '/F1-Manager-/js/profiles.js',
-  '/F1-Manager-/css/immersive-theme.css',
-  '/F1-Manager-/img/f1.png',
-  '/F1-Manager-/img/teams/mclaren.png',
-  '/F1-Manager-/img/teams/ferrari.png',
-  '/F1-Manager-/img/teams/redbull.png',
-  '/F1-Manager-/img/teams/mercedes.png',
-  '/F1-Manager-/img/teams/aston.png',
-  '/F1-Manager-/img/teams/alpine.png',
-  '/F1-Manager-/img/teams/williams.png',
-  '/F1-Manager-/img/teams/haas.png',
-  '/F1-Manager-/img/teams/sauber.png',
-  '/F1-Manager-/img/teams/racingbulls.png',
-  '/F1-Manager-/img/teams/cadillac.png',
+  '/F1-manager-3.5/',
+  '/F1-manager-3.5/index.html',
+  '/F1-manager-3.5/race.html',
+  '/F1-manager-3.5/weekend.html',
+  '/F1-manager-3.5/fp-briefing.html',
+  '/F1-manager-3.5/quali-briefing.html',
+  '/F1-manager-3.5/race-briefing.html',
+  '/F1-manager-3.5/immersion.html',
+  '/F1-manager-3.5/podium.html',
+  '/F1-manager-3.5/gp-journal.html',
+  '/F1-manager-3.5/news.html',
+  '/F1-manager-3.5/standings.html',
+  '/F1-manager-3.5/drivers.html',
+  '/F1-manager-3.5/profile.html',
+  '/F1-manager-3.5/board.html',
+  '/F1-manager-3.5/rd.html',
+  '/F1-manager-3.5/sponsors.html',
+  '/F1-manager-3.5/staff.html',
+  '/F1-manager-3.5/contracts.html',
+  '/F1-manager-3.5/season-review.html',
+
+  '/F1-manager-3.5/js/data.js',
+  '/F1-manager-3.5/js/save.js',
+  '/F1-manager-3.5/js/engine.js',
+  '/F1-manager-3.5/js/race.js',
+  '/F1-manager-3.5/js/career.js',
+  '/F1-manager-3.5/js/events.js',
+  '/F1-manager-3.5/js/weekend.js',
+  '/F1-manager-3.5/js/immersion.js',
+  '/F1-manager-3.5/js/theme.js',
+  '/F1-manager-3.5/js/weather.js',
+  '/F1-manager-3.5/js/sponsors.js',
+  '/F1-manager-3.5/js/profiles.js',
+
+  '/F1-manager-3.5/css/immersive-theme.css',
+
+  '/F1-manager-3.5/img/f1.png',
+  '/F1-manager-3.5/img/teams/mclaren.png',
+  '/F1-manager-3.5/img/teams/ferrari.png',
+  '/F1-manager-3.5/img/teams/redbull.png',
+  '/F1-manager-3.5/img/teams/mercedes.png',
+  '/F1-manager-3.5/img/teams/aston.png',
+  '/F1-manager-3.5/img/teams/alpine.png',
+  '/F1-manager-3.5/img/teams/williams.png',
+  '/F1-manager-3.5/img/teams/haas.png',
+  '/F1-manager-3.5/img/teams/sauber.png',
+  '/F1-manager-3.5/img/teams/racingbulls.png',
+  '/F1-manager-3.5/img/teams/cadillac.png',
+
+  '/F1-manager-3.5/manifest.json',
+  '/F1-manager-3.5/icon-192.png',
+  '/F1-manager-3.5/icon-512.png'
 ];
 
-// Installation — mise en cache de tous les assets
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting())
+// Installation
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE)
+      .then(cache =>
+        Promise.allSettled(
+          ASSETS.map(asset => cache.add(asset))
+        )
+      )
+      .then(() => self.skipWaiting())
   );
 });
 
-// Activation — suppression des anciens caches
-self.addEventListener('activate', e => {
-  e.waitUntil(
+// Activation
+self.addEventListener('activate', event => {
+  event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+      Promise.all(
+        keys
+          .filter(key => key !== CACHE)
+          .map(key => caches.delete(key))
+      )
     ).then(() => self.clients.claim())
   );
 });
 
-// Fetch — cache first, fallback réseau
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+// Fetch
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(cached => cached || fetch(event.request))
   );
-});
+}); 
