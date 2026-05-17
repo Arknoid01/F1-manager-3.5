@@ -4,7 +4,7 @@
   "description": "Gérez votre écurie de Formule 1",
   "start_url": "/F1-manager-3.5/index.html",
   "scope": "/F1-manager-3.5/",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "any",
   "background_color": "#07070d",
   "theme_color": "#07070d",
