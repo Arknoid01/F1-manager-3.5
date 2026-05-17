@@ -1,4 +1,4 @@
-const CACHE = 'f1manager-v20';
+const CACHE = 'f1manager-v21';
 
 // Seulement les fichiers essentiels qui existent avec certitude
 const ASSETS = [
