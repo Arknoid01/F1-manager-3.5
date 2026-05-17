@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>F1 Manager — Championnat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>/* TEAM SELECT */
+.select-screen{padding:20px 4px}
+.select-title{font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:4px}
+.select-sub{font-family:var(--fh);font-size:13px;color:var(--muted);margin-bottom:20px}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px}
+.team-card{background:var(--surface);border:2px solid var(--border);border-radius:8px;padding:12px 10px;cursor:pointer;transition:all .15s;text-align:center}
+.team-card:active{transform:scale(.97)}
+.team-card.selected{border-color:var(--gold);background:var(--surface2)}
+.tc-name{font-family:var(--fh);font-weight:900;font-size:15px;margin-bottom:3px}
+.tc-perf{font-family:var(--fh);font-size:11px;color:var(--muted)}
+.tc-budget{font-family:var(--fh);font-size:12px;color:var(--gold);margin-top:3px}
+.btn-confirm{font-family:var(--fh);font-weight:900;font-size:15px;letter-spacing:2px;text-transform:uppercase;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:12px 32px;cursor:pointer;display:none;width:100%;transition:background .15s}
+
+/* RACE HERO */
+.race-hero{background:linear-gradient(135deg,#12000e,#07070d);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;transition:background .15s}
+.race-hero:active{background:var(--surface)}
+.rh-flag{font-size:36px;line-height:1}
+.rh-info{flex:1}
+.rh-label{font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.rh-name{font-family:var(--fh);font-weight:900;font-size:20px;letter-spacing:1px}
+.rh-detail{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:3px}
+.rh-cta{font-family:var(--fh);font-weight:900;font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--accent);color:#fff;padding:8px 14px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+
+/* SECTION LABEL */
+
+/* PILOTES */
+.driver-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background .1s}
+.driver-row:last-child{border-bottom:0}
+.driver-row:active{background:var(--surface2)}
+.dr-num{font-family:var(--fh);font-weight:900;font-size:26px;min-width:40px;text-align:center}
+.dr-info{flex:1}
+.dr-name{font-family:var(--fh);font-weight:700;font-size:16px}
+.dr-trait{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:2px}
+.dr-pace{font-family:var(--fh);font-weight:900;font-size:24px}
+
+/* TUILES */
+
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px;text-decoration:none;color:inherit;display:block;transition:background .1s}
+.tile:active{background:var(--surface2)}
+.tile-icon{font-size:20px;margin-bottom:6px;display:block}
+.tile-lbl{font-family:var(--fh);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tile-val{font-family:var(--fh);font-weight:900;font-size:20px;line-height:1;margin-bottom:3px}
+.tile-sub{font-family:var(--fh);font-size:11px;color:var(--muted);line-height:1.4}
+
+/* STAT BAR */
+
+/* CLASSEMENT */
+.st-row{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);font-family:var(--fh);font-size:13px}
+.st-row:last-child{border-bottom:0}
+.st-pos{font-weight:900;font-size:15px;width:22px}
+.st-bar{width:3px;height:18px;border-radius:2px;flex-shrink:0}
+.st-name{flex:1}
+.st-pts{color:var(--gold);font-weight:700}
+
+/* NEWS */
+.news-row{padding:11px 14px;border-bottom:1px solid var(--border)}
+.news-row:last-child{border-bottom:0}
+.news-title{font-family:var(--fh);font-weight:700;font-size:14px;margin-bottom:3px}
+.news-text{font-family:var(--fb);font-size:12px;color:var(--muted);line-height:1.5}
+
+/* BANNER SAISON */
+.season-banner{background:linear-gradient(135deg,#1a1a00,#0a1400);border:1px solid var(--gold);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px}
+
+/* PANEL */
+
+/* BTN */
+
+.btn-gold{background:#161200;color:var(--gold);border:1px solid #3a3400}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 18px;font-family:var(--fh);font-size:13px;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{border-left-color:var(--accent)}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+    .nav-link{font-family:var(--font-h);font-size:13px;font-weight:700;color:var(--muted);text-decoration:none;letter-spacing:1px;text-transform:uppercase;padding:4px 8px;border-radius:3px}.nav-link:hover,.nav-link.active{color:var(--accent)}.topbar-right{margin-left:auto}.season-badge{font-family:var(--font-h);font-weight:700;font-size:14px;color:var(--gold);background:#1a1a00;border:1px solid #3a3a00;padding:4px 12px;border-radius:4px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+    .ph{background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 14px;font-family:var(--font-h);font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}.dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:14px}@media(max-width:760px){.summary{grid-template-columns:1fr 1fr}}.card{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:12px}.card .label{font-family:var(--font-h);font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}.card .value{font-family:var(--font-h);font-weight:900;font-size:25px;color:var(--gold);margin-top:3px}.table{display:flex;flex-direction:column}.row{display:grid;grid-template-columns:44px 1fr 70px;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--border)}.row.header{font-family:var(--font-h);font-size:11px;color:var(--muted);text-transform:uppercase;background:#0e0e16}.pos{font-family:var(--font-h);font-size:18px;font-weight:900;color:var(--gold)}.name{font-family:var(--font-h);font-size:16px;font-weight:700}.team{font-size:10px;color:var(--muted);margin-top:2px}.pts{font-family:var(--font-h);font-size:18px;font-weight:900;text-align:right}.history{padding:12px;display:flex;flex-direction:column;gap:8px}.race{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:10px;display:flex;justify-content:space-between;gap:12px}.race-title{font-family:var(--font-h);font-weight:700;font-size:15px}.race-sub{font-size:11px;color:var(--muted);margin-top:3px}
+  .entity-link{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}.entity-link:hover{color:var(--gold,#ffd700)}
+
+/* Topbar unifiée (style mobile staff) */
+
+.back-home:hover{color:var(--text)!important;border-color:var(--accent)!important}
+
+
+</style>
+<link rel="stylesheet" href="css/immersive-theme.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></div>
+  <a href="index.html" class="back-home">← Accueil</a>
+  <div class="top-pills">
+    <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-gold" id="budgetBadge">—</div>
+  </div>
+</div>
+<div class="page">
+  <div class="panel"><div class="ph"><div class="dot"></div>Résumé de carrière</div><div class="summary" id="summary"></div></div>
+  <div class="grid2">
+    <div class="panel"><div class="ph"><div class="dot"></div>Classement pilotes</div><div class="table" id="driversTable"></div></div>
+    <div class="panel"><div class="ph"><div class="dot"></div>Classement constructeurs</div><div class="table" id="teamsTable"></div></div>
+  </div>
+  <div class="panel"><div class="ph"><div class="dot"></div>Calendrier complet</div><div class="history" id="calendar"></div></div>
+  <div class="panel"><div class="ph"><div class="dot"></div>Historique des Grands Prix</div><div class="history" id="history"></div></div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/career.js"></script>
+<script src="js/profiles.js"></script>
+<script src="js/events.js"></script>
+<script>
+function pts(map, id){ return (map && map[id]) || 0; }
+function safeDriverName(d){ return (window.Profiles && Profiles.linkDriver) ? Profiles.linkDriver(d) : (d?.name || '—'); }
+function safeTeamName(t){ return (window.Profiles && Profiles.linkTeam) ? Profiles.linkTeam(t) : (t?.shortName || t?.name || '—'); }
+
+function restoreDriverStates() {
+  const save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+  if (!save || !window.F1Data || !Array.isArray(F1Data.drivers)) return;
+  if (window.Profiles && typeof Profiles.restoreDrivers === 'function') {
+    try { Profiles.restoreDrivers(save); } catch(e) { console.warn('Profiles.restoreDrivers error', e); }
+  }
+  if (save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const state = save.driverStates[d.id];
+      if (!state) return;
+      // Appliquer stats
+      ['pace','consistency','wetSkill','overtaking','defending','potential','age','salary'].forEach(k => {
+        if (state[k] !== undefined) d[k] = state[k];
+      });
+      // teamId et retired avec hasOwnProperty
+      if (Object.prototype.hasOwnProperty.call(state, 'teamId')) d.teamId = state.teamId;
+      if (Object.prototype.hasOwnProperty.call(state, 'retired')) d.retired = state.retired;
+    });
+  }
+  if (save.generatedDrivers?.length) {
+    save.generatedDrivers.forEach(gd => {
+      const existing = F1Data.drivers.find(d => String(d.id) === String(gd.id));
+      if (!existing) F1Data.drivers.push(gd);
+      else if (save.driverStates?.[gd.id]) Object.assign(existing, save.driverStates[gd.id]);
+    });
+  }
+}
+
+function render() {
+  try {
+  const save = Save.load();
+  restoreDriverStates();
+  if (!save || !save.playerTeamId) {
+    document.getElementById('summary').innerHTML = '<div class="empty">Aucune carrière trouvée. Choisis d’abord une équipe.</div>';
+    document.getElementById('driversTable').innerHTML = '';
+    document.getElementById('teamsTable').innerHTML = '';
+    document.getElementById('history').innerHTML = '<a class="btn" href="index.html">Créer une carrière</a>';
+    return;
+  }
+  const playerTeam = F1Data.teams.find(t => t.id === save.playerTeamId);
+  const racesDone = (save.raceResults || []).length;
+  const nextCircuit = F1Data.circuits[(save.race || 0) % F1Data.circuits.length];
+  document.getElementById('seasonBadge').textContent = `Saison ${save.season || 2025}`;
+  document.getElementById('summary').innerHTML = `
+    <div class="card"><div class="label">Équipe</div><div class="value" style="color:${playerTeam.color}">${playerTeam.shortName}</div></div>
+    <div class="card"><div class="label">Budget</div><div class="value">${save.budget || 0}M €</div></div>
+    <div class="card"><div class="label">Tokens</div><div class="value">${save.tokens || 0}</div></div>
+    <div class="card"><div class="label">Prochain GP</div><div class="value">${nextCircuit.name}</div></div>`;
+
+  const driverRows = F1Data.drivers.filter(d => {
+    if (d.teamId === 'free_agent') return false; // agents libres exclus du classement
+    if (d.retired && pts(save.driverStandings, d.id) === 0) return false; // retraités sans points
+    return true;
+  }).sort((a,b)=>pts(save.driverStandings,b.id)-pts(save.driverStandings,a.id));
+  document.getElementById('driversTable').innerHTML = '<div class="row header"><div>Pos</div><div>Pilote</div><div style="text-align:right">Pts</div></div>' + driverRows.map((d,i)=>{
+    const t=F1Data.teams.find(x=>x.id===d.teamId);
+    return `<div class="row"><div class="pos">${i+1}</div><div><div class="name" style="color:${t?.color || '#fff'}">${safeDriverName(d)}</div><div class="team">${t?safeTeamName(t):'Agent libre'}</div></div><div class="pts">${pts(save.driverStandings,d.id)}</div></div>`;
+  }).join('');
+
+  const teamRows = [...F1Data.teams].sort((a,b)=>pts(save.teamStandings,b.id)-pts(save.teamStandings,a.id));
+  document.getElementById('teamsTable').innerHTML = '<div class="row header"><div>Pos</div><div>Équipe</div><div style="text-align:right">Pts</div></div>' + teamRows.map((t,i)=>
+    `<div class="row"><div class="pos">${i+1}</div><div style="display:flex;align-items:center;gap:8px">${t.logo?`<img src="${t.logo}" style="width:32px;height:16px;object-fit:contain;flex-shrink:0" alt="" onerror="this.style.display='none'">`:''}<div><div class="name" style="color:${t?.color || '#fff'}">${safeTeamName(t)}</div><div class="team">${t.shortName}</div></div></div><div class="pts">${pts(save.teamStandings,t.id)}</div></div>`
+  ).join('');
+
+  const currentRaceIndex = Number(save.race) || 0;
+  document.getElementById('calendar').innerHTML = F1Data.circuits.map((c,i) => {
+    const status = i < currentRaceIndex ? '✅ Disputé' : i === currentRaceIndex ? '➡️ Prochain' : '—';
+    return `<div class="race"><div><div class="race-title">${i+1}. GP de ${c.name}</div><div class="race-sub">${c.fullName} · ${c.laps} tours · ${c.lapDistance} km/tour</div></div><div class="pts" style="font-size:14px">${status}</div></div>`;
+  }).join('');
+
+  const hist = [...(save.raceResults || [])].reverse();
+  document.getElementById('history').innerHTML = hist.length ? hist.map(r => {
+    const winner = r.results && r.results[0];
+    const d = winner ? F1Data.drivers.find(x=>x.id===winner.driverId) : null;
+    return `<div class="race"><div><div class="race-title">GP de ${r.circuitName}</div><div class="race-sub">Vainqueur : ${d ? safeDriverName(d) : '—'} · Gains : +${r.reward || 0}M € · +${r.tokens || 0} token(s)</div></div><div class="pts">#${(r.raceIndex || 0)+1}</div></div>`;
+  }).join('') : '<div class="empty">Aucune course disputée pour l’instant.</div>';
+  } catch (err) {
+    console.error('standings render error:', err);
+    document.body.innerHTML = `<div style="min-height:100vh;background:#07070d;color:#fff;padding:18px;font-family:Barlow Condensed,Arial"><h1>Championnat</h1><p style="color:#ff365f">Erreur de chargement : ${err.message}</p><a href="index.html" style="color:#0097ff">← Retour accueil</a></div>`;
+  }
+}
+
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', render); else render();
+
+</script>
+
+<script>
+(function(){
+  function syncUnifiedTopbar(){
+    try{
+      const save = ((window.Save && Save.load) ? Save.load() : null) || JSON.parse(localStorage.getItem('f1manager_v1') || localStorage.getItem('f1manager_save') || localStorage.getItem('f1-manager-save') || '{}') || {};
+      const season = document.getElementById('seasonBadge');
+      const budget = document.getElementById('budgetBadge');
+      if(season && (!season.textContent || season.textContent.trim()==='—')) season.textContent = `Saison ${save.season || 2025}`;
+      if(budget && (!budget.textContent || budget.textContent.trim()==='—')) budget.textContent = `💰 ${Math.round((save.budget || 0)*10)/10}M €`;
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncUnifiedTopbar); else syncUnifiedTopbar();
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260508f">
+<title>Fin de Saison — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px 60px}
+
+/* Hero saison */
+.hero{background:linear-gradient(135deg,#0d0000 0%,#07070d 40%,#000d00 100%);border:1px solid rgba(245,200,66,.2);border-radius:12px;padding:20px 16px;margin:14px 0;position:relative;overflow:hidden;text-align:center}
+.hero::before{content:'FIN DE SAISON';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:var(--fh);font-size:70px;font-weight:900;color:rgba(245,200,66,.04);letter-spacing:6px;white-space:nowrap;pointer-events:none}
+.hero-season{font-family:var(--fh);font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.hero-title{font-family:var(--fh);font-weight:900;font-size:32px;line-height:1;margin-bottom:6px}
+.hero-sub{font-family:var(--fb);font-size:13px;color:var(--muted)}
+.hero-pos{font-family:var(--fh);font-weight:900;font-size:64px;color:var(--gold);line-height:1;margin:12px 0 4px}
+.hero-pos-label{font-family:var(--fh);font-size:12px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+
+/* Sections */
+.section{margin:14px 0}
+.section-title{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Stats grille */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.stat-card .sc-val{font-family:var(--fh);font-weight:900;font-size:26px;color:var(--text)}
+.stat-card .sc-lbl{font-family:var(--fh);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.stat-card.gold .sc-val{color:var(--gold)}
+.stat-card.green .sc-val{color:var(--green)}
+.stat-card.red .sc-val{color:var(--accent)}
+
+/* Classement */
+.standings-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.standings-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.standings-row:last-child{border:none}
+.standings-row.me{background:rgba(232,0,61,.06);border-left:3px solid var(--accent)}
+.standings-row.champion{background:rgba(245,200,66,.06);border-left:3px solid var(--gold)}
+.sr-pos{font-family:var(--fh);font-weight:900;font-size:18px;width:32px;text-align:center;color:var(--muted)}
+.sr-pos.p1{color:var(--gold)}
+.sr-pos.p2{color:#ccc}
+.sr-pos.p3{color:#cd7f32}
+.sr-name{font-family:var(--fh);font-weight:700;font-size:14px;flex:1}
+.sr-pts{font-family:var(--fh);font-weight:900;font-size:14px;color:var(--gold)}
+
+/* Timeline événements */
+.timeline-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.tl-item{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.tl-item:last-child{border:none}
+.tl-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.tl-content .tc-title{font-family:var(--fh);font-weight:700;font-size:13px}
+.tl-content .tc-text{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+
+/* Citation narrative */
+.narrative{background:linear-gradient(135deg,rgba(245,200,66,.05),transparent);border:1px solid rgba(245,200,66,.15);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px;font-size:14px;color:#ddd;line-height:1.7;font-style:italic;margin:10px 0}
+.narrative strong{color:var(--gold);font-style:normal;font-family:var(--fh)}
+
+/* Budget */
+.budget-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.bc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--fh);font-size:13px}
+.bc-row:last-child{border:none;font-size:15px;font-weight:900}
+.bc-row span{color:var(--muted);font-size:11px}
+.bc-pos{color:var(--green)}
+.bc-neg{color:var(--accent)}
+.bc-total{color:var(--gold)}
+
+/* Voiture progression */
+.car-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.car-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.car-stat .cs-lbl{font-family:var(--fh);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.car-stat .cs-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.car-stat .cs-fill{height:100%;border-radius:3px}
+.car-stat .cs-val{font-family:var(--fh);font-size:13px;font-weight:700;display:flex;justify-content:space-between}
+
+/* Pilotes */
+.driver-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.dr-flag{font-size:20px}
+.dr-info{flex:1}
+.dr-name{font-family:var(--fh);font-weight:900;font-size:14px}
+.dr-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.dr-badge{font-family:var(--fh);font-size:10px;padding:3px 8px;border-radius:4px}
+.badge-ok{background:rgba(0,217,126,.1);color:var(--green);border:1px solid rgba(0,217,126,.2)}
+.badge-warn{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.2)}
+.badge-bad{background:rgba(232,0,61,.1);color:var(--accent);border:1px solid rgba(232,0,61,.2)}
+
+/* CTA */
+.cta-block{margin-top:24px;text-align:center}
+.btn-next{display:block;background:var(--gold);color:#000;font-family:var(--fh);font-weight:900;font-size:18px;letter-spacing:3px;text-transform:uppercase;padding:18px;border-radius:10px;border:none;cursor:pointer;width:100%;position:relative;overflow:hidden}
+.btn-next::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:shine 2s infinite}
+@keyframes shine{to{left:100%}}
+.btn-next:disabled{opacity:.5;animation:none;cursor:not-allowed}
+.btn-next:disabled::before{display:none}
+
+/* Loader */
+.loading{text-align:center;padding:40px;color:var(--muted);font-family:var(--fh);font-size:14px}
+</style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
+  <div class="top-pills" id="topPills"></div>
+</div>
+
+<div class="wrap">
+  <div id="content"><div class="loading">⏳ Calcul du bilan saison...</div></div>
+</div>
+
+<script src="js/data.js">
+function resetSponsorObjectivesForNewSeason(career){
+  if(!career || !Array.isArray(career.sponsors)) return career;
+
+  career.sponsors.forEach(sponsor=>{
+    sponsor.progress = 0;
+    sponsor.paid = false;
+    sponsor.satisfied = false;
+
+    if(Array.isArray(sponsor.clauses)){
+      sponsor.clauses.forEach(clause=>{
+        clause.progress = 0;
+        clause.bonusPaid = false;
+        clause.paid = false;
+        clause.completed = false;
+        clause.satisfied = false;
+
+        if(clause.bonusObjective && typeof clause.bonusObjective === "object"){
+          clause.bonusObjective.progress = 0;
+          clause.bonusObjective.paid = false;
+          clause.bonusObjective.bonusPaid = false;
+          clause.bonusObjective.completed = false;
+          clause.bonusObjective.satisfied = false;
+          if("unlocked" in clause.bonusObjective){
+            clause.bonusObjective.unlocked = false;
+          }
+        }
+      });
+    }
+  });
+
+  return career;
+}
+
+</script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/events.js"></script>
+<script src="js/career.js"></script>
+<script src="js/immersion.js"></script>
+
+<script>
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function esc(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+// Narratives selon la position finale
+const NARRATIVES = {
+  1: [
+    "Une saison historique. Chaque week-end, chaque décision, chaque arrêt au stand a contribué à ce titre. L'équipe entre dans la légende.",
+    "Champion du monde constructeurs. Ces trois mots résument une année de travail acharné, de stratégies parfaites et de pilotage exceptionnel.",
+    "La saison parfaite n'existe pas — mais celle-ci s'en est approchée. Titre mérité, acquis sur la durée.",
+  ],
+  2: [
+    "Vice-champion. La saison a été exceptionnelle mais une poignée de points ont tout changé. La faim est là pour l'an prochain.",
+    "Deuxième au championnat. La frustration est réelle mais le progrès est indéniable. L'équipe a tout donné cette saison.",
+    "P2 constructeurs. Le titre s'est joué dans les détails — ces quelques points perdus ici et là auraient tout changé.",
+  ],
+  3: [
+    "Troisième au championnat constructeurs. Un podium de saison solide qui confirme la progression de l'équipe.",
+    "P3 constructeurs. La saison a montré le potentiel réel de cette équipe. Le podium final récompense une régularité remarquable.",
+  ],
+  top5: [
+    "Dans le top 5 constructeurs. La trajectoire est bonne — l'équipe grandit GP après GP.",
+    "Saison solide dans le milieu de peloton. Les fondations sont posées pour viser plus haut la saison prochaine.",
+  ],
+  bad: [
+    "Une saison difficile. Les résultats n'ont pas suivi les ambitions, mais les leçons tirées valent de l'or pour la suite.",
+    "Saison compliquée mais instructive. Chaque difficulté traversée renforce l'équipe pour l'avenir.",
+  ],
+};
+
+function getNarrative(pos) {
+  if (pos === 1) return pick(NARRATIVES[1]);
+  if (pos === 2) return pick(NARRATIVES[2]);
+  if (pos === 3) return pick(NARRATIVES[3]);
+  if (pos <= 5)  return pick(NARRATIVES.top5);
+  return pick(NARRATIVES.bad);
+}
+
+function posClass(p){ return p===1?'p1':p===2?'p2':p===3?'p3':''; }
+function posColor(p){ return p===1?'var(--gold)':p===2?'#ccc':p===3?'#cd7f32':'var(--muted)'; }
+
+let save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+let report = null;
+
+function computeSeasonStats(save) {
+  const results   = save.raceResults || [];
+  const teamId    = save.playerTeamId;
+  let wins=0, podiums=0, points=0, dnfs=0, fastestLaps=0, racesWithPts=0;
+  results.forEach(r => {
+    const playerRes = (r.results||[]).filter(x=>x.teamId===teamId);
+    const teamPts   = playerRes.reduce((s,x)=>s+(x.points||0),0);
+    if(teamPts>0) racesWithPts++;
+    points += teamPts;
+    playerRes.forEach(x=>{
+      if(x.position===1) wins++;
+      if(x.position<=3)  podiums++;
+      if(x.status==='dnf') dnfs++;
+    });
+    // Meilleur tour
+    const allRes  = r.results||[];
+    const bestLap = allRes.filter(x=>Number.isFinite(x.bestLap)).sort((a,b)=>a.bestLap-b.bestLap)[0];
+    if(bestLap && bestLap.teamId===teamId) fastestLaps++;
+  });
+  return { wins, podiums, points, dnfs, fastestLaps, racesWithPts, races:results.length };
+}
+
+function render() {
+  if(!save||!save.playerTeamId){
+    document.getElementById('content').innerHTML='<div class="loading">Aucune carrière trouvée. <a href="index.html" style="color:var(--accent)">Retour</a></div>';
+    return;
+  }
+
+  const season    = save.season || 2025;
+  const myTeam    = F1Data.teams.find(t=>t.id===save.playerTeamId);
+  const myDrivers = F1Data.drivers.filter(d=>d.teamId===save.playerTeamId&&!d.retired);
+  const stats     = computeSeasonStats(save);
+
+  // Classement constructeurs final
+  const constructors = F1Data.teams
+    .map(t=>({id:t.id,name:t.shortName||t.name,pts:save.teamStandings?.[t.id]||0}))
+    .sort((a,b)=>b.pts-a.pts);
+  const myPos = constructors.findIndex(t=>t.id===save.playerTeamId)+1;
+  const myPts = save.teamStandings?.[save.playerTeamId]||0;
+
+  // Classement pilotes final
+  const driverStandings = F1Data.drivers
+    .filter(d=>!d.retired)
+    .map(d=>({...d, pts:save.driverStandings?.[d.id]||0}))
+    .sort((a,b)=>b.pts-a.pts)
+    .slice(0,8);
+  const champion = driverStandings[0];
+
+  // Budget & prize
+  const prize = Math.max(20, 120-(myPos-1)*10);
+  const team  = F1Data.teams.find(t=>t.id===save.playerTeamId);
+  const incomeBonus = team ? Math.round(team.performance*0.8) : 0;
+
+  // Voiture — delta R&D
+  const carStats = ['aero','chassis','engine','reliability'].map(stat=>({
+    stat,
+    label:{aero:'Aérodynamique',chassis:'Châssis',engine:'Moteur',reliability:'Fiabilité'}[stat],
+    base:  myTeam?.[stat]||70,
+    level: save.carDev?.[stat]?.level || myTeam?.[stat] || 70,
+  }));
+
+  // Contrats pilotes
+  const pilotCards = myDrivers.map(d=>{
+    const contract = save.contracts?.[d.id];
+    const years    = contract?.years ?? 1;
+    const pts      = save.driverStandings?.[d.id]||0;
+    const rank     = driverStandings.findIndex(x=>x.id===d.id)+1;
+    return {d, years, pts, rank};
+  });
+
+  // Topbar
+  document.getElementById('topPills').innerHTML = `
+    <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">Saison ${season}</span>
+    <span style="font-family:var(--fh);font-size:11px;padding:3px 8px;background:rgba(245,200,66,.1);border:1px solid rgba(245,200,66,.2);border-radius:4px;color:var(--gold)">FIN DE SAISON</span>`;
+
+  document.getElementById('content').innerHTML = `
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-season">Saison ${season} — Bilan final</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:6px">
+        <div style="width:70px;height:35px">${myTeam?.logo ? '<img src=\"'+myTeam.logo+'\" style=\"width:100%;height:100%;object-fit:contain\" alt=\"\">' : ''}</div>
+        <div class="hero-title" style="margin:0">${esc(myTeam?.name||'Votre équipe')}</div>
+      </div>
+      <div class="hero-pos" style="color:${posColor(myPos)}">${myPos}</div>
+      <div class="hero-pos-label">Position championnat constructeurs</div>
+      <div class="hero-sub" style="margin-top:8px">${myPts} points · ${stats.races} Grand${stats.races>1?'s':''} Prix disputé${stats.races>1?'s':''}</div>
+    </div>
+
+    <!-- NARRATIVE -->
+    <div class="narrative">${getNarrative(myPos)}</div>
+
+    <!-- STATS SAISON -->
+    <div class="section">
+      <div class="section-title">📊 Statistiques de la saison</div>
+      <div class="stats-grid">
+        <div class="stat-card gold"><div class="sc-val">${stats.wins}</div><div class="sc-lbl">Victoire${stats.wins!==1?'s':''}</div></div>
+        <div class="stat-card"><div class="sc-val">${stats.podiums}</div><div class="sc-lbl">Podium${stats.podiums!==1?'s':''}</div></div>
+        <div class="stat-card green"><div class="sc-val">${stats.points}</div><div class="sc-lbl">Points</div></div>
+        <div class="stat-card"><div class="sc-val">${stats.racesWithPts}/${stats.races}</div><div class="sc-lbl">Courses dans les points</div></div>
+        <div class="stat-card"><div class="sc-val">${stats.fastestLaps}</div><div class="sc-lbl">Meilleur${stats.fastestLaps!==1?'s':''} tour${stats.fastestLaps!==1?'s':''}</div></div>
+        <div class="stat-card red"><div class="sc-val">${stats.dnfs}</div><div class="sc-lbl">Abandon${stats.dnfs!==1?'s':''}</div></div>
+      </div>
+    </div>
+
+    <!-- CHAMPION PILOTE -->
+    <div class="section">
+      <div class="section-title">🏆 Champion du monde pilotes</div>
+      <div class="standings-row champion" style="border-radius:10px;background:rgba(245,200,66,.08);border:1px solid rgba(245,200,66,.2)">
+        <div class="sr-pos p1">1</div>
+        <div class="sr-name">${esc(champion?.firstName||'')} ${esc(champion?.name||'—')}</div>
+        <div class="sr-pts">${champion?.pts||0} pts</div>
+      </div>
+    </div>
+
+    <!-- CLASSEMENT CONSTRUCTEURS -->
+    <div class="section">
+      <div class="section-title">🏗️ Championnat constructeurs final</div>
+      <div class="standings-card">
+        ${constructors.slice(0,10).map((t,i)=>`
+          <div class="standings-row ${t.id===save.playerTeamId?'me':i===0?'champion':''}">
+            <div class="sr-pos ${posClass(i+1)}">${i+1}</div>
+            <div class="sr-name">${esc(t.name)}</div>
+            <div class="sr-pts">${t.pts}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- CLASSEMENT PILOTES -->
+    <div class="section">
+      <div class="section-title">🏎️ Championnat pilotes final (Top 8)</div>
+      <div class="standings-card">
+        ${driverStandings.map((d,i)=>`
+          <div class="standings-row ${d.teamId===save.playerTeamId?'me':i===0?'champion':''}">
+            <div class="sr-pos ${posClass(i+1)}">${i+1}</div>
+            <div class="sr-name">${esc(d.firstName||'')} ${esc(d.name||'')}</div>
+            <div class="sr-pts">${d.pts}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+
+    <!-- VOS PILOTES -->
+    <div class="section">
+      <div class="section-title">🏎️ Vos pilotes — bilan</div>
+      ${pilotCards.map(({d,years,pts,rank})=>`
+        <div class="driver-row">
+          <div class="dr-flag">${d.flag||'🏁'}</div>
+          <div class="dr-info">
+            <div class="dr-name">${esc(d.firstName)} ${esc(d.name)}</div>
+            <div class="dr-sub">P${rank} pilotes · ${pts} pts · Contrat : ${years} an${years!==1?'s':''} restant${years!==1?'s':''}</div>
+          </div>
+          <div class="dr-badge ${years<=0?'badge-bad':years===1?'badge-warn':'badge-ok'}">${years<=0?'⚠️ Libre':'✅ Sous contrat'}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- PROGRESSION VOITURE -->
+    <div class="section">
+      <div class="section-title">🔧 Progression voiture cette saison</div>
+      <div class="car-grid">
+        ${carStats.map(c=>{
+          const delta = c.level - c.base;
+          const col   = delta>0?'var(--green)':delta<0?'var(--accent)':'var(--muted)';
+          return `<div class="car-stat">
+            <div class="cs-lbl">${c.label}</div>
+            <div class="cs-bar"><div class="cs-fill" style="width:${c.level}%;background:${col}"></div></div>
+            <div class="cs-val"><span>${c.level}</span><span style="color:${col}">${delta>=0?'+':''}${delta}</span></div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- BILAN FINANCIER -->
+    <div class="section">
+      <div class="section-title">💰 Bilan financier intersaison</div>
+      <div class="budget-card">
+        <div class="bc-row"><span>Budget actuel</span><b>${Math.round((save.budget||0)*10)/10}M€</b></div>
+        <div class="bc-row"><span>Prime classement P${myPos}</span><b class="bc-pos">+${prize}M€</b></div>
+        <div class="bc-row"><span>Revenus annuels équipe</span><b class="bc-pos">+${incomeBonus}M€</b></div>
+        <div class="bc-row"><span>Tokens R&D bonus</span><b class="bc-pos">+3 tokens</b></div>
+        <div class="bc-row"><span>Budget saison ${season+1}</span><b class="bc-total">${Math.round(((save.budget||0)+prize+incomeBonus)*10)/10}M€</b></div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-block">
+      <button class="btn-next" id="btnNextSeason" onclick="launchNextSeason()">
+        🏁 Démarrer la saison ${season+1} →
+      </button>
+    </div>
+  `;
+}
+
+function launchNextSeason() {
+  const btn = document.getElementById('btnNextSeason');
+  btn.disabled = true;
+  btn.textContent = '⏳ Calcul en cours...';
+
+  try {
+    save = Save.load();
+
+    // Anti double-clôture : si la saison a déjà été lancée, ne pas appliquer
+    // une deuxième intersaison. Cela évite de passer de 2026 à 2027 sans courir.
+    if (!save || (!save.seasonFinished && !save._seasonReadyForReview)) {
+      location.href = 'index.html';
+      return;
+    }
+
+    const report = Career.endOfSeason(save) || {};
+    save = Save.load() || save;
+
+    // Restaurer les états pilotes/équipes
+    if(typeof restoreDriverStates === 'function') restoreDriverStates(save);
+    if(typeof Career.restoreTeamStates === 'function') Career.restoreTeamStates(save);
+
+    // Banner nouvelle saison
+    const academyTxt = report.academy?.released
+      ? ` ${report.academy.released.firstName} ${report.academy.released.name} libéré de l'académie.`
+      : '';
+    save._newSeasonBanner = `Saison ${save.season} lancée ! ${report.retired?.length||0} retraite(s) · ${report.newTalents?.length||0} nouveau(x) talent(s).${academyTxt}`;
+    save._bannerDismissed = false;
+    Save.save(save);
+
+    location.href = 'index.html';
+  } catch(err) {
+    console.error('end season error:', err);
+    btn.disabled = false;
+    btn.textContent = '🏁 Démarrer la saison →';
+    alert('Erreur : ' + err.message);
+  }
+}
+
+render();
+</script>
+
+</body>
+</html>

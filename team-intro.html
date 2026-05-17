@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260508f">
+<title>Bienvenue — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px 60px}
+
+/* Hero équipe */
+.team-hero{border-radius:14px;padding:24px 20px;margin:14px 0;position:relative;overflow:hidden;text-align:center}
+.team-hero::before{content:'';position:absolute;inset:0;opacity:.08;background:var(--team-color)}
+.th-logo{width:90px;height:45px;object-fit:contain;margin:0 auto 12px;display:block;filter:drop-shadow(0 0 20px var(--team-color))}
+.th-name{font-family:var(--fh);font-weight:900;font-size:32px;letter-spacing:2px;margin-bottom:4px}
+.th-slogan{font-family:var(--fb);font-size:13px;color:var(--muted);font-style:italic;margin-bottom:16px}
+.th-badge{display:inline-block;font-family:var(--fh);font-size:11px;padding:4px 12px;border-radius:6px;border:1px solid;margin:0 4px}
+
+/* Sections */
+.section{margin:16px 0}
+.section-title{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Historique */
+.history-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.7;color:#ccc}
+.history-card strong{font-family:var(--fh);font-weight:700}
+
+/* Stats voiture */
+.car-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.car-stat{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px}
+.car-stat .cs-lbl{font-family:var(--fh);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:6px}
+.car-stat .cs-bar{height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.car-stat .cs-fill{height:100%;border-radius:3px}
+.car-stat .cs-val{font-family:var(--fh);font-size:14px;font-weight:700}
+
+/* Pilotes */
+.driver-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;margin-bottom:6px}
+.dr-flag{font-size:20px}
+.dr-info{flex:1}
+.dr-name{font-family:var(--fh);font-weight:900;font-size:14px}
+.dr-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.dr-ovr{font-family:var(--fh);font-weight:900;font-size:20px}
+
+/* Guide */
+.guide-steps{display:flex;flex-direction:column;gap:8px}
+.guide-step{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;display:flex;gap:12px;align-items:flex-start}
+.gs-num{font-family:var(--fh);font-weight:900;font-size:22px;color:var(--accent);flex-shrink:0;line-height:1}
+.gs-title{font-family:var(--fh);font-weight:700;font-size:13px;margin-bottom:3px}
+.gs-text{font-size:12px;color:var(--muted);line-height:1.5}
+
+/* Objectifs départ */
+.objectives{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.obj-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.04)}
+.obj-row:last-child{border:none}
+.obj-icon{font-size:18px;flex-shrink:0}
+.obj-text{flex:1;font-size:13px}
+.obj-diff{font-family:var(--fh);font-size:10px;padding:2px 7px;border-radius:4px}
+
+/* CTA */
+.btn-start{display:block;background:var(--accent);color:#fff;font-family:var(--fh);font-weight:900;font-size:18px;letter-spacing:3px;text-transform:uppercase;padding:18px;border-radius:10px;border:none;cursor:pointer;width:100%;margin-top:24px;position:relative;overflow:hidden}
+.btn-start::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent);animation:shine 2s infinite}
+@keyframes shine{to{left:100%}}
+
+/* Tabs guide */
+.tabs{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.tab{flex:1;padding:8px;font-family:var(--fh);font-size:11px;text-align:center;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s}
+.tab.active{background:var(--accent);color:#fff}
+
+.meeting-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.meeting-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px;border-left:3px solid var(--team-color)}
+.meeting-role{font-family:var(--fh);font-size:10px;color:var(--muted);letter-spacing:1.4px;text-transform:uppercase;margin-bottom:5px}
+.meeting-name{font-family:var(--fh);font-size:17px;font-weight:900;color:var(--text);margin-bottom:7px}
+.meeting-text{font-size:13px;line-height:1.55;color:#cfcfcf}
+
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
+  <div class="top-pills">
+    <span style="font-family:var(--fh);font-size:11px;color:var(--gold)">Nouvelle carrière</span>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="content"><div style="padding:40px;text-align:center;color:var(--muted);font-family:var(--fh)">Chargement...</div></div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script>
+const save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+const teamId = save?.playerTeamId;
+if (!teamId) location.href = 'index.html';
+
+const team    = F1Data.teams.find(t=>t.id===teamId);
+const drivers = F1Data.drivers.filter(d=>d.teamId===teamId&&!d.retired);
+
+// ── DONNÉES HISTORIQUES PAR ÉQUIPE ───────────────────────
+const TEAM_DATA = {
+  mclaren: {
+    founded: 1963,
+    base: 'Woking, Angleterre',
+    slogan: 'Speed through innovation',
+    championships_constructors: 8,
+    championships_drivers: 12,
+    wins: 183,
+    history: `McLaren est l'une des équipes les plus titrées de l'histoire de la F1. Fondée par Bruce McLaren en 1963, l'équipe a connu une ère dorée dans les années 80-90 avec Senna et Prost. Après une traversée du désert, McLaren a retrouvé le chemin du succès avec Norris en 2024-2025. L'équipe se distingue par une technologie de pointe et une approche data-driven. <strong>Budget important, voiture très performante.</strong>`,
+    strengths: ["Meilleur package aéro du plateau", "Norris en état de grâce", "Ressources financières majeures"],
+    challenge: "Maintenir la domination face à Ferrari et Red Bull",
+    difficulty: 'Difficile',
+    diffColor: '#e8003d',
+  },
+  ferrari: {
+    founded: 1950,
+    base: 'Maranello, Italie',
+    slogan: 'La Scuderia',
+    championships_constructors: 16,
+    championships_drivers: 15,
+    wins: 243,
+    history: `La Scuderia Ferrari est le seul team à avoir participé à tous les championnats du monde depuis 1950. Incarnation de la passion italienne pour la course, Ferrari est la plus titrée de l'histoire. Avec Hamilton et Leclerc en 2026, l'ambition est maximale. Le poids de l'histoire, la passion des tifosi et des ressources illimitées font de Ferrari un choix unique. <strong>Meilleur moteur du plateau, équipe très compétitive.</strong>`,
+    strengths: ["Moteur le plus puissant", "Hamilton + Leclerc = combo légendaire", "Budget maximal"],
+    challenge: "Gérer deux egos de champions dans un même garage",
+    difficulty: 'Difficile',
+    diffColor: '#e8003d',
+  },
+  redbull: {
+    founded: 2005,
+    base: 'Milton Keynes, Angleterre',
+    slogan: 'We give you wings',
+    championships_constructors: 6,
+    championships_drivers: 7,
+    wins: 121,
+    history: `Red Bull Racing a révolutionné la F1 en remportant 4 titres consécutifs entre 2010 et 2013 avec Vettel, puis 3 avec Verstappen. L'équipe est connue pour son aérodynamique exceptionnelle et sa culture de performance. En 2026, Verstappen + Hadjar offrent un mélange expérience/jeunesse. L'infrastructure de Milton Keynes est parmi les plus avancées du monde. <strong>Aéro exceptionnel, Verstappen toujours dominant.</strong>`,
+    strengths: ["Verstappen — meilleur pilote du plateau", "Aérodynamique de référence", "Organisation parfaite"],
+    challenge: "Intégrer Hadjar sans perturber l'écosystème Verstappen",
+    difficulty: 'Difficile',
+    diffColor: '#e8003d',
+  },
+  mercedes: {
+    founded: 1954,
+    base: 'Brackley, Angleterre',
+    slogan: 'The Silver Arrows',
+    championships_constructors: 8,
+    championships_drivers: 8,
+    wins: 125,
+    history: `Mercedes-AMG Petronas a dominé la F1 de 2014 à 2021 avec 8 doubles championnats consécutifs, un record absolu. L'équipe a perdu sa domination à partir de 2022 mais reste une puissance majeure avec Russell et le jeune Antonelli. La base de Brackley et ses ressources technologiques sont parmi les meilleures du monde. <strong>Fiabilité exemplaire, jeune duo prometteur.</strong>`,
+    strengths: ["Fiabilité moteur incomparable", "Antonelli — potentiel énorme", "8 titres constructeurs"],
+    challenge: "Retrouver la domination perdue depuis 2022",
+    difficulty: 'Difficile',
+    diffColor: '#e8003d',
+  },
+  aston: {
+    founded: 2021,
+    base: 'Silverstone, Angleterre',
+    slogan: 'The Spirit of British Racing',
+    championships_constructors: 0,
+    championships_drivers: 0,
+    wins: 1,
+    history: `Anciennement Racing Point puis Force India, l'équipe a été rachetée par Lawrence Stroll en 2021 et rebaptisée Aston Martin. Avec des investissements massifs dans une nouvelle usine et l'arrivée d'Alonso en 2023, les ambitions sont claires. En 2026, Alonso + Stroll représentent l'expérience et la continuité. <strong>En montée en puissance, objectif top 3 constructeurs.</strong>`,
+    strengths: ["Alonso — le plus expérimenté du plateau", "Nouvelle infrastructure de pointe", "Investissements massifs"],
+    challenge: "Transformer les ressources en performance sur la piste",
+    difficulty: 'Intermédiaire',
+    diffColor: '#ff8800',
+  },
+  alpine: {
+    founded: 2021,
+    base: 'Enstone, Angleterre',
+    slogan: 'Racing. Engineered in France.',
+    championships_constructors: 2,
+    championships_drivers: 2,
+    wins: 21,
+    history: `Renault/Alpine a une longue histoire en F1 avec deux titres mondiaux (2005-2006). L'équipe anglaise-française est unique par sa double culture. En 2026, Gasly et Colapinto forment un duo équilibré. Le budget est modeste mais l'ambition est bien là. <strong>Idéale pour un TP qui aime les défis et la progression.</strong>`,
+    strengths: ["Moteur Renault fiable", "Gasly — expérience et régularité", "Esprit équipe soudé"],
+    challenge: "Manque de budget face aux grandes équipes",
+    difficulty: 'Intermédiaire',
+    diffColor: '#ff8800',
+  },
+  williams: {
+    founded: 1977,
+    base: 'Grove, Angleterre',
+    slogan: 'A Racing Tradition',
+    championships_constructors: 9,
+    championships_drivers: 7,
+    wins: 114,
+    history: `Williams est une légende de la F1. 9 titres constructeurs, 114 victoires. Mansell, Prost, Hill, Reutemann... les légendes se sont succédé sous la bannière bleue. Après des années difficiles, l'équipe est en reconstruction avec Sainz et Albon. Le passé glorieux crée une pression particulière. <strong>Faire revivre un géant endormi est un défi exaltant.</strong>`,
+    strengths: ["Sainz — l'un des meilleurs du plateau", "Histoire et prestige immenses", "En progression"],
+    challenge: "Manque de ressources par rapport au passé glorieux",
+    difficulty: 'Intermédiaire',
+    diffColor: '#ff8800',
+  },
+  haas: {
+    founded: 2016,
+    base: 'Kannapolis, USA',
+    slogan: 'American Racing Spirit',
+    championships_constructors: 0,
+    championships_drivers: 0,
+    wins: 0,
+    history: `Haas est la seule équipe américaine du paddock, créée par Gene Haas en 2016. Dépendante de Ferrari pour son moteur et ses pièces, l'équipe navigue dans le milieu de peloton. Bearman — jeune prodige britannique — et Ocon forment un duo ambitieux en 2026. <strong>Parfaite pour qui aime les challenges à budget limité.</strong>`,
+    strengths: ["Moteur Ferrari — puissance maximale", "Bearman — talent brut à développer", "Structure légère et agile"],
+    challenge: "Budget serré, objectifs modestes, pression faible",
+    difficulty: 'Accessible',
+    diffColor: '#00c875',
+  },
+  sauber: {
+    founded: 1993,
+    base: 'Hinwil, Suisse',
+    slogan: 'Precision Swiss Engineering',
+    championships_constructors: 0,
+    championships_drivers: 0,
+    wins: 1,
+    history: `Sauber — désormais Audi — représente une opportunité historique. Le constructeur allemand a racheté la structure suisse pour écrire une nouvelle page en F1. Hülkenberg et Bortoleto sont les architectes de ce projet ambitieux. L'argent d'Audi coule mais les résultats prennent du temps. <strong>Un projet de construction sur 3-4 ans avec des moyens croissants.</strong>`,
+    strengths: ["Investissements Audi en augmentation", "Bortoleto — potentiel énorme", "Projet à long terme excitant"],
+    challenge: "Nouveau moteur Audi à fiabiliser, retard technique initial",
+    difficulty: 'Accessible',
+    diffColor: '#00c875',
+  },
+  racingbulls: {
+    founded: 2005,
+    base: 'Faenza, Italie',
+    slogan: 'The Junior Formula',
+    championships_constructors: 0,
+    championships_drivers: 0,
+    wins: 2,
+    history: `Racing Bulls (ex-Toro Rosso, AlphaTauri) est l'équipe junior de Red Bull. Tsunoda et Lindblad forment un duo expérience/jeunesse. L'équipe bénéficie des technologies Red Bull mais avec un budget réduit. Elle a révélé Verstappen, Ricciardo, Vettel... <strong>Faire éclore le prochain champion est la mission.</strong>`,
+    strengths: ["Accès aux technologies Red Bull", "Lindblad — talent générationnel", "Culture de victoire héritée"],
+    challenge: "Rester dans l'ombre de Red Bull Racing",
+    difficulty: 'Accessible',
+    diffColor: '#00c875',
+  },
+  cadillac: {
+    founded: 2026,
+    base: 'Indianapolis, USA',
+    slogan: 'American Dream, Formula 1',
+    championships_constructors: 0,
+    championships_drivers: 0,
+    wins: 0,
+    history: `Cadillac GM est le nouveau venu en F1 en 2026, après des années de lobbying intense. Première équipe américaine depuis Haas, avec le soutien de General Motors. Pérez et Bottas — deux vétérans expérimentés — sont les fondateurs de ce projet. Un budget en construction, une ambition immense. <strong>Écrire l'histoire d'une équipe de zéro.</strong>`,
+    strengths: ["Soutien financier GM en croissance", "Pérez — expérience et gestion de course", "Tout reste à construire"],
+    challenge: "Tout nouveau, infrastructures à construire, résultats limités initialement",
+    difficulty: 'Accessible',
+    diffColor: '#00c875',
+  },
+};
+
+const tData = TEAM_DATA[teamId] || {};
+
+function getDifficultyStars(diff) {
+  if (diff === 'Difficile') return '⭐⭐⭐';
+  if (diff === 'Intermédiaire') return '⭐⭐';
+  return '⭐';
+}
+
+function getObjectives(t, team) {
+  const perf = team.performance;
+  if (perf >= 90) return [
+    { icon:'🏆', text:'Remporter le championnat constructeurs', diff:'Attendu' },
+    { icon:'🥇', text:'Minimum 5 victoires dans la saison', diff:'Attendu' },
+    { icon:'💰', text:'Maintenir le budget au-dessus de 50M€', diff:'Facile' },
+  ];
+  if (perf >= 75) return [
+    { icon:'🏆', text:'Terminer dans le top 5 constructeurs', diff:'Ambitieux' },
+    { icon:'🎯', text:'Marquer des points dans 60% des courses', diff:'Réaliste' },
+    { icon:'💰', text:'Équilibrer le budget sur la saison', diff:'Important' },
+  ];
+  return [
+    { icon:'📈', text:'Progresser d\'au moins 2 places au classement', diff:'Ambitieux' },
+    { icon:'🎯', text:'Marquer des points dans 5 courses minimum', diff:'Réaliste' },
+    { icon:'💰', text:'Ne pas terminer la saison en déficit', diff:'Critique' },
+  ];
+}
+
+let currentTab = 'team';
+
+function showTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+  document.getElementById('tab-team').style.display    = tab === 'team'  ? '' : 'none';
+  document.getElementById('tab-meeting').style.display = tab === 'meeting' ? '' : 'none';
+  document.getElementById('tab-guide').style.display   = tab === 'guide' ? '' : 'none';
+  document.getElementById('tab-drivers').style.display = tab === 'drivers' ? '' : 'none';
+}
+
+function render() {
+  const color    = team.color || '#e8003d';
+  const teamDrvs = drivers;
+  const objectives = getObjectives(tData, team);
+
+  document.documentElement.style.setProperty('--team-color', color);
+  document.documentElement.style.setProperty('--accent', color);
+
+  const html = `
+    <!-- HERO -->
+    <div class="team-hero" style="border:1px solid ${color}40">
+      <img src="${team.logo||''}" class="th-logo" alt="${team.name}" onerror="this.style.display='none'">
+      <div class="th-name" style="color:${color}">${team.name}</div>
+      <div class="th-slogan">${tData.slogan || ''}</div>
+      <div>
+        <span class="th-badge" style="color:${color};border-color:${color}40">📍 ${tData.base || 'Base inconnue'}</span>
+        <span class="th-badge" style="color:var(--gold);border-color:rgba(245,200,66,.3)">🏆 ${tData.championships_constructors || 0} titres</span>
+        <span class="th-badge" style="color:${tData.diffColor||'#888'};border-color:${tData.diffColor||'#888'}40">${getDifficultyStars(tData.difficulty)} ${tData.difficulty || 'Intermédiaire'}</span>
+      </div>
+    </div>
+
+    <!-- TABS -->
+    <div class="tabs">
+      <button class="tab active" data-tab="team" onclick="showTab('team')">🏎️ Écurie</button>
+      <button class="tab" data-tab="meeting" onclick="showTab('meeting')">🤝 Réunion</button>
+      <button class="tab" data-tab="drivers" onclick="showTab('drivers')">👤 Pilotes</button>
+      <button class="tab" data-tab="guide" onclick="showTab('guide')">📖 Guide</button>
+    </div>
+
+    <!-- TAB ÉCURIE -->
+    <div id="tab-team">
+      <div class="section">
+        <div class="section-title">📖 Histoire</div>
+        <div class="history-card">${tData.history || 'Une équipe avec une longue histoire en Formule 1.'}</div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">💪 Points forts</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${(tData.strengths||[]).map(s=>`<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${color};border-radius:8px;padding:8px 12px;font-size:13px">✓ ${s}</div>`).join('')}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">⚡ Défi principal</div>
+        <div style="background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.2);border-radius:8px;padding:12px;font-size:13px;color:#ddd">
+          ⚠️ ${tData.challenge || 'Progresser dans le championnat.'}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">🔧 Voiture 2026</div>
+        <div class="car-grid">
+          ${[
+            {label:'Aéro',     val:parseFloat(team.aero?.toFixed(1)||team.aero),        color:'#0090ff'},
+            {label:'Châssis',  val:parseFloat(team.chassis?.toFixed(1)||team.chassis),      color:'#ff8800'},
+            {label:'Moteur',   val:parseFloat(team.engine?.toFixed(1)||team.engine),       color:'#e8003d'},
+            {label:'Fiabilité',val:parseFloat(team.reliability?.toFixed(1)||team.reliability),  color:'#00c875'},
+          ].map(s=>`<div class="car-stat">
+            <div class="cs-lbl">${s.label}</div>
+            <div class="cs-bar"><div class="cs-fill" style="width:${s.val}%;background:${s.color}"></div></div>
+            <div class="cs-val" style="color:${s.color}">${s.val}</div>
+          </div>`).join('')}
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">🎯 Objectifs de départ</div>
+        <div class="objectives">
+          ${objectives.map(o=>`<div class="obj-row">
+            <span class="obj-icon">${o.icon}</span>
+            <span class="obj-text">${o.text}</span>
+            <span class="obj-diff" style="background:rgba(245,200,66,.1);color:var(--gold)">${o.diff}</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB RÉUNION -->
+    <div id="tab-meeting" style="display:none">
+      <div class="section">
+        <div class="section-title">🤝 Première réunion pilotes & staff</div>
+        <div class="history-card">
+          Tu prends officiellement la direction du mur des stands. Cette réunion d’introduction n’apparaît qu’au lancement d’une nouvelle carrière.
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="meeting-grid">
+          ${teamDrvs.map((d,i)=>`<div class="meeting-card">
+            <div class="meeting-role">Pilote ${i+1}</div>
+            <div class="meeting-name">#${d.number} ${d.firstName} ${d.name}</div>
+            <div class="meeting-text">“On veut une direction claire pour la saison. Si la stratégie est propre et que la voiture progresse, on ira chercher chaque opportunité.”</div>
+          </div>`).join('')}
+          <div class="meeting-card" style="border-left-color:var(--gold)">
+            <div class="meeting-role">Ingénieur course</div>
+            <div class="meeting-name">Mur des stands</div>
+            <div class="meeting-text">“On te remontera les infos pneus, météo, trafic et fenêtres d’arrêt. Les bonnes décisions devront venir vite.”</div>
+          </div>
+          <div class="meeting-card" style="border-left-color:var(--gold)">
+            <div class="meeting-role">Direction sportive</div>
+            <div class="meeting-name">Objectif de départ</div>
+            <div class="meeting-text">“La saison est longue. On veut construire une base solide, éviter les erreurs inutiles et progresser Grand Prix après Grand Prix.”</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB PILOTES -->
+    <div id="tab-drivers" style="display:none">
+      <div class="section">
+        <div class="section-title">🏎️ Vos pilotes 2026</div>
+        ${teamDrvs.map(d=>{
+          const ovr = Math.round((d.pace + d.consistency + d.wetSkill + d.overtaking + d.defending) / 5);
+          return `<div class="driver-row">
+            <div class="dr-flag">${d.flag||'🏁'}</div>
+            <div class="dr-info">
+              <div class="dr-name">#${d.number} ${d.firstName} ${d.name}</div>
+              <div class="dr-sub">${d.age} ans · ${d.trait} · Potentiel : ${d.potential}</div>
+              <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+                ${[
+                  {l:'Pace', d:d.pace},
+                  {l:'Régularité', d:d.consistency},
+                  {l:'Pluie', d:d.wetSkill},
+                  {l:'Dépas.', d:d.overtaking},
+                  {l:'Défense', d:d.defending},
+                ].map(s=>`<span style="font-family:var(--fh);font-size:10px;color:var(--muted)">${s.l} <strong style="color:var(--text)">${s.d}</strong></span>`).join('')}
+              </div>
+            </div>
+            <div class="dr-ovr" style="color:${color}">${ovr}</div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <div class="section">
+        <div class="section-title">💰 Budget & Salaires</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px">
+          <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span style="color:var(--muted)">Budget de départ</span>
+            <strong style="color:var(--gold)">${team.budget}M€</strong>
+          </div>
+          ${teamDrvs.map(d=>`<div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)">
+            <span style="color:var(--muted)">${d.firstName} ${d.name}</span>
+            <strong>${d.salary}M€/an</strong>
+          </div>`).join('')}
+          <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px;padding:6px 0;color:var(--muted)">
+            <span>Masse salariale totale</span>
+            <strong style="color:var(--accent)">${teamDrvs.reduce((s,d)=>s+d.salary,0)}M€/an</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB GUIDE -->
+    <div id="tab-guide" style="display:none">
+      <div class="section">
+        <div class="section-title">📖 Comment jouer</div>
+        <div class="guide-steps">
+          <div class="guide-step">
+            <div class="gs-num">1</div>
+            <div>
+              <div class="gs-title">🏁 Démarrer le week-end</div>
+              <div class="gs-text">Sur l'accueil, clique sur le Grand Prix suivant. Tu passes par 3 briefings : Vendredi (EL), Samedi (Qualif), Dimanche (Course). Chaque briefing te donne des infos cruciales sur la météo, la voiture et les rivaux.</div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="gs-num">2</div>
+            <div>
+              <div class="gs-title">🔧 Gérer la stratégie</div>
+              <div class="gs-text">Pendant la course tu peux donner des ordres à tes pilotes (Attaquer / Économiser), choisir les pneus et décider quand pitter. Attention aux pneus critiques et aux Safety Cars — c'est souvent là que les courses se gagnent.</div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="gs-num">3</div>
+            <div>
+              <div class="gs-title">🔬 Développer la voiture</div>
+              <div class="gs-text">La page R&D te permet d'améliorer l'aéro, le châssis, le moteur et la fiabilité. Tu as des tokens R&D limités — choisis bien tes priorités selon les circuits à venir.</div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="gs-num">4</div>
+            <div>
+              <div class="gs-title">💬 Gérer les relations</div>
+              <div class="gs-text">La page Social te notifie des discussions avec tes pilotes et ingénieurs. Ces conversations ont un impact réel sur les performances en course — moral bas = pilote moins rapide.</div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="gs-num">5</div>
+            <div>
+              <div class="gs-title">🏋️ Entraîner les pilotes</div>
+              <div class="gs-text">Entre chaque GP, utilise la page Entraînement pour améliorer les stats de tes pilotes via le simulateur ou le sport physique. Les gains sont petits mais s'accumulent sur plusieurs saisons.</div>
+            </div>
+          </div>
+          <div class="guide-step">
+            <div class="gs-num">6</div>
+            <div>
+              <div class="gs-title">💰 Gérer le budget</div>
+              <div class="gs-text">Chaque course coûte ~2.5M€ en frais opérationnels. Les revenus viennent des résultats, des sponsors (3 versements par saison) et de la prime Concorde en fin de saison. Surveille ton budget — en rouge c'est la catastrophe.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">💡 Conseils pour commencer</div>
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.8;color:#ccc">
+          • <strong style="color:var(--gold)">Lis les briefings</strong> — ils contiennent des infos stratégiques essentielles<br>
+          • <strong style="color:var(--gold)">Surveille les pneus</strong> — pitter trop tard = perdre des positions<br>
+          • <strong style="color:var(--gold)">Réponds aux discussions</strong> — le moral des pilotes compte vraiment<br>
+          • <strong style="color:var(--gold)">Investis en R&D tôt</strong> — les upgrades prennent du temps à livrer<br>
+          • <strong style="color:var(--gold)">Sauvegarde ta partie</strong> — bouton 💾 sur l'accueil avant les phases difficiles
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button class="btn-start" onclick="startSeason()">
+      🏁 Lancer la saison ${save.season||2025} →
+    </button>
+  `;
+
+  document.getElementById('content').innerHTML = html;
+  document.querySelectorAll('.tab').forEach(t => {
+    t.addEventListener('click', () => showTab(t.dataset.tab));
+  });
+}
+
+function startSeason() {
+  // Marquer que l'onboarding a été vu
+  const s = Save.load();
+  s._onboardingDone = true;
+  s._introMeetingOnlyAtCreation = false;
+  s._introMeetingSeen = true;
+  // Empêche la génération du message pilote isolé après l'onboarding.
+  s.socialEvents = s.socialEvents || [];
+  s._indexSocialGeneratedKey = `${s.season || 2025}_${s.race || 0}`;
+  Save.save(s);
+  location.href = 'index.html';
+}
+
+// Corriger le rendu des stats pilotes (fix syntaxe template)
+function renderDriverStat(label, val) {
+  return `<span style="font-family:var(--fh);font-size:10px;color:var(--muted)">${label} <strong style="color:var(--text)">${val}</strong></span>`;
+}
+
+render();
+</script>
+</body>
+</html>

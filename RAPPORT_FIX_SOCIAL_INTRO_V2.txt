@@ -1,0 +1,7 @@
+Fix V2:
+- social.html: empêche le message pilote isolé à S2025 GP1/race 0 si aucun vrai événement social n'existe.
+- social.html: affiche un état vide avec lien vers team-intro.html.
+- index.html: nouvelle partie prépare socialEvents vide et redirige vers team-intro.html si possible.
+- team-intro.html: ajoute un bloc visible de réunion intro si absent.
+- Source utilisée: F1-manager-2.0-main_FIX_MESSAGE_DEBUT.zip
+- Occurrences trouvées dans social.html: ['socialEvents', 'resolved', 'driver', 'pilote']

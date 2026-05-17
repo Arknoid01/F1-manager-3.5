@@ -1,0 +1,435 @@
+/* ============================================================
+   F1 Manager — Thème unifié (basé sur immersion.html)
+   Toutes les pages héritent ce fichier via <link>
+   ============================================================ */
+
+/* ── 1. Reset anti-débordement mobile ─────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { overflow-x: hidden; }
+body { overflow-x: hidden; min-height: 100%; width: 100%; max-width: 100vw; }
+
+/* ── 2. Variables de couleur (palette immersion.html) ───────── */
+:root {
+  --bg:       #07070d;
+  --surface:  #0f0f18;
+  --surface2: #161622;
+  --border:   #22223a;
+  --text:     #e4e4f0;
+  --muted:    #55556a;
+  --accent:   #e8003d;
+  --gold:     #f5c842;
+  --green:    #00d97e;
+  --blue:     #3d7eff;
+  --orange:   #ff8c42;
+  --purple:   #a855f7;
+  --yellow:   #f5c842;
+  --red:      #e8003d;
+  --line:     rgba(255,255,255,.10);
+  /* compatibilité pages qui utilisent --panel / --f1-* */
+  --panel:    #0f0f18;
+  --f1-bg:    #07070d;
+  --f1-panel: #0f0f18;
+  --f1-panel-2: #161622;
+  --f1-red:   #e8003d;
+  --f1-gold:  #f5c842;
+  --f1-muted: #55556a;
+  --f1-text:  #e4e4f0;
+  --f1-green: #00d97e;
+  --f1-line:  rgba(255,255,255,.10);
+  --fh: 'Barlow Condensed', 'Arial Black', sans-serif;
+  --fb: 'Barlow', Arial, sans-serif;
+  --f1-title-font: 'Barlow Condensed', 'Arial Black', sans-serif;
+}
+
+/* ── 3. Base html/body ──────────────────────────────────────── */
+html, body {
+  background: var(--bg) !important;
+  color: var(--text);
+  font-family: var(--fb);
+}
+
+/* ── 4. Topbar unifié style immersion.html ──────────────────── */
+.topbar {
+  height: 52px !important;
+  background: var(--surface) !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 16px !important;
+  gap: 12px !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+  overflow: hidden !important;
+}
+
+/* Logo */
+.logo {
+  font-family: var(--fh) !important;
+  font-weight: 900 !important;
+  font-size: 22px !important;
+  letter-spacing: 3px !important;
+  color: var(--accent) !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  text-transform: none !important;
+}
+.logo span { color: var(--text) !important; }
+
+/* Lien retour */
+.nav-back, .back-home {
+  font-family: var(--fh) !important;
+  font-size: 12px !important;
+  color: var(--muted) !important;
+  text-decoration: none !important;
+  padding: 4px 8px !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+/* Pills topbar */
+.top-pills {
+  margin-left: auto !important;
+  display: flex !important;
+  gap: 8px !important;
+  align-items: center !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+}
+.pill {
+  font-family: var(--fh) !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  padding: 4px 12px !important;
+  border-radius: 20px !important;
+  background: var(--surface2) !important;
+  border: 1px solid var(--border) !important;
+  white-space: nowrap !important;
+  line-height: 1.2 !important;
+  flex-shrink: 0 !important;
+}
+.pill-gold  { color: var(--gold) !important; border-color: #3a3400 !important; background: #161200 !important; }
+.pill-muted { color: var(--muted) !important; }
+
+/* ── 5. Zone de contenu principale ─────────────────────────── */
+.page, .wrap {
+  padding: 12px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── 6. Panneaux / cartes ───────────────────────────────────── */
+.panel, .card, .tile, .box, .widget,
+.budget-hero, .alloc-panel, .domain-panel,
+.queue-panel, .freeze-banner,
+.rep-panel, .contract-card {
+  background: var(--surface);
+  border: 1px solid var(--border) !important;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* En-tête de panneau */
+.sec-lbl, .ph, .panel-head {
+  font-family: var(--fh) !important;
+  font-size: 10px !important;
+  letter-spacing: 3px !important;
+  text-transform: uppercase !important;
+  color: var(--muted) !important;
+  padding: 10px 16px !important;
+  border-bottom: 1px solid var(--border) !important;
+  background: var(--surface2) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+/* ── 7. Hero section ────────────────────────────────────────── */
+.hero {
+  background: linear-gradient(135deg, #12000e, #07070d);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 8px;
+  padding: 16px;
+}
+.hero-kicker { font-family:var(--fh); font-size:10px; letter-spacing:3px; color:var(--muted); text-transform:uppercase; margin-bottom:4px; }
+.hero-title  { font-family:var(--fh); font-weight:900; font-size:26px; letter-spacing:1px; line-height:1.05; }
+.hero-sub    { font-family:var(--fh); font-size:13px; color:var(--muted); margin-top:6px; }
+
+/* ── 8. Tabs ────────────────────────────────────────────────── */
+.tab-bar { display:flex; background:var(--surface2); border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+.tab-btn { font-family:var(--fh); font-weight:700; font-size:11px; letter-spacing:1px; text-transform:uppercase; padding:9px 12px; background:none; border:none; color:var(--muted); cursor:pointer; white-space:nowrap; border-bottom:2px solid transparent; flex:1; }
+.tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); background:rgba(232,0,61,.06); }
+.tab-pane { display:none; }
+.tab-pane.active { display:block; }
+
+/* ── 9. Boutons ─────────────────────────────────────────────── */
+.btn {
+  font-family: var(--fh) !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  letter-spacing: 1px !important;
+  text-transform: uppercase !important;
+  padding: 8px 14px !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  display: inline-block !important;
+  border: none !important;
+}
+.btn-red, a.btn-red, button.btn-red { background: var(--accent) !important; color: #fff !important; }
+.btn-sec, a.btn-sec, button.btn-sec, .btn.sec {
+  background: var(--surface2) !important; color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+}
+.btns { display:flex; gap:8px; flex-wrap:wrap; }
+
+/* ── 10. Formulaires ────────────────────────────────────────── */
+input:not([type="range"]), select, textarea {
+  background: var(--surface2) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px !important;
+  font-family: var(--fb) !important;
+}
+input:focus, select:focus, textarea:focus { outline: 1px solid var(--accent) !important; }
+
+/* ── 11. Liens ──────────────────────────────────────────────── */
+a { color: inherit; }
+
+/* ── 12. Utilitaires ────────────────────────────────────────── */
+h1, h2, h3, .title, .section-title, .kicker {
+  font-family: var(--fh) !important;
+  letter-spacing: .8px;
+}
+.empty { font-family:var(--fb); font-size:12px; color:var(--muted); padding:12px 0; }
+.tag { display:inline-block; margin:5px 4px 0 0; padding:3px 7px; border-radius:4px; background:var(--surface2); border:1px solid var(--border); color:var(--gold); font-family:var(--fh); font-size:11px; font-weight:700; }
+
+/* Barres de progression */
+.sbar { height:3px; background:var(--border); border-radius:2px; margin-top:8px; overflow:hidden; }
+.sbar-fill { height:100%; border-radius:2px; background:var(--accent); transition:width .5s; }
+.sbar-fill.gold   { background:var(--gold); }
+.sbar-fill.green  { background:var(--green); }
+.sbar-fill.blue   { background:var(--blue); }
+.sbar-fill.orange { background:var(--orange); }
+
+/* Rep bar (sponsors page) */
+.rep-bar-wrap { height:3px; background:var(--border); border-radius:2px; margin-top:5px; overflow:hidden; }
+
+/* ── 13. MOBILE — anti-débordement latéral ──────────────────── */
+@media (max-width: 640px) {
+
+  html, body { overflow-x: hidden !important; width: 100% !important; max-width: 100vw !important; }
+
+  /* Topbar compact */
+  .topbar { padding: 0 10px !important; gap: 8px !important; }
+  .logo { font-size: 19px !important; letter-spacing: 2px !important; }
+  .nav-back, .back-home { font-size: 11px !important; padding: 4px 6px !important; }
+
+  /* Pills : tronquer si trop long */
+  .top-pills { gap: 6px !important; flex-wrap: nowrap !important; overflow: hidden !important; }
+  .pill { font-size: 11px !important; padding: 3px 8px !important; max-width: 38vw !important; overflow: hidden !important; text-overflow: ellipsis !important; }
+
+  /* Page */
+  .page, .wrap { padding: 8px !important; gap: 8px !important; }
+
+  /* Tabs grille 2×2 */
+  .tab-bar { flex-wrap: wrap !important; gap: 6px !important; padding: 6px !important; background: var(--surface) !important; }
+  .tab-btn { flex: 1 1 calc(50% - 6px) !important; white-space: normal !important; border: 1px solid var(--border) !important; border-radius: 18px !important; background: var(--surface2) !important; padding: 8px 7px !important; line-height: 1.15 !important; font-size: 10px !important; }
+  .tab-btn.active { background: var(--accent) !important; color: #fff !important; border-color: var(--accent) !important; border-bottom-color: var(--accent) !important; }
+
+  /* Hero */
+  .hero-title { font-size: 22px !important; }
+
+  /* Grilles → 1 colonne */
+  .tiles-grid, .grid, .podium:not(.res-row), .offer,
+  .hero-body, .budget-hero { grid-template-columns: 1fr !important; }
+
+  /* Boutons pleine largeur */
+  .btns { flex-direction: column !important; }
+  .btn { width: 100% !important; text-align: center !important; }
+
+  /* Empêcher les conteneurs de déborder */
+  .panel, .card, .tile, .hero,
+  .contract-card, .driver-card,
+  .alloc-panel, .rep-panel,
+  .controls, .stats {
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* Inputs full width */
+  input:not([type="range"]), select, textarea { max-width: 100% !important; }
+
+  /* Podium : réordonner P2/P1/P3 → P1 en haut */
+  .podium:not(.res-row) .p1 { order: -1 !important; min-height: 160px !important; }
+  .podium:not(.res-row) .p2, .podium:not(.res-row) .p3 { min-height: 130px !important; }
+}
+
+/* Très petit écran (<380px) */
+@media (max-width: 380px) {
+  .logo { font-size: 17px !important; letter-spacing: 1px !important; }
+  /* Masquer la 2e pill si ça déborde */
+  .top-pills .pill:last-child { display: none !important; }
+}
+
+/* ── 14. Logo unifié — F1(accent) + Manager(texte) ─────────── */
+.logo { color: var(--accent) !important; display: flex !important; align-items: center !important; }
+.logo span { color: #ffffff !important; }
+.logo img { flex-shrink: 0; }
+
+/* ── 15. Grilles de tuiles ──────────────────────────────────── */
+/* Par défaut : 2 colonnes */
+.tiles-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 8px !important;
+}
+/* Classe opt-in pour 3 colonnes */
+.tiles-grid-3 {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr 1fr !important;
+  gap: 8px !important;
+}
+
+@media (max-width: 640px) {
+  /* Sur mobile : tiles-grid reste 2 colonnes (lisible) */
+  .tiles-grid { grid-template-columns: 1fr 1fr !important; }
+  /* tiles-grid-3 passe à 2 col sur mobile */
+  .tiles-grid-3 { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 380px) {
+  /* Très petit : tout en 1 col */
+  .tiles-grid, .tiles-grid-3 { grid-template-columns: 1fr !important; }
+}
+
+
+/* ── Correctifs course/résultats : ne pas appliquer le style podium générique aux positions ── */
+.s-row .p1, .s-row .p2, .s-row .p3,
+.res-row .p1, .res-row .p2, .res-row .p3,
+.pos.p1, .pos.p2, .pos.p3,
+.rpos.p1, .rpos.p2, .rpos.p3 {
+  order: 0 !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+.s-row { min-height: 0 !important; }
+.res-row { min-height: 0 !important; }
+
+@media (max-width:640px){
+  .stand-panel .s-row {
+    padding-top: 6px !important;
+    padding-bottom: 6px !important;
+  }
+  .res-card .res-row {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+}
+
+
+/* ── Hotfix définitif course/résultats : les styles podium ne doivent jamais toucher les tableaux ── */
+.stand-panel .s-row,
+.stand-panel .s-head {
+  display: grid !important;
+  grid-template-columns: 26px 22px 3px 1fr 60px 52px !important;
+  align-items: center !important;
+  min-height: 0 !important;
+  height: auto !important;
+}
+.stand-panel .s-row { padding: 4px 8px !important; }
+.stand-panel .s-row > *,
+.stand-panel .s-head > *,
+.res-card .res-row > * {
+  min-height: 0 !important;
+  height: auto !important;
+  order: 0 !important;
+}
+.stand-panel .pos.p1, .stand-panel .pos.p2, .stand-panel .pos.p3,
+.res-card .rpos.p1, .res-card .rpos.p2, .res-card .rpos.p3 {
+  min-height: 0 !important;
+  height: auto !important;
+  order: 0 !important;
+}
+.res-card .res-row,
+.res-card .res-row.podium {
+  display: grid !important;
+  grid-template-columns: 30px 24px 1fr 46px 56px !important;
+  align-items: center !important;
+  min-height: 0 !important;
+  height: auto !important;
+  padding: 6px 0 !important;
+}
+@media (max-width:640px){
+  .stand-panel .s-row, .stand-panel .s-head { grid-template-columns: 26px 22px 3px 1fr 60px 52px !important; }
+  .res-card .res-row, .res-card .res-row.podium { grid-template-columns: 30px 24px 1fr 46px 56px !important; }
+}
+
+/* ── FORCER MODE PAYSAGE ──────────────────────────────────── */
+/* Pour navigateurs qui supportent la Screen Orientation API  */
+
+/* En portrait → on tourne tout le contenu de 90° */
+@media (orientation: portrait) {
+  #rotate-hint {
+    display: flex !important;
+  }
+  /* Option douce : afficher un hint plutôt que forcer brutalement */
+}
+
+/* Bannière "Tourne ton téléphone" */
+#rotate-hint {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #07070d;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  font-family: 'Barlow Condensed', sans-serif;
+  text-align: center;
+  padding: 24px;
+}
+#rotate-hint .rh-icon {
+  font-size: 48px;
+  animation: rotate-phone 2s ease-in-out infinite;
+}
+@keyframes rotate-phone {
+  0%   { transform: rotate(0deg);   }
+  40%  { transform: rotate(90deg);  }
+  60%  { transform: rotate(90deg);  }
+  100% { transform: rotate(0deg);   }
+}
+#rotate-hint .rh-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: #e4e4f0;
+  text-transform: uppercase;
+}
+#rotate-hint .rh-sub {
+  font-size: 13px;
+  color: #55556a;
+  letter-spacing: 1px;
+}
+#rotate-hint .rh-skip {
+  margin-top: 8px;
+  font-size: 11px;
+  color: rgba(85,85,106,.6);
+  text-decoration: underline;
+  cursor: pointer;
+  letter-spacing: 1px;
+}

@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260509">
+<title>Social — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px 60px}
+.phase-header{display:flex;align-items:center;gap:10px;margin:18px 0 10px}
+.phase-icon{font-size:22px}
+.phase-label{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.phase-line{flex:1;height:1px;background:var(--border)}
+.conv-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;transition:opacity .3s,transform .3s}
+.conv-card.urgent{border-color:rgba(232,0,61,.4)}
+.conv-head{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
+.conv-avatar{width:42px;height:42px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.conv-who{flex:1}
+.conv-name{font-family:var(--fh);font-weight:900;font-size:15px}
+.conv-role{font-family:var(--fh);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-top:1px}
+.conv-tag{font-family:var(--fh);font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid rgba(232,0,61,.3);color:var(--accent)}
+.conv-body{padding:0 16px 14px}
+.conv-text{font-size:13px;line-height:1.7;color:#ddd}
+.conv-sep{height:1px;background:var(--border);margin:0 16px 12px}
+.conv-choices{padding:0 12px 14px;display:flex;flex-direction:column;gap:7px}
+.choice-btn{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);text-align:left;line-height:1.45;transition:all .15s;-webkit-tap-highlight-color:transparent;width:100%}
+.choice-btn:active{opacity:.65;transform:scale(.98)}
+.empty-state{text-align:center;padding:50px 20px}
+.empty-icon{font-size:48px;margin-bottom:12px}
+.empty-title{font-family:var(--fh);font-weight:900;font-size:18px;margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--muted);line-height:1.6}
+.driver-status{display:flex;gap:8px;margin-top:10px}
+.ds-item{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:6px 8px;text-align:center}
+.ds-val{font-family:var(--fh);font-weight:900;font-size:16px}
+.ds-lbl{font-family:var(--fh);font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.gp-recap{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px}
+.gp-recap-title{font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:8px}
+.gp-recap-row{display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.gp-recap-row:last-child{border:none}
+.progress-bar{display:flex;gap:5px;justify-content:center;margin-bottom:14px}
+.prog-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .3s}
+.prog-dot.done{background:var(--green)}
+.prog-dot.active{background:var(--accent)}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:8px;padding:10px 16px;font-family:var(--fh);font-size:13px;z-index:300;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+
+<style>
+.social-intro-empty{
+  border:1px solid rgba(255,255,255,.10);
+  background:rgba(255,255,255,.035);
+  border-radius:18px;
+  margin-top:16px;
+}
+</style>
+
+</head>
+<body>
+<div class="topbar" style="overflow:visible">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
+  <a href="index.html" class="nav-back">← Accueil</a>
+  <div class="top-pills" id="topPills"></div>
+</div>
+<div class="wrap"><div id="content"></div></div>
+<div class="toast" id="toast"></div>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let save = Save.load();
+
+  // Appliquer driverStates sur TOUS les pilotes F1Data (y compris GAS, COL etc.)
+  // pour refléter les changements d'équipe en cours de saison
+  if (save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const state = save.driverStates[d.id];
+      if (!state) return;
+      if (Object.prototype.hasOwnProperty.call(state, 'teamId')) {
+        d.teamId = state.teamId;
+      }
+      if (Object.prototype.hasOwnProperty.call(state, 'retired')) {
+        d.retired = state.retired;
+      }
+    });
+  }
+
+function moralColor(v){return v>=70?'var(--green)':v>=40?'var(--gold)':'var(--accent)';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show';setTimeout(()=>t.classList.remove('show'),2800);}
+function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function applyChoice(event, choice) {
+  const e = choice.effect || {};
+  const isEng = event.type === 'engineer' || event.type === 'engineer2';
+  const d = F1Data.drivers.find(x => x.id === event.driverId);
+
+  // Moral
+  if (e.moral) {
+    if (!save.immersion) save.immersion = {};
+    if (!save.immersion.driverMorale) save.immersion.driverMorale = {};
+    const targets = isEng
+      ? F1Data.drivers.filter(x => x.teamId && x.teamId === save.playerTeamId && !x.retired).map(x => x.id)
+      : [event.driverId];
+    targets.forEach(id => {
+      if (!save.immersion.driverMorale[id]) save.immersion.driverMorale[id] = {value:70};
+      save.immersion.driverMorale[id].value = Math.max(0, Math.min(100, (save.immersion.driverMorale[id].value||70) + e.moral));
+    });
+  }
+
+  // Confiance
+  if (e.confiance && !isEng) {
+    if (!save.driverConfidence) save.driverConfidence = {};
+    save.driverConfidence[event.driverId] = Math.max(0, Math.min(100, (save.driverConfidence[event.driverId]||50) + e.confiance));
+  }
+
+  // Loyaute
+  if (e.loyalty && !isEng) {
+    if (!save.driverLoyalty) save.driverLoyalty = {};
+    save.driverLoyalty[event.driverId] = Math.max(0, Math.min(100, (save.driverLoyalty[event.driverId]||50) + e.loyalty));
+  }
+
+  // Contrat
+  if (e.contractSignal) save[`contractSignal_${event.driverId}`] = true;
+
+  // Pace temporaire
+  if (e.pace && !isEng) {
+    if (!save.driverEffects) save.driverEffects = {};
+    if (!save.driverEffects[event.driverId]) save.driverEffects[event.driverId] = {};
+    save.driverEffects[event.driverId].paceDelta = Math.max(-5, Math.min(5, (save.driverEffects[event.driverId].paceDelta||0) + e.pace));
+    save.driverEffects[event.driverId].paceExpiry = (save.race||0) + 2;
+  }
+
+  // Ingenieur
+  if (e.penaltyGrid) { if(!save.gridPenalties) save.gridPenalties={}; save.gridPenalties[event.driverId]=(save.gridPenalties[event.driverId]||0)+5; }
+  if (e.dnfRisk) save._dnfRiskBoost = (save._dnfRiskBoost||0) + 0.04;
+  if (e.tokenBonus > 0) save.tokens = (save.tokens||0) + e.tokenBonus;
+  if (e.rdBonus) { if(!save.carDev) save.carDev={}; if(!save.carDev[e.rdBonus]) save.carDev[e.rdBonus]={level:70}; save.carDev[e.rdBonus].level=Math.min(100,(save.carDev[e.rdBonus].level||70)+1); }
+  if (e.setupBonus) save.weekendSetup = e.setupBonus;
+  if (e.engineWear) save._engineWear = (save._engineWear||0) + e.engineWear;
+
+  // Marquer resolu
+  const ev = (save.socialEvents||[]).find(x => x.id === event.id);
+  if (ev) { ev.resolved=true; ev.read=true; ev.choiceMade=choice.text; ev.choiceType=choice.choiceType||'neutral'; }
+
+  // Historique
+  if (!save.socialHistory) save.socialHistory = [];
+  const dName = isEng ? 'Equipe technique' : (d ? `${d.firstName} ${d.name}` : 'Pilote');
+  save.socialHistory.unshift({date:new Date().toISOString(),driverName:dName,trigger:event.trigger,choice:choice.text,choiceType:choice.choiceType||'neutral',race:save.race||0,season:save.season||2025});
+  save.socialHistory = save.socialHistory.slice(0,40);
+
+  Save.save(save);
+  save = Save.load();
+}
+
+function renderConv(ev) {
+  const isEng = ev.type === 'engineer' || ev.type === 'engineer2';
+  const d = isEng ? null : F1Data.drivers.find(x => x.id === ev.driverId);
+  const name = isEng ? 'Ingenieur de piste' : (d ? `${d.firstName} ${d.name}` : 'Votre pilote');
+  const flag = isEng ? '🔧' : (d?.flag || '🏁');
+  const role = isEng ? 'Equipe technique' : (d ? `#${d.number} · ${d.age} ans` : '');
+  const accent = (d && F1Data.teams.find(t=>t.id===d.teamId)?.color) || (isEng ? '#4488ff' : 'var(--accent)');
+  const shuffled = shuffle(ev.choices || []);
+
+  return `<div class="conv-card${ev.urgent?' urgent':''}" id="card_${ev.id}">
+    <div class="conv-head">
+      <div class="conv-avatar" style="border-color:${accent}60">${flag}</div>
+      <div class="conv-who">
+        <div class="conv-name" style="color:${accent}">${name}</div>
+        <div class="conv-role">${role}</div>
+      </div>
+      ${ev.urgent?'<span class="conv-tag">⚠️ Urgent</span>':''}
+    </div>
+    <div class="conv-body"><div class="conv-text">${ev.text}</div></div>
+    <div class="conv-sep"></div>
+    <div class="conv-choices">
+      ${shuffled.map(c => `<button class="choice-btn" onclick="handleChoice('${ev.id}',${ev.choices.indexOf(c)})">${c.text}</button>`).join('')}
+    </div>
+  </div>`;
+}
+
+function handleChoice(eventId, choiceIndex) {
+  const ev = (save.socialEvents||[]).find(e => e.id === eventId);
+  if (!ev) return;
+  const choice = ev.choices[choiceIndex];
+  if (!choice) return;
+  const card = document.getElementById(`card_${eventId}`);
+  if (card) { card.style.opacity='0'; card.style.transform='translateY(-8px)'; }
+  applyChoice(ev, choice);
+  setTimeout(() => { showToast('Reponse envoyee'); render(); }, 300);
+}
+
+function render() {
+  if (!save?.playerTeamId) {
+    document.getElementById('content').innerHTML = '<div class="empty-state"><div class="empty-icon">🏎️</div><div class="empty-title">Aucune carriere</div></div>';
+    return;
+  }
+
+  const drivers = F1Data.drivers.filter(d => d.teamId && d.teamId !== 'free_agent' && d.teamId && d.teamId !== 'free_agent' && d.teamId === save.playerTeamId && !d.retired);
+  // Exclure les events de pilotes qui ne sont plus dans l'équipe
+  const activeDriverIds2 = Object.entries(save.driverStates||{})
+    .filter(([,v]) => v.teamId && v.teamId !== 'free_agent' && v.teamId === save.playerTeamId && !v.retired)
+    .map(([k]) => k);
+  const engIds = ['engineer', 'engineer2'];
+  const pending = (save.socialEvents||[]).filter(e => {
+    if (e.resolved) return false;
+    if (engIds.includes(e.driverId)) return true;
+    if (activeDriverIds2.length === 0) return true;
+    if (activeDriverIds2.includes(e.driverId)) return true;
+    // Vérifier aussi dans F1Data (pilotes standards non dans driverStates)
+    const d = F1Data.drivers.find(x => x.id === e.driverId);
+    if (d && d.teamId && d.teamId !== 'free_agent' && d.teamId === save.playerTeamId) return true;
+    // Exclure si explicitement free_agent
+    const st = save.driverStates?.[e.driverId];
+    if (st?.teamId === 'free_agent') return false;
+    return false;
+  });
+  const season  = save.season || 2025;
+  const race    = save.race || 0;
+  const lastGP  = save.lastGpSummary;
+  // Filtrer playerResults — exclure les pilotes agent libre
+  if (lastGP?.playerResults) {
+    lastGP.playerResults = lastGP.playerResults.filter(r => {
+      if (!r.driverId) return true;
+      const st = save.driverStates?.[r.driverId];
+      return !st || st.teamId !== 'free_agent';
+    });
+  }
+
+  document.getElementById('topPills').innerHTML = `
+    <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">S${season} · GP${race}</span>
+    ${pending.length ? `<span style="font-family:var(--fh);font-size:11px;padding:3px 8px;background:rgba(232,0,61,.15);border:1px solid rgba(232,0,61,.3);border-radius:4px;color:var(--accent)">${pending.length}</span>` : ''}`;
+
+  let html = '';
+
+  // Recap dernier GP
+  if (lastGP && race > 0) {
+    const pRes = lastGP.playerResults || [];
+    if (pRes.length) {
+      html += `<div class="gp-recap">
+        <div class="gp-recap-title">📍 ${lastGP.circuitName || 'Dernier GP'}</div>
+        ${pRes.map(r=>`<div class="gp-recap-row">
+          <span style="color:var(--muted)">${r.driverName||'Pilote'}</span>
+          <strong style="color:${r.status==='dnf'?'var(--accent)':r.position<=3?'var(--gold)':r.position<=10?'var(--green)':'var(--muted)'}">
+            ${r.status==='dnf'?'Abandon':'P'+r.position}
+          </strong>
+        </div>`).join('')}
+      </div>`;
+    }
+  }
+
+  if (!pending.length) {
+    html += `<div class="empty-state">
+      <div class="empty-icon">✅</div>
+      <div class="empty-title">Tout est traite</div>
+      <div class="empty-sub">Nouvelles discussions apres le prochain Grand Prix.</div>
+    </div>`;
+    // Statut pilotes
+    drivers.forEach(d => {
+      const moral   = save.immersion?.driverMorale?.[d.id]?.value ?? 70;
+      const conf    = save.driverConfidence?.[d.id] ?? 50;
+      const loyalty = save.driverLoyalty?.[d.id] ?? 50;
+      html += `<div class="gp-recap" style="margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span style="font-size:18px">${d.flag||'🏁'}</span>
+          <strong style="font-family:var(--fh)">${d.firstName} ${d.name}</strong>
+        </div>
+        <div class="driver-status">
+          <div class="ds-item"><div class="ds-val" style="color:${moralColor(moral)}">${moral}</div><div class="ds-lbl">Moral</div></div>
+          <div class="ds-item"><div class="ds-val" style="color:${moralColor(conf)}">${conf}</div><div class="ds-lbl">Confiance</div></div>
+          <div class="ds-item"><div class="ds-val" style="color:${moralColor(loyalty)}">${loyalty}</div><div class="ds-lbl">Loyaute</div></div>
+        </div>
+      </div>`;
+    });
+    document.getElementById('content').innerHTML = html;
+    return;
+  }
+
+  // Progress dots
+  const all = (save.socialEvents||[]);
+  const total = all.filter(e => !e.resolved || e.resolved).length;
+  const done  = all.filter(e => e.resolved).length;
+  if (all.length > 1) {
+    html += `<div class="progress-bar">${all.map(e => `<div class="prog-dot ${e.resolved?'done':'active'}"></div>`).join('')}</div>`;
+  }
+
+  // Groupes par phase
+  const post  = pending.filter(e => e.phase === 'post');
+  const tech  = pending.filter(e => e.phase === 'tech');
+  const pre   = pending.filter(e => e.phase === 'pre');
+  const other = pending.filter(e => !e.phase);
+
+  if (post.length) {
+    html += `<div class="phase-header"><span class="phase-icon">🏁</span><span class="phase-label">Apres la course</span><span class="phase-line"></span></div>`;
+    post.forEach(ev => html += renderConv(ev));
+  }
+  if (tech.length) {
+    html += `<div class="phase-header"><span class="phase-icon">🔧</span><span class="phase-label">Briefing technique</span><span class="phase-line"></span></div>`;
+    tech.forEach(ev => html += renderConv(ev));
+  }
+  if (pre.length) {
+    html += `<div class="phase-header"><span class="phase-icon">🎯</span><span class="phase-label">Avant le prochain GP</span><span class="phase-line"></span></div>`;
+    pre.forEach(ev => html += renderConv(ev));
+  }
+  if (other.length) {
+    html += `<div class="phase-header"><span class="phase-icon">💬</span><span class="phase-label">Discussions</span><span class="phase-line"></span></div>`;
+    other.forEach(ev => html += renderConv(ev));
+  }
+
+  document.getElementById('content').innerHTML = html;
+}
+
+render();
+</script>
+
+<script>
+/* FIX social nouvelle partie :
+   empêche le message pilote isolé au tout début de carrière.
+   Si aucune discussion réelle n'existe, on affiche un état vide + accès briefing équipe.
+*/
+(function(){
+  const originalAddEventListener = document.addEventListener;
+  function getSave(){
+    try{
+      if(window.Save && typeof Save.load === 'function') return Save.load();
+    }catch(e){}
+    const keys = ['f1-manager-save','f1_manager_save','f1Save','f1_save','save','careerSave'];
+    for(const k of keys){
+      try{
+        const raw = localStorage.getItem(k);
+        if(raw) return JSON.parse(raw);
+      }catch(e){}
+    }
+    return null;
+  }
+
+  function isSeasonOpening(save){
+    if(!save) return false;
+    const race = Number(save.race ?? save.currentGp ?? save.gpIndex ?? save.round ?? 0);
+    const hasRealSocial = Array.isArray(save.socialEvents) && save.socialEvents.some(e => !e.resolved);
+    const hasGpSummary = !!save.lastGpSummary;
+    return race <= 0 && !hasRealSocial && !hasGpSummary;
+  }
+
+  function renderEmptyIntroSocial(){
+    const save = getSave();
+    if(!isSeasonOpening(save)) return false;
+
+    const main = document.querySelector('main') || document.querySelector('.container') || document.body;
+    const candidates = document.querySelectorAll('.discussion-card,.social-card,.card,.event-card');
+    candidates.forEach(el => {
+      const txt = el.textContent || '';
+      if(txt.includes('souhaite échanger') || txt.includes('avant le prochain week-end')){
+        el.remove();
+      }
+    });
+
+    if(document.getElementById('socialIntroEmpty')) return true;
+
+    const box = document.createElement('section');
+    box.id = 'socialIntroEmpty';
+    box.className = 'card social-intro-empty';
+    box.innerHTML = `
+      <div style="padding:22px">
+        <div style="font-family:var(--fh,inherit);letter-spacing:2px;text-transform:uppercase;color:#888;font-size:12px;margin-bottom:14px">Discussions</div>
+        <h2 style="margin:0 0 10px;color:#fff">Aucune discussion active</h2>
+        <p style="color:#bbb;line-height:1.5;margin:0 0 16px">
+          La saison vient de commencer. La première rencontre avec les pilotes et le staff se fait dans le briefing d’introduction de l’écurie.
+        </p>
+        <a href="team-intro.html" style="display:inline-block;background:#c40000;color:#fff;text-decoration:none;border-radius:12px;padding:12px 16px;font-weight:800">
+          Voir la réunion d’introduction
+        </a>
+      </div>
+    `;
+
+    main.appendChild(box);
+    return true;
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(renderEmptyIntroSocial, 50);
+    setTimeout(renderEmptyIntroSocial, 500);
+  });
+
+  window.F1SocialOpeningFix = { renderEmptyIntroSocial };
+})();
+</script>
+
+</body>
+</html>

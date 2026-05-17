@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260508f">
+<title>Briefing Course — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px 40px}
+.hero{background:linear-gradient(135deg,#1a0000 0%,#07070d 50%,#001a00 100%);border:1px solid rgba(232,0,61,.2);border-radius:12px;padding:18px 16px;margin:14px 0;position:relative;overflow:hidden}
+.hero::before{content:'RACE DAY';position:absolute;right:-10px;top:50%;transform:translateY(-50%) rotate(90deg);font-family:var(--fh);font-size:60px;font-weight:900;color:rgba(232,0,61,.06);letter-spacing:4px;pointer-events:none;white-space:nowrap}
+.hero-day{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.hero-title{font-family:var(--fh);font-weight:900;font-size:30px;line-height:1;margin-bottom:2px}
+.hero-sub{font-family:var(--fb);font-size:12px;color:var(--muted)}
+.hero-stats{display:flex;gap:16px;margin-top:12px;flex-wrap:wrap}
+.hero-stat{text-align:center}
+.hero-stat .hs-val{font-family:var(--fh);font-weight:900;font-size:20px;color:var(--accent)}
+.hero-stat .hs-lbl{font-family:var(--fh);font-size:9px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+
+.section{margin:14px 0}
+.section-title{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Grille de départ */
+.grid-table{width:100%;border-collapse:collapse}
+.grid-table tr{border-bottom:1px solid rgba(255,255,255,.04)}
+.grid-table td{padding:6px 8px;font-family:var(--fh);font-size:13px}
+.grid-table .gp{color:var(--muted);width:28px;font-size:11px;text-align:center}
+.grid-table .gname{font-weight:700}
+.grid-table .gteam{color:var(--muted);font-size:11px;font-weight:400}
+.grid-table .govr{color:var(--gold);text-align:right;font-size:12px}
+.grid-table .gme{background:rgba(232,0,61,.06);border-left:2px solid var(--accent)}
+.grid-table .pole{background:rgba(245,200,66,.06);border-left:2px solid var(--gold)}
+
+/* Enjeux championnat */
+.stakes-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.stake-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.stake-row:last-child{border:none}
+.stake-icon{font-size:18px;flex-shrink:0}
+.stake-text{font-size:13px;color:#ccc;line-height:1.4}
+.stake-text strong{font-family:var(--fh);color:var(--text)}
+
+/* Météo course */
+.weather-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;align-items:center;gap:14px}
+.wc-icon{font-size:40px}
+.wc-info .wi-main{font-family:var(--fh);font-weight:900;font-size:18px}
+.wc-info .wi-sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
+.wc-sc{font-family:var(--fh);font-size:11px;padding:3px 8px;border-radius:4px;margin-top:6px;display:inline-block}
+.sc-low{background:rgba(0,217,126,.1);color:var(--green);border:1px solid rgba(0,217,126,.2)}
+.sc-mid{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.2)}
+.sc-high{background:rgba(232,0,61,.1);color:var(--accent);border:1px solid rgba(232,0,61,.2)}
+
+/* Batailles à surveiller */
+.battle-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px}
+.bc-title{font-family:var(--fh);font-weight:900;font-size:14px;margin-bottom:4px}
+.bc-text{font-size:12px;color:var(--muted);line-height:1.5}
+.bc-badge{font-family:var(--fh);font-size:10px;padding:2px 7px;border-radius:3px;display:inline-block;margin-top:5px}
+.bc-strategic{background:rgba(61,126,255,.12);color:var(--blue);border:1px solid rgba(61,126,255,.2)}
+.bc-ontrack{background:rgba(0,217,126,.1);color:var(--green);border:1px solid rgba(0,217,126,.2)}
+.bc-championship{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.2)}
+
+/* Citation TP */
+.tp-quote{background:linear-gradient(135deg,rgba(232,0,61,.08),transparent);border:1px solid rgba(232,0,61,.15);border-left:3px solid var(--accent);border-radius:8px;padding:14px 16px}
+.tp-text{font-size:14px;color:#ddd;line-height:1.6;font-style:italic;margin-bottom:8px}
+.tp-author{font-family:var(--fh);font-size:11px;color:var(--accent);letter-spacing:1px}
+
+/* Stratégie course */
+.strat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.strat-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.strat-row:last-child{border:none}
+.strat-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.si-title{font-family:var(--fh);font-weight:700;font-size:13px}
+.si-text{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+
+/* CTA race */
+.cta{margin-top:20px}
+.btn-cta{display:block;background:var(--accent);color:#fff;font-family:var(--fh);font-weight:900;font-size:18px;letter-spacing:3px;text-transform:uppercase;padding:18px;border-radius:10px;text-decoration:none;text-align:center;position:relative;overflow:hidden}
+.btn-cta::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);animation:shine 2s infinite}
+@keyframes shine{to{left:100%}}
+</style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
+  <a href="index.html" class="nav-back">← Accueil</a>
+  <div class="top-pills" id="topPills"></div>
+</div>
+<div class="wrap"><div id="content"></div></div>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script>
+const TP_QUOTES_RACE = [
+  "Aujourd'hui on execute le plan. Pas d'improvisation, pas de panique. On fait confiance au travail de la semaine.",
+  "La voiture est prete. Les pilotes sont prets. Il ne reste plus qu'a liberer les chevaux.",
+  "On a fait nos devoirs. Maintenant c'est au circuit de parler. Concentrez-vous, chaque detail compte.",
+  "Ce week-end a ete propre. Si on reproduit ca en course, les points sont la.",
+  "Les adversaires savent qu'on est la. Aujourd'hui on leur rappelle pourquoi ils nous surveillent.",
+  "Chaque decision peut changer le resultat. Gardez la tete froide et executez le plan.",
+  "On ne vient pas ici pour faire de la figuration. Objectif : maximum de points.",
+  "Cette equipe a travaille dur toute la semaine. Maintenant c'est l'heure de recolter.",
+  "Je veux voir de la concentration, de la precision et de l'audace. On est capables de tout.",
+  "La course appartient a ceux qui restent calmes quand tout s'accelere. Soyez ces gens-la.",
+  "On a prepare tous les scenarios. Quelle que soit la meteo, quelle que soit la safety car — on est prets.",
+  "Chaque tour compte. Chaque freinage, chaque relance. Rien n'est anodin en Grand Prix.",
+  "On a vu les donnees. La voiture est la. Maintenant c'est a vous de jouer.",
+  "Pas de pression. Juste du travail bien fait. C'est tout ce qu'on vous demande.",
+  "Les grands GP se gagnent avec la tete autant qu'avec les pieds. Soyez intelligents.",
+  "Aujourd'hui chaque point compte pour le championnat. On ne laisse rien sur la table.",
+  "Le muret sera avec vous a chaque tour. On prend les decisions ensemble.",
+  "On a battu des equipes plus fortes que nous sur le papier. Aujourd'hui on le refait.",
+  "Execution parfaite, voila l'objectif. On connait le plan, on sait ce qu'on a a faire.",
+  "Les meilleurs GP sont ceux ou l'equipe pense plus vite que les adversaires. Soyons cette equipe.",
+];
+const BATTLES = [
+  { title:"La fenetre undercut", text:"Si un rival direct passe au stand avant nous, on doit reagir dans le tour. Mieux vaut couvrir et perdre un peu de temps que de se faire deborder.", badge:"bc-strategic", label:"Strategique" },
+  { title:"Le restart apres Safety Car", text:"Si une SC intervient, les pneus froids au restart creent le chaos. Les premiers virages sont une opportunite pour grappiller des places.", badge:"bc-ontrack", label:"En piste" },
+  { title:"La bataille de milieu de peloton", text:"Les positions 6 a 10 distribuent des points precieux. Un pilote agressif dans cette zone peut faire la difference en championnat.", badge:"bc-championship", label:"Championnat" },
+  { title:"Le choix de pneus en cas de pluie", text:"Si la pluie arrive, le timing du passage aux intermediaires peut valoir 5 ou 6 positions. Ne pas attendre trop longtemps.", badge:"bc-strategic", label:"Strategique" },
+  { title:"L'aggressivite au depart", text:"Les 3 premiers virages redistribuent souvent 4 ou 5 positions. Notre pilote doit se battre pour defendre ou attaquer selon la grille.", badge:"bc-ontrack", label:"En piste" },
+  { title:"La gestion des pneus en fin de course", text:"Les 10 derniers tours, la degradation devient critique. Un pilote qui a menage ses gommes peut attaquer quand les autres subissent.", badge:"bc-strategic", label:"Strategique" },
+  { title:"L'overcut surprise", text:"Rester plus longtemps en piste que les adversaires peut payer si le rythme reste bon. L'overcut peut capter une position si le timing est parfait.", badge:"bc-strategic", label:"Strategique" },
+  { title:"La defense en fin de relance", text:"Les derniers tours d'un long relais, les pneus sont morts. Defendre une position devient un art — proteger la trajectoire interieure est vital.", badge:"bc-ontrack", label:"En piste" },
+  { title:"L'opportunisme sur Safety Car", text:"Tous les SC ne sont pas previsibles. L'equipe qui reagit le plus vite au radio gagne parfois 3 ou 4 places sans effort.", badge:"bc-strategic", label:"Strategique" },
+  { title:"La bataille avec le coequipier", text:"Si les deux voitures sont proches, le muret doit gerer les ordres d'equipe avec finesse. Pas question de se ganer pour les adversaires.", badge:"bc-championship", label:"Championnat" },
+  { title:"Le premier virage", text:"Les accrochages au virage 1 detruisent des courses entieremen. Etre propre et positionne au bon endroit vaut mieux que l'heroisme dangereux.", badge:"bc-ontrack", label:"En piste" },
+  { title:"Les points bonus meilleur tour", text:"Si on est en position de marquer, le tour le plus rapide en fin de course vaut un point supplementaire. Un stop pour des pneus frais peut en valoir la peine.", badge:"bc-championship", label:"Championnat" },
+];
+const WEATHER_ICONS = { dry:'☀️', light_rain:'🌦️', heavy_rain:'🌧️', overcast:'☁️' };
+const WEATHER_LABELS = { dry:'Conditions seches — piste ideale', light_rain:'Bruine — strateges de pneus tendus', heavy_rain:'Pluie forte — course chaotique probable', overcast:'Couvert — pluie possible en fin de course' };
+const SC_PROBA = { dry:20, light_rain:45, heavy_rain:65, overcast:30 };
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function esc(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function render(){
+  const save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+
+  // Appliquer driverStates sur TOUS les pilotes F1Data (y compris GAS, COL etc.)
+  // pour refléter les changements d'équipe en cours de saison
+  if (save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const state = save.driverStates[d.id];
+      if (!state) return;
+      if (Object.prototype.hasOwnProperty.call(state, 'teamId')) {
+        d.teamId = state.teamId;
+      }
+      if (Object.prototype.hasOwnProperty.call(state, 'retired')) {
+        d.retired = state.retired;
+      }
+    });
+  }
+  if(!save||!save.playerTeamId){ document.getElementById('content').innerHTML='<div style="padding:40px;text-align:center;color:var(--muted)">Aucune carriere. <a href="index.html" style="color:var(--accent)">Retour</a></div>'; return; }
+
+  const raceNum   = (save.race||0) % F1Data.circuits.length;
+  const circuit   = F1Data.circuits[raceNum];
+  // Restaurer les pilotes generés avant filtrage
+  if (save.generatedDrivers?.length) {
+    save.generatedDrivers.forEach(gd => {
+      const state  = save.driverStates?.[gd.id];
+      const merged = { ...gd, ...(state||{}) };
+      if (state && state.teamId !== undefined) merged.teamId = state.teamId;
+      // Ne pas ajouter dans F1Data si pas de teamId (non promu)
+      if (!merged.teamId || merged.teamId === 'free_agent') return;
+      const idx = F1Data.drivers.findIndex(d => d.id === gd.id);
+      if (idx < 0) F1Data.drivers.push(merged);
+      else Object.assign(F1Data.drivers[idx], merged);
+    });
+  }
+    const myDrivers = F1Data.drivers.filter(d=>d.teamId&&d.teamId!=='free_agent'&&d.teamId===save.playerTeamId&&!d.retired);
+    // Recalculer isPlayer dans qualiGrid
+    const _qGrid = save.qualiGrid||[];
+    const _actIds = Object.entries(save.driverStates||{})
+      .filter(([,v])=>v.teamId&&v.teamId!=='free_agent'&&v.teamId===save.playerTeamId&&!v.retired)
+      .map(([k])=>k);
+    _qGrid.forEach(g=>{
+      if(_actIds.includes(g.driverId)||myDrivers.find(d=>d.id===g.driverId)) g.isPlayer=true;
+    });
+  const weather   = save.weekendWeather||'dry';
+  const isWet     = weather!=='dry';
+  const season    = save.season||2025;
+  const gpNum     = (save.race||0)+1;
+  const totalGP   = F1Data.circuits.length;
+  const qualiGrid = save.qualiGrid||[];
+
+  document.getElementById('topPills').innerHTML = `
+    <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">Saison ${season}</span>
+    <span style="font-family:var(--fh);font-size:11px;padding:3px 8px;background:rgba(232,0,61,.15);border:1px solid rgba(232,0,61,.3);border-radius:4px;color:var(--accent)">RACE DAY</span>`;
+
+  // Grille de depart (depuis les qualifs ou estimee)
+  const gridDrivers = qualiGrid.length
+    ? qualiGrid.slice(0,10).map(g=>({
+        pos: g.position||g.pos,
+        name: g.driverName||(g.driver?`${g.driver.firstName||''} ${g.driver.name||''}`.trim():'—'),
+        team: g.teamName||(g.driver?F1Data.teams.find(t=>t.id===g.driver.teamId)?.shortName||'—':'—'),
+        teamId: g.teamId||g.driver?.teamId,
+        ovr: g.driver?.ovr||g.driver?.pace||75,
+      }))
+    : F1Data.drivers.filter(d=>!d.retired).sort((a,b)=>(b.ovr||b.pace||75)-(a.ovr||a.pace||75)).slice(0,10).map((d,i)=>({
+        pos:i+1, name:`${d.firstName} ${d.name}`, team:F1Data.teams.find(t=>t.id===d.teamId)?.shortName||'—', teamId:d.teamId, ovr:d.ovr||d.pace||75
+      }));
+
+  // Enjeux championnat
+  const myPts = save.teamStandings?.[save.playerTeamId]||0;
+  const sortedTeams = F1Data.teams.map(t=>({id:t.id,name:t.shortName||t.name,pts:save.teamStandings?.[t.id]||0})).sort((a,b)=>b.pts-a.pts);
+  const myRank = sortedTeams.findIndex(t=>t.id===save.playerTeamId)+1;
+  const teamAbove = myRank>1 ? sortedTeams[myRank-2] : null;
+  const teamBelow = myRank<sortedTeams.length ? sortedTeams[myRank] : null;
+  const gapAbove = teamAbove ? teamAbove.pts-myPts : null;
+  const gapBelow = teamBelow ? myPts-teamBelow.pts : null;
+
+  // Proba SC
+  const scProba = SC_PROBA[weather]||20;
+  const scClass = scProba>=50?'sc-high':scProba>=35?'sc-mid':'sc-low';
+  const scLabel = scProba>=50?'Elevee':'Moderee';
+
+  // Strategie course
+  const pitWindows = circuit.tyreDegradation>1.2
+    ? `2 arrets recommandes — tours ${Math.round(circuit.laps*0.3)} et ${Math.round(circuit.laps*0.62)}.`
+    : `1 arret optimal — tour ${Math.round(circuit.laps*0.45)} a ${Math.round(circuit.laps*0.55)}.`;
+
+  // 3 batailles selectionnees
+  const battles = [pick(BATTLES), pick(BATTLES), pick(BATTLES)].filter((b,i,a)=>a.findIndex(x=>x.title===b.title)===i).slice(0,3);
+
+  // Spectateurs
+  const spectateurs = { monaco:'200 000', silverstone:'350 000', monza:'300 000', spa:'280 000', bahrain:'42 000', barcelona:'140 000', suzuka:'180 000', baku:'85 000', singapore:'90 000', abu_dhabi:'55 000' };
+  const spec = spectateurs[circuit.id]||'100 000+';
+
+  document.getElementById('content').innerHTML = `
+    <div class="hero">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <div class="hero-day" style="margin:0">Dimanche · Race Day</div>
+        <div style="width:60px;height:30px">${myTeam?.logo ? '<img src=\"'+myTeam.logo+'\" style=\"width:100%;height:100%;object-fit:contain\" alt=\"\">' : ''}</div>
+      </div>
+      <div class="hero-title">Grand Prix de ${esc(circuit.name)}</div>
+      <div class="hero-sub">Saison ${season} · GP ${gpNum}/${totalGP} · ${circuit.laps} tours · ${(circuit.laps*circuit.lapDistance).toFixed(0)}km total</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="hs-val">${circuit.laps}</div><div class="hs-lbl">Tours</div></div>
+        <div class="hero-stat"><div class="hs-val">${circuit.lapDistance}km</div><div class="hs-lbl">Par tour</div></div>
+        <div class="hero-stat"><div class="hs-val">${spec}</div><div class="hs-lbl">Spectateurs</div></div>
+        <div class="hero-stat"><div class="hs-val">P${myRank}</div><div class="hs-lbl">Au championnat</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#9928;&#65039; Conditions course</div>
+      <div class="weather-card">
+        <div class="wc-icon">${WEATHER_ICONS[weather]||'☀️'}</div>
+        <div class="wc-info">
+          <div class="wi-main">${WEATHER_LABELS[weather]||'Conditions seches'}</div>
+          <div class="wi-sub">Temperature piste : ${circuit.trackTemp||25}°C · Pit loss : ${circuit.pitLoss}s</div>
+          <div class="wc-sc ${scClass}">Safety Car : probabilite ${scLabel} (${scProba}%)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#127937; Grille de depart (Top 10)</div>
+      <div class="stakes-card" style="padding:8px 14px">
+        <table class="grid-table">
+          ${gridDrivers.map(g=>`
+            <tr class="${g.teamId===save.playerTeamId?'gme':g.pos===1?'pole':''}">
+              <td class="gp">${g.pos}</td>
+              <td><span class="gname">${esc(g.name)}</span> <span class="gteam">${esc(g.team)}</span></td>
+              <td class="govr">${g.ovr}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#127942; Enjeux championnat</div>
+      <div class="stakes-card">
+        <div class="stake-row"><div class="stake-icon">📊</div><div class="stake-text">Vous etes <strong>P${myRank}</strong> au championnat constructeurs avec <strong>${myPts} points</strong>.</div></div>
+        ${gapAbove!==null?`<div class="stake-row"><div class="stake-icon">⬆️</div><div class="stake-text"><strong>${esc(teamAbove.name)}</strong> devant vous. Il faudrait <strong>${gapAbove} points</strong> de plus pour les depasser. Un podium + abandon adverse pourrait suffire.</div></div>`:'<div class="stake-row"><div class="stake-icon">🏆</div><div class="stake-text">Vous etes en tete du championnat. <strong>Defendre cette position.</strong></div></div>'}
+        ${gapBelow!==null?`<div class="stake-row"><div class="stake-icon">⬇️</div><div class="stake-text"><strong>${esc(teamBelow.name)}</strong> est a <strong>${gapBelow} points</strong> derriere. Ne pas se laisser rattraper.</div></div>`:''}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#129504; Strategie recommandee</div>
+      <div class="strat-card">
+        <div class="strat-row"><div class="strat-icon">&#9989;</div><div><div class="si-title">Arrets planifies</div><div class="si-text">${pitWindows}</div></div></div>
+        <div class="strat-row"><div class="strat-icon">&#128308;</div><div><div class="si-title">Pneu de depart</div><div class="si-text">${isWet?'Intermediaires si piste mouille. Full Wet si pluie forte.':circuit.tyreDegradation>1.2?'Pneu Medium recommande — Soft pour qualifier, conserver le Medium pour la course.':'Pneu Medium ou Soft selon grille. Surveiller la degradation.'}</div></div></div>
+        <div class="strat-row"><div class="strat-icon">&#9889;</div><div><div class="si-title">Opportunisme</div><div class="si-text">Si Safety Car avant le tour ${Math.round(circuit.laps*0.7)}, box immediatement. L\'arret gratuit peut tout changer.</div></div></div>
+        <div class="strat-row"><div class="strat-icon">&#128293;</div><div><div class="si-title">Degradation</div><div class="si-text">${circuit.tyreDegradation>1.2?'Elevee — gerer les pneus des le debut. Ne pas attaquer a fond les 10 premiers tours.':'Moderee — rythme normal en debut de course. Ajuster selon la position.'}</div></div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#9876;&#65039; Batailles a surveiller</div>
+      ${battles.map(b=>`
+        <div class="battle-card">
+          <div class="bc-title">${b.title}</div>
+          <div class="bc-text">${b.text}</div>
+          <span class="bc-badge ${b.badge}">${b.label}</span>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- ÉTAT VOITURE + MORAL -->
+    <div class="section">
+      <div class="section-title">&#128295; Voiture &amp; Pilotes — Dimanche</div>
+      <div class="stakes-card">
+        ${myDrivers.map(d => {
+          const moral   = save.immersion?.driverMorale?.[d.id]?.value ?? 70;
+          const effect  = save.driverEffects?.[d.id];
+          const effPos  = effect && (effect.pace||0)+(effect.consistency||0) > 0;
+          const moralCol= moral>=70?'var(--green)':moral>=40?'var(--gold)':'var(--accent)';
+          return '<div class="stake-row"><div class="stake-icon">'+(d.flag||'&#127937;')+'</div><div class="stake-text"><strong>'+esc(d.firstName)+' '+esc(d.name)+'</strong> &middot; OVR '+( d.ovr||d.pace||75)+' &middot; Moral <span style="color:'+moralCol+'">'+moral+'/100</span>'+(effect?' &middot; <span style="color:'+(effPos?'var(--green)':'var(--accent)')+'">'+esc(effect.label||'Effet actif')+'</span>':'')+'</div></div>';
+        }).join('')}
+        ${['aero','chassis','engine','reliability'].map(stat => {
+          const base  = F1Data.teams.find(t=>t.id===save.playerTeamId)?.[stat]||70;
+          const level = save.carDev?.[stat]?.level||base;
+          const delta = level-base;
+          const col   = delta>0?'var(--green)':delta<0?'var(--accent)':'var(--muted)';
+          const lbl   = {aero:'Aéro',chassis:'Châssis',engine:'Moteur',reliability:'Fiabilité'}[stat];
+          return '<div class="stake-row"><div class="stake-icon">&#9881;&#65039;</div><div class="stake-text"><strong>'+lbl+'</strong> &middot; '+level+' <span style="color:'+col+'">'+(delta>=0?'+':'')+delta+'</span></div></div>';
+        }).join('')}
+        <div class="stake-row"><div class="stake-icon">&#9881;&#65039;</div><div class="stake-text"><strong>Setup</strong> &middot; ${{qualify:'&#9889; Qualifications',race:'&#127937; Course',balanced:'&#9878;&#65039; Equilibre'}[save.weekendSetup||'balanced']}</div></div>
+        <div class="stake-row"><div class="stake-icon">&#128176;</div><div class="stake-text"><strong>Budget restant</strong> &middot; ${Math.round((save.budget||0)*10)/10}M€</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#127917; Team Principal</div>
+      <div class="tp-quote">
+        <div class="tp-text">"${pick(TP_QUOTES_RACE)}"</div>
+        <div class="tp-author">— Team Principal · Dimanche matin</div>
+      </div>
+    </div>
+
+    <div class="cta"><a href="race.html" class="btn-cta">&#127937; Aller sur la grille &#8594;</a></div>
+  `;
+}
+render();
+</script>
+
+</body>
+</html>

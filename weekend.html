@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>F1 Manager — Weekend</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>/* TEAM SELECT */
+.select-screen{padding:20px 4px}
+.select-title{font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:4px}
+.select-sub{font-family:var(--fh);font-size:13px;color:var(--muted);margin-bottom:20px}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px}
+.team-card{background:var(--surface);border:2px solid var(--border);border-radius:8px;padding:12px 10px;cursor:pointer;transition:all .15s;text-align:center}
+.team-card:active{transform:scale(.97)}
+.team-card.selected{border-color:var(--gold);background:var(--surface2)}
+.tc-name{font-family:var(--fh);font-weight:900;font-size:15px;margin-bottom:3px}
+.tc-perf{font-family:var(--fh);font-size:11px;color:var(--muted)}
+.tc-budget{font-family:var(--fh);font-size:12px;color:var(--gold);margin-top:3px}
+.btn-confirm{font-family:var(--fh);font-weight:900;font-size:15px;letter-spacing:2px;text-transform:uppercase;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:12px 32px;cursor:pointer;display:none;width:100%;transition:background .15s}
+
+/* RACE HERO */
+.race-hero{background:linear-gradient(135deg,#12000e,#07070d);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;transition:background .15s}
+.race-hero:active{background:var(--surface)}
+.rh-flag{font-size:36px;line-height:1}
+.rh-info{flex:1}
+.rh-label{font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.rh-name{font-family:var(--fh);font-weight:900;font-size:20px;letter-spacing:1px}
+.rh-detail{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:3px}
+.rh-cta{font-family:var(--fh);font-weight:900;font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--accent);color:#fff;padding:8px 14px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+
+/* SECTION LABEL */
+
+/* PILOTES */
+.driver-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background .1s}
+.driver-row:last-child{border-bottom:0}
+.driver-row:active{background:var(--surface2)}
+.dr-num{font-family:var(--fh);font-weight:900;font-size:26px;min-width:40px;text-align:center}
+.dr-info{flex:1}
+.dr-name{font-family:var(--fh);font-weight:700;font-size:16px}
+.dr-trait{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:2px}
+.dr-pace{font-family:var(--fh);font-weight:900;font-size:24px}
+
+/* TUILES */
+
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px;text-decoration:none;color:inherit;display:block;transition:background .1s}
+.tile:active{background:var(--surface2)}
+.tile-icon{font-size:20px;margin-bottom:6px;display:block}
+.tile-lbl{font-family:var(--fh);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tile-val{font-family:var(--fh);font-weight:900;font-size:20px;line-height:1;margin-bottom:3px}
+.tile-sub{font-family:var(--fh);font-size:11px;color:var(--muted);line-height:1.4}
+
+/* STAT BAR */
+
+/* CLASSEMENT */
+.st-row{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);font-family:var(--fh);font-size:13px}
+.st-row:last-child{border-bottom:0}
+.st-pos{font-weight:900;font-size:15px;width:22px}
+.st-bar{width:3px;height:18px;border-radius:2px;flex-shrink:0}
+.st-name{flex:1}
+.st-pts{color:var(--gold);font-weight:700}
+
+/* NEWS */
+.news-row{padding:11px 14px;border-bottom:1px solid var(--border)}
+.news-row:last-child{border-bottom:0}
+.news-title{font-family:var(--fh);font-weight:700;font-size:14px;margin-bottom:3px}
+.news-text{font-family:var(--fb);font-size:12px;color:var(--muted);line-height:1.5}
+
+/* BANNER SAISON */
+.season-banner{background:linear-gradient(135deg,#1a1a00,#0a1400);border:1px solid var(--gold);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px}
+
+/* PANEL */
+
+/* BTN */
+
+.btn-gold{background:#161200;color:var(--gold);border:1px solid #3a3400}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 18px;font-family:var(--fh);font-size:13px;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{border-left-color:var(--accent)}
+.paddock-event{background:linear-gradient(135deg,#12000e,#0a0a14);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px;margin-bottom:10px}
+.paddock-event-kicker{font-family:var(--fh);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:6px}
+.paddock-event-title{font-family:var(--fh);font-weight:900;font-size:16px;margin-bottom:5px}
+.paddock-event-text{font-family:var(--fb);font-size:13px;color:#ccc;line-height:1.5}
+.paddock-event-effect{font-family:var(--fh);font-size:11px;margin-top:8px;padding:5px 8px;background:rgba(255,255,255,.05);border-radius:4px;border:1px solid var(--border)}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+.ph{background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 14px;font-family:var(--fh);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+.ph .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+.ph .ml{margin-left:auto;font-weight:400;letter-spacing:0;font-size:11px}
+
+.btn-red:hover{background:#ff1a52}.btn-red:disabled{background:#3a1a22;color:#664;cursor:not-allowed}
+.btn-gold{background:#161200;color:var(--gold);border:1px solid #3a3400}.btn-gold:hover{background:#2a2400}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent)}
+.btn-green{background:#001a0a;color:var(--green);border:1px solid #003a18}
+
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px;text-decoration:none;color:inherit;display:block;transition:background .1s}
+.tile:active{background:var(--surface2)}
+.tile-icon{font-size:20px;margin-bottom:6px;display:block}
+.tile-lbl{font-family:var(--fh);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tile-val{font-family:var(--fh);font-weight:900;font-size:20px;line-height:1;margin-bottom:3px}
+.tile-sub{font-family:var(--fh);font-size:11px;color:var(--muted);line-height:1.4}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 18px;font-family:var(--fh);font-size:13px;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{border-left-color:var(--accent)}
+select{background:var(--surface);color:var(--text);border:1px solid var(--border);padding:5px 8px;border-radius:4px;font-family:var(--fh);font-size:12px;outline:none}
+input[type=number],input[type=text]{background:var(--surface);color:var(--text);border:1px solid var(--border);padding:5px 8px;border-radius:4px;font-family:var(--fh);font-size:12px;outline:none}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+/* === Page weekend === */
+/* TOPBAR */
+    .tb-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+    
+
+    /* PHASE INDICATOR */
+    .phase:last-child{border-right:0}
+    /* === PHASES BAR === */
+    .phases{display:flex;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:2px}
+    .phase{flex:1;padding:10px 6px;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);border-right:1px solid var(--border);transition:all .2s;cursor:pointer}
+    .phase:last-child{border-right:0}
+    .phase.done{color:#00d97e;background:#001a0a}
+    .phase.active{color:#f5c842;background:#1a1a00;border-bottom:3px solid #f5c842}
+    .phase.locked{opacity:.4;cursor:not-allowed}
+    .phase-icon{font-size:18px;display:block;margin-bottom:3px}
+
+    /* PANEL */
+    .ph .ml{margin-left:auto;font-size:11px;font-weight:400;letter-spacing:0}
+    .content{padding:12px}
+
+    /* CIRCUIT HERO */
+    .circuit-hero{background:linear-gradient(135deg,#0a0a14,#12121f);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;gap:14px;align-items:center}
+    .circuit-flag{font-size:40px}
+    .circuit-stats{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+    .w-rain{background:#1a1a3a;color:#88aaff;border:1px solid #2a2a5a}
+    .w-heavy{background:#0a0a2a;color:#6688ff;border:1px solid #2a2a6a}
+
+    /* BOUTONS */
+    .btn-red:hover{background:#ff1a52}
+    .btn-red:disabled{background:#3a1a22;color:#664;cursor:not-allowed}
+    .btn-gold:hover{background:#2a2a00}
+
+    /* FP SESSION CARD */
+    .fp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media(max-width:600px){.fp-grid{grid-template-columns:1fr}}
+    .select-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;align-items:center}
+    .fp-result .laps-row{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+    .tyre-bar-wrap{height:3px;background:#0a0a14;border-radius:2px;margin-top:5px;overflow:hidden}
+    .tyre-bar-fill{height:100%;border-radius:2px;transition:width .4s}
+
+    /* QUALI */
+    .quali-setup{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    @media(max-width:600px){.quali-setup{grid-template-columns:1fr}}
+
+    /* RÉSULTATS QUALI */
+    .quali-results{display:flex;flex-direction:column;gap:3px}
+    .qrow.player{background:#1a1a00;border:1px solid #3a3a00}
+    .qrow.pole{background:#1a0a00;border:1px solid #5a2a00}
+    .qpos{font-weight:900;font-size:16px;width:28px;text-align:center}
+    .qbar{width:3px;height:20px;border-radius:2px;flex-shrink:0}
+    .qname{flex:1;font-weight:700}
+    .q-elim{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#2a0a0a;color:#ff6666;border:1px solid #5a1a1a}
+
+    /* STRATÉGIE PRÉ-COURSE */
+    .strat-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--border)}
+    .strat-row:last-child{border-bottom:0}
+
+    /* TOAST */
+
+/* Topbar unifiée (style mobile staff) */
+
+.back-home:hover{color:var(--text)!important;border-color:var(--accent)!important}
+
+
+.qrow{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:4px;font-family:'Barlow Condensed',sans-serif;font-size:13px}
+.qrow.player{background:#1a1a00;border:1px solid #3a3a00}
+.qrow.pole{background:#1a0a00;border:1px solid #5a2a00}
+.qpos{font-weight:900;font-size:16px;width:28px;text-align:center}
+.qpos.p1{color:#f5c842}.qpos.p2{color:#c0c0c0}.qpos.p3{color:#cd7f32}
+.qnum{font-size:11px;color:var(--muted);width:22px}
+.qbar{width:3px;height:20px;border-radius:2px;flex-shrink:0}
+.qname{flex:1;font-weight:700}
+.qtime{font-size:12px;color:var(--muted);text-align:right}
+.qgap{font-size:11px;color:var(--muted);width:70px;text-align:right}
+.q-elim{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#2a0a0a;color:#ff6666;border:1px solid #5a1a1a}
+.q-player-badge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:#1a1a00;color:#f5c842;border:1px solid #3a3a00}
+.circuit-hero{background:linear-gradient(135deg,#0a0a14,#12121f);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;gap:14px;align-items:center}
+.circuit-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:24px;color:var(--text)}
+.circuit-full{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);margin-top:2px}
+.cstat{font-family:'Barlow Condensed',sans-serif;font-size:11px;color:var(--muted)}
+.cstat span{color:var(--text);font-weight:700}
+.weather-badge{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:12px;padding:4px 12px;border-radius:12px;margin-left:auto;align-self:flex-start}
+.fp-card{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:12px}
+.fp-card.done{border-color:#00d97e}
+.fp-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:15px;margin-bottom:6px}
+.fp-driver{font-family:'Barlow Condensed',sans-serif;font-size:12px;color:var(--muted);margin-bottom:8px}
+.fp-result{background:#0a0a14;border-radius:4px;padding:8px;margin-top:6px;font-family:'Barlow Condensed',sans-serif;font-size:11px}
+.best{color:#f5c842;font-size:15px;font-weight:900}
+.best-lap{color:#f5c842;border:1px solid #3a3a00;background:#1a1a00}
+.sel{font-family:'Barlow Condensed',sans-serif;font-size:12px;background:var(--surface);color:var(--text);border:1px solid var(--border);padding:4px 8px;border-radius:4px;outline:none;flex:1}
+.lbl{font-family:'Barlow Condensed',sans-serif;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;min-width:50px}
+.mini-sel{background:#101018;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-family:'Barlow Condensed',sans-serif;font-size:12px;outline:none}
+.knowledge-box{background:#001a0a;border:1px solid #003a18;border-radius:5px;padding:10px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px}
+.knowledge-title{color:#00d97e;font-weight:700;font-size:13px;margin-bottom:5px}
+.driver-quali-card{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:12px}
+.dqc-name{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;margin-bottom:6px}
+.strat-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;padding:8px 0;border-bottom:1px solid var(--border)}
+.strat-row:last-child{border-bottom:0}
+.strat-name{min-width:80px;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px}
+.strat-grid-pos{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:18px;color:#f5c842;width:30px;text-align:center}
+
+/* FLOW WEEK-END IMMERSIF */
+.flow-card{background:linear-gradient(135deg,#11111d,#090911);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:8px;margin-bottom:10px;overflow:hidden}
+.flow-head{padding:11px 14px;border-bottom:1px solid var(--border);font-family:var(--fh);font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.flow-
+.flow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+@media(max-width:700px){.flow-grid{grid-template-columns:1fr}}
+.flow-mini{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:9px}
+.flow-k{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.flow-v{font-size:16px;font-weight:900;color:var(--text)}
+.flow-sub{font-size:11px;color:var(--muted);line-height:1.35;margin-top:3px}
+.flow-list{display:flex;flex-direction:column;gap:5px;margin-top:8px;font-size:12px;color:var(--muted)}
+.flow-list strong{color:var(--text)}
+.flow-cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+</style>
+<link rel="stylesheet" href="css/immersive-theme.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></div>
+  <a href="index.html" class="back-home">← Accueil</a>
+  <div class="top-pills">
+    <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-gold" id="budgetBadge">—</div>
+  </div>
+</div>
+    <div class="pill" id="raceBadge" style="color:var(--gold)">—</div>
+  </div>
+
+<div class="page">
+
+  <!-- PHASES DU WEEKEND -->
+  <div class="phases" id="phasesBar"></div>
+
+  <!-- CONTENU DYNAMIQUE -->
+  <div id="weekendContent"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/weather.js"></script>
+<script src="js/sponsors.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/events.js"></script>
+<script src="js/career.js"></script>
+<script src="js/weekend.js"></script>
+<script>
+
+// ══════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════
+let save       = null;
+let circuit    = null;
+let myDrivers  = [];
+let phase      = 'fp'; // fp | quali | race_briefing
+
+// Résultats accumulés
+let fpResults  = [];   // résultats EL
+let qualiResult= null; // résultat qualifs
+
+const CIRCUIT_FLAGS = {
+  bahrain:'🇧🇭',jeddah:'🇸🇦',melbourne:'🇦🇺',imola:'🇮🇹',miami:'🇺🇸',monaco:'🇲🇨',
+  canada:'🇨🇦',barcelona:'🇪🇸',austria:'🇦🇹',silverstone:'🇬🇧',hungary:'🇭🇺',
+  spa:'🇧🇪',zandvoort:'🇳🇱',monza:'🇮🇹',baku:'🇦🇿',singapore:'🇸🇬',suzuka:'🇯🇵',
+  qatar:'🇶🇦',cota:'🇺🇸',mexico:'🇲🇽',brazil:'🇧🇷',vegas:'🇺🇸',abudhabi:'🇦🇪',
+};
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+function init() {
+  save = Save.load();
+  if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+
+  // Synchroniser F1Data avec driverStates (teamId, retired)
+  if (save && save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const st = save.driverStates[d.id];
+      if (!st) return;
+      if (st.teamId !== undefined) d.teamId = st.teamId;
+      if (Object.prototype.hasOwnProperty.call(st, 'retired')) d.retired = st.retired;
+    });
+  }
+  if (!save || !save.playerTeamId) {
+    document.querySelector('.page').innerHTML = `<div style="padding:40px;text-align:center;color:var(--muted);font-family:var(--fh)"><div style="font-size:22px;margin-bottom:12px">Aucune carrière trouvée</div><a href="index.html" class="btn btn-red">Créer une carrière</a></div>`;
+    return;
+  }
+
+  // Restaurer pilotes
+  if (save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const st = save.driverStates[d.id];
+      if (st) Object.assign(d, st);
+    });
+  }
+  if (save.generatedDrivers?.length) {
+    save.generatedDrivers.forEach(gd => {
+      if (!gd.teamId || gd.teamId === 'free_agent') return;
+      if (!F1Data.drivers.find(d => d.id === gd.id)) F1Data.drivers.push(gd);
+    });
+  }
+
+  circuit   = F1Data.circuits[(save.race || 0) % F1Data.circuits.length];
+  myDrivers = F1Data.drivers.filter(d => d.teamId && d.teamId !== 'free_agent' && d.teamId && d.teamId !== 'free_agent' && d.teamId === save.playerTeamId && !d.retired);
+
+  // Générer météo + événement paddock si nouveau circuit
+  const evKey = `paddock_${save.season}-${save.race}`;
+  if (!save.weekendWeather || save.weekendCircuit !== circuit.id) {
+    save.weekendWeather   = Weekend.generateWeekendWeather(circuit);
+    save.weekendCircuit   = circuit.id;
+    save.weekendFPDone    = 0;
+    save.weekendQualiDone = false;
+    save.weekendSetup     = 'balanced';
+    save.qualiGrid        = null;
+    save.qualiStrategy    = {};
+    save.weekendPaddockEvent = null;
+    delete save[evKey]; // forcer la régénération pour ce GP
+  }
+
+  // Générer l'événement paddock une seule fois par GP
+  if (!save[evKey]) {
+    console.log('[PaddockEvent] Génération pour', evKey);
+    try {
+      if (typeof CareerEvents === 'undefined') {
+        console.warn('[PaddockEvent] CareerEvents non défini !');
+        save.weekendPaddockEvent = null;
+      } else {
+        save.weekendPaddockEvent = CareerEvents.triggerPreRace(save) || null;
+        console.log('[PaddockEvent] Résultat:', save.weekendPaddockEvent);
+      }
+    } catch(e) {
+      save.weekendPaddockEvent = null;
+      console.error('[PaddockEvent] Erreur:', e);
+    }
+    save[evKey] = true;
+    Save.save(save);
+  } else {
+    console.log('[PaddockEvent] Déjà généré pour', evKey, '→', save.weekendPaddockEvent?.title || 'null');
+  }
+
+  // Restaurer état weekend
+  fpResults   = save.weekendFPResults || [];
+  qualiResult = save.qualiGrid ? { grid: save.qualiGrid, poleTime: save.qualiGrid[0]?.qualiTime } : null;
+
+  // Déterminer la phase courante
+  if (save.weekendQualiDone) phase = 'race_briefing';
+  else if (save.weekendFPDone >= 3) phase = 'quali';
+  else phase = 'fp';
+
+  document.getElementById('seasonBadge').textContent = `Saison ${save.season || 2025}`;
+  document.getElementById('raceBadge').textContent   = `GP ${(save.race || 0) + 1} — ${circuit.name}`;
+
+  renderPhases();
+  renderContent();
+}
+
+// ══════════════════════════════════════════════════════════
+//  CARTE ÉVÉNEMENT PADDOCK PRÉ-COURSE
+// ══════════════════════════════════════════════════════════
+function buildPaddockEventCard() {
+  const ev = save.weekendPaddockEvent;
+  if (!ev || !ev.title) return null;
+
+  // Couleur bordure selon catégorie
+  const positiveCategories = ['performance','financial','technical'];
+  const negativeCategories = ['medical','regulatory','mercato'];
+  const cat = ev.category || '';
+  const borderColor = positiveCategories.includes(cat) ? 'var(--green)' : negativeCategories.includes(cat) ? '#ff4444' : 'var(--gold)';
+  const icon = ev.icon || '📰';
+
+  // Label d'impact selon catégorie
+  const catLabels = {
+    medical:'Impact pilote', performance:'Boost performance', financial:'Impact budget',
+    technical:'Impact technique', regulatory:'Décision FIA', mercato:'Situation contrats',
+    competitor:'Rival en forme', board:'Signal direction', general:'Info paddock',
+  };
+  const catLabel = catLabels[cat] || 'Événement paddock';
+  const sign = positiveCategories.includes(cat) ? '▲' : negativeCategories.includes(cat) ? '▼' : '●';
+  const col  = positiveCategories.includes(cat) ? 'var(--green)' : negativeCategories.includes(cat) ? '#ff6666' : 'var(--muted)';
+
+  const el = document.createElement('div');
+  el.className = 'panel';
+  el.innerHTML = `
+    <div class="ph"><div class="dot" style="background:${borderColor}"></div>📰 Nouvelles du paddock</div>
+    <div class="content">
+      <div class="paddock-event" style="border-left-color:${borderColor}">
+        <div class="paddock-event-kicker">${icon} Avant le Grand Prix · ${circuit.name}</div>
+        <div class="paddock-event-title">${ev.title}</div>
+        <div class="paddock-event-text">${ev.text}</div>
+        <div class="paddock-event-effect" style="color:${col}">${sign} ${catLabel}</div>
+      </div>
+    </div>`;
+  return el;
+}
+
+// ══════════════════════════════════════════════════════════
+//  PHASES BAR
+// ══════════════════════════════════════════════════════════
+function renderPhases() {
+  const phases = [
+    { id:'fp',            icon:'🔧', label:'Essais Libres', done: save.weekendFPDone >= 3 },
+    { id:'quali',         icon:'⚡', label:'Qualifications', done: save.weekendQualiDone },
+    { id:'race_briefing', icon:'🏁', label:'Course',        done: false },
+  ];
+
+  document.getElementById('phasesBar').innerHTML = phases.map(p => {
+    const isDone   = p.done;
+    const isActive = p.id === phase;
+    const isLocked = (p.id === 'quali' && save.weekendFPDone < 3) || (p.id === 'race_briefing' && !save.weekendQualiDone);
+    const cls = isDone ? 'done' : isActive ? 'active' : isLocked ? 'locked' : '';
+    return `<div class="phase ${cls}" onclick="goPhase('${p.id}')">
+      <span class="phase-icon">${isDone ? '✅' : p.icon}</span>${p.label}
+    </div>`;
+  }).join('');
+}
+
+function goPhase(p) {
+  if (p === 'quali' && save.weekendFPDone < 3) { toast('❌ Termine les 3 séances d\'essais libres d\'abord !', true); return; }
+  if (p === 'race_briefing' && !save.weekendQualiDone) { toast('❌ Fais les qualifications d\'abord !', true); return; }
+  // Redirection vers les pages briefing
+  if (p === 'quali') { location.href = 'quali-briefing.html'; return; }
+  if (p === 'race_briefing') { location.href = 'race-briefing.html'; return; }
+  phase = p;
+  renderPhases();
+  renderContent();
+}
+
+// ══════════════════════════════════════════════════════════
+//  DISPATCH CONTENU
+// ══════════════════════════════════════════════════════════
+function renderContent() {
+  const content = document.getElementById('weekendContent');
+  content.innerHTML = '';
+  content.appendChild(buildCircuitHero());
+
+  // Flow immersif : uniquement des cartes de transition qui lisent les vraies données sauvegardées.
+  // Elles ne modifient pas la simulation et ne décident jamais des résultats.
+  if (phase === 'fp' && (save.weekendFPDone || 0) === 0) {
+    content.appendChild(buildArrivalBriefing());
+    const pevCard = buildPaddockEventCard();
+    if (pevCard) content.appendChild(pevCard);
+  }
+  if (phase === 'fp' && (save.weekendFPDone || 0) > 0) content.appendChild(buildFPDebriefCard());
+  if (phase === 'quali') content.appendChild(buildPreQualiStoryCard());
+  if (phase === 'race_briefing') content.appendChild(buildQualiStoryCard());
+
+  if (phase === 'fp')            content.appendChild(buildFPSection());
+  else if (phase === 'quali')    content.appendChild(buildQualiSection());
+  else                           content.appendChild(buildRaceBriefing());
+}
+
+// ── CIRCUIT HERO ─────────────────────────────────────────
+function buildCircuitHero() {
+  const flag  = CIRCUIT_FLAGS[circuit.id] || '🏁';
+  const w     = save.weekendWeather || 'dry';
+  const wText = w === 'heavy_rain' ? '⛈️ Forte pluie' : w === 'light_rain' ? '🌧️ Pluie légère' : '☀️ Sec';
+  const wCls  = w === 'heavy_rain' ? 'w-heavy' : w === 'light_rain' ? 'w-rain' : 'w-dry';
+
+  const el = document.createElement('div');
+  el.className = 'panel';
+  el.innerHTML = `
+    <div class="circuit-hero">
+      <div class="circuit-flag">${flag}</div>
+      <div>
+        <div class="circuit-name">${circuit.fullName || circuit.name}</div>
+        <div class="circuit-full">Grand Prix de ${circuit.name} · Saison ${save.season || 2025}</div>
+        <div class="circuit-stats">
+          <div class="cstat">🔄 <span>${circuit.laps}</span> tours</div>
+          <div class="cstat">📏 <span>${circuit.lapDistance}</span> km/tour</div>
+          <div class="cstat">⏱ <span>${Weekend.fmtTime(circuit.baseLapTime)}</span> ref.</div>
+          <div class="cstat">🏎️ DRS <span>${circuit.drsZones}</span> zones</div>
+          <div class="cstat">🔧 Pit <span>${circuit.pitLoss}s</span></div>
+        </div>
+      </div>
+      <div class="weather-badge ${wCls}">${wText}</div>
+    </div>`;
+  return el;
+}
+
+
+// ══════════════════════════════════════════════════════════
+//  FLOW IMMERSIF WEEK-END — CARTES NARRATIVES BASÉES DONNÉES
+// ══════════════════════════════════════════════════════════
+function makeFlowCard(title, html, icon='🎙️') {
+  const el = document.createElement('div');
+  el.className = 'flow-card';
+  el.innerHTML = `<div class="flow-head"><span>${icon}</span>${title}</div><div class="flow-body">${html}</div>`;
+  return el;
+}
+
+function getPlayerTeam() {
+  return F1Data.teams.find(t => t.id === save.playerTeamId) || null;
+}
+
+function flowWeatherLabel() {
+  const w = save.weekendWeather || 'dry';
+  if (w === 'heavy_rain') return 'Forte pluie';
+  if (w === 'light_rain') return 'Pluie légère';
+  return 'Sec';
+}
+
+
+function circuitTypeLabel(type) {
+  const labels = {
+    balanced: 'Équilibré',
+    power: 'Puissance moteur',
+    high_speed: 'Haute vitesse',
+    technical: 'Technique',
+    street: 'Urbain',
+    mixed: 'Mixte'
+  };
+  return labels[type] || 'Équilibré';
+}
+
+function circuitProfileLine() {
+  const deg = circuit.tyreDegradation || 1;
+  const ovt = circuit.overtakingDifficulty || 0.5;
+  const tyreTxt = deg >= 1.35 ? 'dégradation très élevée' : deg >= 1.15 ? 'dégradation sensible' : deg <= 0.9 ? 'pneus assez protégés' : 'dégradation normale';
+  const ovtTxt = ovt >= 0.75 ? 'dépassements difficiles' : ovt <= 0.4 ? 'dépassements accessibles' : 'dépassements moyens';
+  return `${tyreTxt} · ${ovtTxt} · ${circuit.drsZones || 0} zone${(circuit.drsZones||0)>1?'s':''} DRS`;
+}
+
+function getBestFPRun(results) {
+  if (!results?.length) return null;
+  return [...results].sort((a,b)=>a.bestLap-b.bestLap)[0];
+}
+
+function buildArrivalBriefing() {
+  const team = getPlayerTeam();
+  const driversLine = myDrivers.map(d => `${d.firstName} ${d.name}`).join(' / ') || 'Pilotes non définis';
+  const expected = team?.performance >= 90 ? 'jouer la victoire' : team?.performance >= 78 ? 'viser les gros points' : team?.performance >= 65 ? 'se battre pour les points' : 'surprendre avec la stratégie';
+  return makeFlowCard('Arrivée au Grand Prix', `
+    <div style="font-size:13px;color:var(--muted);line-height:1.5">
+      Le garage <strong style="color:var(--text)">${team?.name || 'de ton équipe'}</strong> s'installe à ${circuit.fullName || circuit.name}. Objectif logique d'après la performance actuelle : <strong style="color:var(--gold)">${expected}</strong>.
+    </div>
+    <div class="flow-grid">
+      <div class="flow-mini"><div class="flow-k">Météo week-end</div><div class="flow-v">${flowWeatherLabel()}</div><div class="flow-sub">Valeur issue de la météo générée pour ce GP.</div></div>
+      <div class="flow-mini"><div class="flow-k">Profil piste</div><div class="flow-v">${circuitTypeLabel(circuit.circuitType)}</div><div class="flow-sub">${circuitProfileLine()}</div></div>
+      <div class="flow-mini"><div class="flow-k">Tes pilotes</div><div class="flow-v">${myDrivers.length} engagés</div><div class="flow-sub">${driversLine}</div></div>
+    </div>
+    <div class="flow-cta"><button class="btn btn-gold" onclick="document.getElementById('fpConfig')?.scrollIntoView({behavior:'smooth'})">Préparer EL1</button></div>
+  `, '🛬');
+}
+
+function buildFPDebriefCard() {
+  const done = save.weekendFPDone || 0;
+  const last = fpResults.slice(-myDrivers.length);
+  const best = getBestFPRun(fpResults);
+  const knowledge = Weekend.calcKnowledgeBonus(fpResults);
+  const bestDriver = best ? F1Data.drivers.find(d => d.id === best.driver) : null;
+  const tested = [...new Set(fpResults.map(r => r.compound))].map(c => F1Data.tyres[c]?.name || c).join(', ') || '—';
+  const avgWear = last.length ? (last.reduce((s,r)=>s+(r.finalWear||0),0)/last.length).toFixed(0) : '0';
+  return makeFlowCard(`Débrief EL${done}`, `
+    <div style="font-size:13px;color:var(--muted);line-height:1.5">
+      Les données affichées viennent uniquement des runs simulés en essais libres : pneus choisis, programmes, chronos et usure réelle de tes pilotes.
+    </div>
+    <div class="flow-grid">
+      <div class="flow-mini"><div class="flow-k">Meilleur tour équipe</div><div class="flow-v">${best ? Weekend.fmtTime(best.bestLap) : '—'}</div><div class="flow-sub">${bestDriver ? `${bestDriver.firstName} ${bestDriver.name}` : 'Aucun run'} · ${best ? (F1Data.tyres[best.compound]?.name || best.compound) : ''}</div></div>
+      <div class="flow-mini"><div class="flow-k">Pneus testés</div><div class="flow-v">${tested}</div><div class="flow-sub">Mélange basé sur tes choix d'EL.</div></div>
+      <div class="flow-mini"><div class="flow-k">Usure moyenne dernière séance</div><div class="flow-v">${avgWear}%</div><div class="flow-sub">Bonus pneus acquis : -${(knowledge.tyreBonus*100).toFixed(0)}% dégradation.</div></div>
+    </div>
+  `, '📊');
+}
+
+function buildPreQualiStoryCard() {
+  const knowledge = Weekend.calcKnowledgeBonus(fpResults);
+  const best = getBestFPRun(fpResults);
+  const bestDriver = best ? F1Data.drivers.find(d => d.id === best.driver) : null;
+  return makeFlowCard('Briefing qualifications', `
+    <div style="font-size:13px;color:var(--muted);line-height:1.5">
+      Les essais libres sont terminés. Ton rythme de qualification sera influencé par les vrais bonus acquis via les programmes EL.
+    </div>
+    <div class="flow-grid">
+      <div class="flow-mini"><div class="flow-k">Préparation</div><div class="flow-v">${knowledge.label}</div><div class="flow-sub">${save.weekendFPDone || 0}/3 séances effectuées.</div></div>
+      <div class="flow-mini"><div class="flow-k">Bonus pace</div><div class="flow-v">+${(knowledge.paceBonus*100).toFixed(0)}%</div><div class="flow-sub">Issu des programmes quali sim.</div></div>
+      <div class="flow-mini"><div class="flow-k">Référence EL</div><div class="flow-v">${best ? Weekend.fmtTime(best.bestLap) : '—'}</div><div class="flow-sub">${bestDriver ? `${bestDriver.firstName} ${bestDriver.name}` : 'Aucun run disponible'}.</div></div>
+    </div>
+  `, '⚡');
+}
+
+function buildQualiStoryCard() {
+  const grid = save.qualiGrid || [];
+  // Recalculer isPlayer selon driverStates actuel (corrige les promus post-quali)
+  const activePlayerIds = Object.entries(save.driverStates||{})
+    .filter(([,v]) => v.teamId && v.teamId !== 'free_agent' && v.teamId === save.playerTeamId && !v.retired)
+    .map(([k]) => k);
+  grid.forEach(g => {
+    if (activePlayerIds.includes(g.driverId) ||
+        F1Data.drivers.find(d => d.id === g.driverId && d.teamId === save.playerTeamId)) {
+      g.isPlayer = true;
+    }
+  });
+  const pole = grid[0];
+  const player = grid.filter(g => g.isPlayer);
+  const bestPlayer = player.length ? [...player].sort((a,b)=>a.gridPos-b.gridPos)[0] : null;
+  const poleName = pole ? getDriverName(pole.driverId) : '—';
+  const playerLine = player.length ? player.map(p=>`${getDriverName(p.driverId)} P${p.gridPos}`).join(' · ') : '—';
+  const gap = bestPlayer && pole ? (bestPlayer.gridPos===1 ? 'Pole position' : Weekend.fmtGap(pole.qualiTime, bestPlayer.qualiTime)) : '—';
+  return makeFlowCard('Transition vers la course', `
+    <div style="font-size:13px;color:var(--muted);line-height:1.5">
+      La grille ci-dessous vient directement des qualifications sauvegardées. La stratégie pré-course utilise ensuite cette grille, la météo et les données pneus des EL.
+    </div>
+    <div class="flow-grid">
+      <div class="flow-mini"><div class="flow-k">Pole position</div><div class="flow-v">${poleName}</div><div class="flow-sub">${pole ? Weekend.fmtTime(pole.qualiTime) : 'Qualification non disponible'}.</div></div>
+      <div class="flow-mini"><div class="flow-k">Meilleur pilote équipe</div><div class="flow-v">${bestPlayer ? `P${bestPlayer.gridPos}` : '—'}</div><div class="flow-sub">${bestPlayer ? `${getDriverName(bestPlayer.driverId)} · ${gap}` : 'Aucun pilote joueur dans la grille'}.</div></div>
+      <div class="flow-mini"><div class="flow-k">Tes positions</div><div class="flow-v">${player.map(p=>`P${p.gridPos}`).join(' / ') || '—'}</div><div class="flow-sub">${playerLine}</div></div>
+    </div>
+  `, '🏁');
+}
+
+// ══════════════════════════════════════════════════════════
+//  ESSAIS LIBRES
+// ══════════════════════════════════════════════════════════
+function buildFPSection() {
+  const el = document.createElement('div');
+
+  // Connaissance circuit actuelle
+  const knowledge = Weekend.calcKnowledgeBonus(fpResults);
+  const sessions  = ['EL1','EL2','EL3'];
+
+  el.innerHTML = `
+    <div class="panel" style="margin-bottom:10px">
+      <div class="ph"><div class="dot"></div>🔧 Essais Libres — ${save.weekendFPDone}/3 séances
+        <span class="ml">${knowledge.label}</span>
+      </div>
+      <div class="content">
+        <div style="font-family:var(--fh);font-size:12px;color:var(--muted);margin-bottom:10px">
+          Chaque séance te donne des données précieuses. Les long runs révèlent la dégradation,
+          les quali sims donnent le temps de référence, le travail de setup améliore ta voiture.
+        </div>
+        ${save.weekendFPDone < 3 ? `
+        <div class="knowledge-box">
+          <div class="knowledge-title">📊 Bonus de connaissance</div>
+          <div style="display:flex;gap:12px;font-family:var(--fh);font-size:11px;color:var(--muted)">
+            <span>🛞 Pneus +${(knowledge.tyreBonus * 100).toFixed(0)}%</span>
+            <span>⚙️ Setup +${(knowledge.setupBonus * 100).toFixed(0)}%</span>
+            <span>⏱ Pace +${(knowledge.paceBonus * 100).toFixed(0)}%</span>
+          </div>
+        </div>` : ''}
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="ph"><div class="dot"></div>Configuration séance ${save.weekendFPDone + 1} — ${sessions[save.weekendFPDone] || 'Terminé'}</div>
+      <div class="content" id="fpConfig">
+        ${save.weekendFPDone < 3 ? buildFPConfig() : buildFPSummary()}
+      </div>
+    </div>
+  `;
+
+  return el;
+}
+
+function getAvailableJuniors() {
+  // Retourne les juniors promouvables qui ont encore des sessions EL disponibles cette saison
+  const im = save?.immersion;
+  if (!im || !Array.isArray(im.juniorAcademy)) return [];
+  const maxFP = (typeof Immersion !== 'undefined' && Immersion.FP_PER_SEASON) ? Immersion.FP_PER_SEASON : 2;
+  const currentSeason = save.season || 2025;
+  return im.juniorAcademy.filter(j => {
+    if (!j.promotable || j.promoted) return false;
+    const sameYear   = (j.fpSeasonYear||0) === currentSeason;
+    const usedSess   = sameYear ? (j.fpSeasonCount||0) : 0;
+    return true; // on les montre tous, avec leur quota restant
+  });
+}
+
+function buildFPConfig() {
+  const compounds = Object.keys(F1Data.tyres);
+  const juniors   = getAvailableJuniors();
+  const maxFP     = (typeof Immersion !== 'undefined' && Immersion.FP_PER_SEASON) ? Immersion.FP_PER_SEASON : 2;
+  const currentSeason = save.season || 2025;
+
+  // Construire les options junior pour le select
+  const juniorOptions = juniors.map(j => {
+    const sameYear  = (j.fpSeasonYear||0) === currentSeason;
+    const usedSess  = sameYear ? (j.fpSeasonCount||0) : 0;
+    const sessLeft  = Math.max(0, maxFP - usedSess);
+    const disabled  = sessLeft <= 0 ? 'disabled' : '';
+    const label     = `${j.flag} ${j.firstName} ${j.name} · Potentiel ${j.potential} · ${sessLeft}/${maxFP} EL restante${sessLeft!==1?'s':''}`;
+    return `<option value="${j.id}" ${disabled}>${label}</option>`;
+  }).join('');
+
+  const juniorBlock = juniors.length ? `
+    <div style="margin-bottom:12px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:6px">
+      <div style="font-family:var(--fh);font-weight:700;font-size:12px;color:var(--gold);margin-bottom:8px">🌱 JUNIOR EN ESSAIS LIBRES (max ${maxFP}/saison)</div>
+      <div style="font-family:var(--fh);font-size:11px;color:var(--muted);margin-bottom:8px">
+        Sélectionne un junior promouvable pour qu'il conduise à la place d'un de tes titulaires lors de cette session.
+      </div>
+      <div class="select-row" style="margin-bottom:6px">
+        <span class="lbl">Junior</span>
+        <select class="sel" id="fp-junior-select">
+          <option value="">— Aucun (titulaires uniquement) —</option>
+          ${juniorOptions}
+        </select>
+      </div>
+      <div id="fp-junior-replace-row" style="display:none">
+        <div class="select-row">
+          <span class="lbl">Remplace</span>
+          <select class="sel" id="fp-junior-replace">
+            ${myDrivers.map(d => `<option value="${d.id}">${d.firstName} ${d.name}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>
+  ` : '';
+
+  return juniorBlock + myDrivers.map(driver => `
+    <div class="fp-card" id="fp-card-${driver.id}">
+      <div class="fp-title">${driver.firstName} ${driver.name}</div>
+      <div class="fp-driver">${F1Data.teams.find(t=>t.id===driver.teamId)?.name || '—'}</div>
+      <div class="select-row">
+        <span class="lbl">Pneu</span>
+        <select class="sel" id="fp-compound-${driver.id}">
+          ${compounds.filter(c=>!['INTER','WET'].includes(c) || save.weekendWeather !== 'dry').map(c =>
+            `<option value="${c}" ${c==='MEDIUM'?'selected':''}>${F1Data.tyres[c].name}</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div class="select-row">
+        <span class="lbl">Programme</span>
+        <select class="sel" id="fp-program-${driver.id}">
+          ${Weekend.PROGRAM_OPTIONS.map(p =>
+            `<option value="${p.id}">${p.label} — ${p.desc}</option>`
+          ).join('')}
+        </select>
+      </div>
+    </div>
+  `).join('') + `
+    <div style="margin-top:10px">
+      <div class="select-row" style="margin-bottom:6px">
+        <span class="lbl">Setup global</span>
+        <select class="sel" id="fp-setup" onchange="updateSetupHint(this.value)">
+          ${Weekend.SETUP_OPTIONS.map(s =>
+            `<option value="${s.id}" ${s.id===save.weekendSetup?'selected':''}>${s.label} — ${s.desc}</option>`
+          ).join('')}
+        </select>
+      </div>
+      <div id="setup-hint" style="font-family:var(--fh);font-size:11px;padding:6px 10px;border-radius:5px;margin-bottom:10px;${save.weekendSetup==='quali_mode'?'background:rgba(245,200,66,.08);color:var(--gold);border:1px solid rgba(245,200,66,.15)':save.weekendSetup==='race_mode'?'background:rgba(0,217,126,.08);color:var(--green);border:1px solid rgba(0,217,126,.15)':'background:var(--surface2);color:var(--muted);border:1px solid var(--border)'}">
+        ${({
+          balanced:   '⚖️ Neutre — aucun bonus ni malus en course.',
+          low_drag:   '💨 +vitesse ligne droite, -grip en virage. Circuits rapides (Monza, Baku).',
+          high_df:    '🔄 +grip en virage, -vitesse max. Circuits techniques (Monaco, Suzuka).',
+          quali_mode: '⚡ -0.08s/tour en course MAIS +12% dégradation pneus. Stratégie 1 arrêt risquée.',
+          race_mode:  '🏁 +0.05s/tour MAIS -10% dégradation. Idéal pour stratégie 2 arrêts ou pluie.',
+        })[save.weekendSetup] || '⚖️ Neutre — aucun bonus ni malus.'}
+      </div>
+      <button class="btn btn-red" onclick="runFP()">🚦 Lancer la séance</button>
+    </div>
+  `;
+}
+
+// Afficher/cacher le select "remplacer par" selon si un junior est choisi
+document.addEventListener('change', function(e){
+  if(e.target && e.target.id === 'fp-junior-select'){
+    const row = document.getElementById('fp-junior-replace-row');
+    if(row) row.style.display = e.target.value ? 'block' : 'none';
+  }
+});
+
+function buildFPResults(results) {
+  return results.map(r => {
+    const driver  = F1Data.drivers.find(d => d.id === r.driver);
+    const tyre    = F1Data.tyres[r.compound];
+    const minLap  = r.lapTimes?.length > 0 ? Math.min(...r.lapTimes) : null;
+    const tyreClr = r.finalWear > 60 ? '#ff4444' : r.finalWear > 35 ? '#ffea00' : '#00e676';
+
+    return `
+      <div class="fp-card done" style="margin-bottom:8px">
+        <div class="fp-title">${driver?.firstName} ${driver?.name} — <span style="color:${tyre.color}">${tyre.name}</span></div>
+        <div class="fp-result">
+          <div class="best">⏱ ${Weekend.fmtTime(r.bestLap)}</div>
+          <div style="color:var(--muted);font-size:10px;margin-top:2px">Moy: ${Weekend.fmtTime(r.avgLap)} · Usure: ${r.finalWear.toFixed(0)}% · Vie restante: ${r.tyreLife.toFixed(0)}%</div>
+          <div class="laps-row">
+            ${r.lapTimes.map(l => `<span class="lap${l===minLap?' best-lap':''}">${l.toFixed(3)}</span>`).join('')}
+          </div>
+          <div style="margin-top:5px;font-size:10px;color:var(--muted)">Dégradation</div>
+          <div class="tyre-bar-wrap"><div class="tyre-bar-fill" style="width:${r.finalWear}%;background:${tyreClr}"></div></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function buildFPSummary() {
+  const knowledge = Weekend.calcKnowledgeBonus(fpResults);
+  return `
+    <div class="knowledge-box" style="margin-bottom:12px">
+      <div class="knowledge-title">✅ ${knowledge.label} — Bonus acquis</div>
+      <div style="display:flex;gap:16px;font-family:var(--fh);font-size:12px;margin-top:5px">
+        <span style="color:var(--gold)">🛞 Dégradation -${(knowledge.tyreBonus*100).toFixed(0)}%</span>
+        <span style="color:var(--blue)">⚙️ Setup +${(knowledge.setupBonus*100).toFixed(0)}%</span>
+        <span style="color:var(--green)">⏱ Pace +${(knowledge.paceBonus*100).toFixed(0)}%</span>
+      </div>
+    </div>
+    ${buildFPResults(fpResults)}
+    <div style="margin-top:12px;display:flex;gap:8px">
+      <button class="btn btn-red" onclick="goPhase('quali')">⚡ Passer aux qualifications →</button>
+    </div>
+  `;
+}
+
+let _fpRunning = false;
+function runFP() {
+  if (_fpRunning) return; // anti double-clic
+  _fpRunning = true;
+  setTimeout(() => _fpRunning = false, 800);
+  save = Save.load(); // recharger le save
+  if (save.weekendFPDone >= 3) { toast('Les 3 seances sont deja terminees !', true); _fpRunning=false; return; }
+
+  const setup = document.getElementById('fp-setup')?.value || 'balanced';
+  save.weekendSetup = setup;
+
+  const sessionResults = [];
+
+  // Vérifier si un junior est sélectionné pour cette session
+  const juniorId      = document.getElementById('fp-junior-select')?.value || '';
+  const replaceId     = document.getElementById('fp-junior-replace')?.value || '';
+  let juniorResult    = null;
+
+  if(juniorId && replaceId){
+    // Lancer la session junior via Immersion (limite 2/saison vérifiée là-bas)
+    const sessionName = ['fp1','fp2','fp3'][save.weekendFPDone] || 'fp1';
+    juniorResult = (typeof Immersion !== 'undefined') ? Immersion.juniorFP(save, juniorId, sessionName) : null;
+    if(juniorResult && !juniorResult.ok){
+      toast(`⚠️ ${juniorResult.msg}`, true);
+      return;
+    }
+    if(juniorResult?.ok){
+      // Afficher une notification de résultat junior
+      const notif = document.createElement('div');
+      notif.style.cssText='position:fixed;bottom:60px;right:16px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:6px;padding:10px 14px;font-family:var(--fh);font-size:13px;z-index:200;max-width:300px';
+      const crash = juniorResult.crash;
+      notif.textContent = crash
+        ? `💥 Junior — Crash en piste ! Quota restant : ${juniorResult.sessionsLeft}/saison`
+        : `🌱 Junior — ${juniorResult.timeStr} vs leader · ${juniorResult.sessionsLeft} session${juniorResult.sessionsLeft!==1?'s':''} EL restante${juniorResult.sessionsLeft!==1?'s':''}`;
+      document.body.appendChild(notif);
+      setTimeout(() => notif.remove(), 4000);
+    }
+  }
+
+  // Sessions des titulaires (ou du titulaire non remplacé)
+  myDrivers.forEach(driver => {
+    // Si ce pilote est remplacé par le junior, on saute sa session normale
+    if(juniorId && replaceId === driver.id) return;
+    const compound = document.getElementById(`fp-compound-${driver.id}`)?.value || 'MEDIUM';
+    const program  = document.getElementById(`fp-program-${driver.id}`)?.value  || 'quali_sim';
+    const result   = Weekend.simulateFP(save, circuit, driver, compound, program, setup);
+    if (result) sessionResults.push(result);
+  });
+
+  fpResults = [...fpResults, ...sessionResults];
+  save.weekendFPResults = fpResults;
+  save.weekendFPDone    = (save.weekendFPDone || 0) + 1;
+  Save.save(save);
+
+  const sessionLabel = juniorId && replaceId && juniorResult?.ok
+    ? `✅ Séance EL${save.weekendFPDone} terminée avec junior en piste !`
+    : `✅ Séance EL${save.weekendFPDone} terminée !`;
+  toast(sessionLabel);
+
+  renderPhases();
+  renderContent();
+}
+
+// ══════════════════════════════════════════════════════════
+//  QUALIFICATIONS
+// ══════════════════════════════════════════════════════════
+function buildQualiSection() {
+  const el = document.createElement('div');
+
+  const knowledge = Weekend.calcKnowledgeBonus(fpResults);
+
+  if (!save.weekendQualiDone) {
+    // Config qualifications
+    el.innerHTML = `
+      <div class="panel" style="margin-bottom:10px">
+        <div class="ph"><div class="dot"></div>⚡ Qualifications — Configuration</div>
+        <div class="content">
+          <div style="font-family:var(--fh);font-size:12px;color:var(--muted);margin-bottom:10px">
+            Q1 → 20 pilotes (élimine les 5 derniers) · Q2 → 15 pilotes (élimine les 5 derniers) · Q3 → 10 pilotes (pole position)
+            <br>En Q3 : tout le monde roule en <strong style="color:#FF3333">Soft</strong>.
+          </div>
+          <div class="quali-setup" id="qualiConfig">
+            ${myDrivers.map(driver => `
+              <div class="driver-quali-card">
+                <div class="dqc-name">${driver.firstName} ${driver.name}</div>
+                <div class="select-row">
+                  <span class="lbl">Mode</span>
+                  <select class="sel" id="qm-${driver.id}">
+                    <option value="push" selected>🔥 Push — Tour lancé max</option>
+                    <option value="normal">◼ Normal</option>
+                  </select>
+                </div>
+                <div style="font-family:var(--fh);font-size:10px;color:var(--muted);margin-top:4px">
+                  Pneu : ${save.weekendWeather==='heavy_rain'?'Full Wet':save.weekendWeather==='light_rain'?'Inter':'🔴 Soft (Q3) / Soft (Q1-Q2)'} · Bonus EL: ${knowledge.paceBonus>0?'+'+knowledge.paceBonus.toFixed(2)+'s':'—'}
+                </div>
+              </div>
+            `).join('')}
+          </div>
+          <div style="margin-top:12px">
+            <button class="btn btn-red" onclick="launchQuali()">⚡ Lancer les qualifications</button>
+          </div>
+        </div>
+      </div>
+    `;
+  } else {
+    // Résultats qualifications
+    el.appendChild(buildQualiResults());
+  }
+
+  return el;
+}
+
+function launchQuali() {
+  // Sauvegarder les strategies avant de rediriger
+  save.qualiStrategy = {};
+  myDrivers.forEach(driver => {
+    save.qualiStrategy[driver.id] = {
+      mode: document.getElementById(`qm-${driver.id}`)?.value || 'normal',
+    };
+  });
+  const knowledge = Weekend.calcKnowledgeBonus(fpResults);
+  save.weekendKnowledge = knowledge;
+  Save.save(save);
+  location.href = 'quali.html';
+}
+
+function runQuali() {
+  // Sauvegarder les stratégies quali
+  save.qualiStrategy = {};
+  myDrivers.forEach(driver => {
+    save.qualiStrategy[driver.id] = {
+      mode: document.getElementById(`qm-${driver.id}`)?.value || 'normal',
+    };
+  });
+
+  // Appliquer les bonus EL
+  const knowledge = Weekend.calcKnowledgeBonus(fpResults);
+  save.weekendKnowledge = knowledge;
+
+  // Simuler
+  qualiResult = Weekend.simulateQuali(save, circuit);
+
+  save.qualiGrid        = qualiResult.grid;
+  save.weekendQualiDone = true;
+  Save.save(save);
+
+  phase = 'race_briefing';
+  renderPhases();
+  renderContent();
+  toast('🏁 Qualifications terminées !');
+}
+
+function buildQualiResults() {
+  if (!qualiResult) return document.createElement('div');
+  const el   = document.createElement('div');
+  const grid = qualiResult.grid;
+  const pole = grid[0];
+
+  // Recalculer isPlayer
+  const _activeIds = Object.entries(save.driverStates||{})
+    .filter(([,v]) => v.teamId && v.teamId !== 'free_agent' && v.teamId === save.playerTeamId && !v.retired)
+    .map(([k]) => k);
+  grid.forEach(g => {
+    if (_activeIds.includes(g.driverId) ||
+        F1Data.drivers.find(d => d.id === g.driverId && d.teamId === save.playerTeamId)) {
+      g.isPlayer = true;
+    }
+  });
+  const playerPositions = grid.filter(d => d.isPlayer).map(d => `P${d.gridPos}`).join(' / ');
+
+  el.innerHTML = `
+    <div class="panel">
+      <div class="ph"><div class="dot"></div>⚡ Résultats des qualifications
+        <span class="ml">Tes pilotes : ${playerPositions}</span>
+      </div>
+      <div class="content">
+        <div style="font-family:var(--fh);font-size:12px;color:var(--muted);margin-bottom:10px">
+          🏆 Pole position : <strong style="color:var(--gold)">${getDriverName(pole?.driverId)}</strong> — ${Weekend.fmtTime(pole?.qualiTime || 0)}
+        </div>
+        <div class="quali-results">
+          ${grid.map(d => {
+            const driver = F1Data.drivers.find(dr => dr.id === d.driverId);
+            const team   = F1Data.teams.find(t => t.id === d.teamId);
+            const pc     = d.gridPos <= 3 ? `p${d.gridPos}` : '';
+            const gap    = d.gridPos === 1 ? Weekend.fmtTime(d.qualiTime) : Weekend.fmtGap(pole.qualiTime, d.qualiTime);
+            return `
+              <div class="qrow${d.isPlayer?' player':''}${d.gridPos===1?' pole':''}">
+                <div class="qpos ${pc}">${d.gridPos}</div>
+                <div class="qnum">${driver?.number || '?'}</div>
+                <div class="qbar" style="background:${team?.color||'#888'}"></div>
+                <div class="qname">${driver?.firstName||''} ${driver?.name||'?'}
+                  ${d.isPlayer?'<span class="q-player-badge">MON PILOTE</span>':''}
+                </div>
+                <div class="qgap">${gap}</div>
+                <div class="qtime">${d.eliminatedIn === 'Q1' ? '<span class="q-elim">éliminé Q1</span>' : d.eliminatedIn === 'Q2' ? '<span class="q-elim">éliminé Q2</span>' : ''}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <div style="margin-top:14px">
+          <button class="btn btn-red" onclick="goPhase('race_briefing')">🏁 Briefing course →</button>
+        </div>
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+// ══════════════════════════════════════════════════════════
+//  BRIEFING COURSE (stratégie pré-course)
+// ══════════════════════════════════════════════════════════
+function buildRaceBriefing() {
+  const el       = document.createElement('div');
+  const grid     = save.qualiGrid || [];
+  const knowledge= save.weekendKnowledge || { tyreBonus:0, setupBonus:0, paceBonus:0 };
+
+  const longRun    = fpResults.filter(r => r.program === 'long_run')[0];
+  const tyreEst    = calcTyreEstimates();
+  const stratOpts  = calcStrategyOptions(tyreEst);
+
+  let pitWindow = '';
+  if (longRun) {
+    const wearPerLap = (100 - longRun.tyreLife) / longRun.laps;
+    const cliffIdx   = longRun.tyreData.findIndex(c => c < 30);
+    if (cliffIdx > 0) {
+      const cliffLap = Math.round((100 - 30) / wearPerLap);
+      pitWindow = `${F1Data.tyres[longRun.compound].name} : cliff estimé tour ${Math.min(cliffLap, circuit.laps - 3)}`;
+    } else {
+      const lifeTotal = Math.round(70 / wearPerLap);
+      pitWindow = `${F1Data.tyres[longRun.compound].name} : durée ~${Math.min(lifeTotal, circuit.laps)} tours`;
+    }
+  }
+
+  el.innerHTML = `
+    <div class="panel" style="margin-bottom:10px">
+      <div class="ph"><div class="dot"></div>📋 Briefing pré-course</div>
+      <div class="content">
+
+        <!-- Bilan weekend + grille -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:10px;font-family:var(--fh);font-size:12px">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:5px">📊 Bilan du weekend</div>
+            <div style="color:var(--muted)">EL effectuées : <strong style="color:var(--text)">${save.weekendFPDone}/3</strong></div>
+            <div style="color:var(--muted)">Bonus pneus : <strong style="color:var(--green)">-${(knowledge.tyreBonus*100).toFixed(0)}% dégradation</strong></div>
+            <div style="color:var(--muted)">Bonus setup : <strong style="color:var(--blue)">+${(knowledge.setupBonus*100).toFixed(0)}% stabilité</strong></div>
+            ${pitWindow ? `<div style="color:var(--orange);margin-top:4px">⚠️ ${pitWindow}</div>` : ''}
+            ${tyreEst.length ? `
+              <div style="margin-top:6px;font-weight:700;color:var(--text)">Durée pneus estimée :</div>
+              ${tyreEst.map(e=>`<div style="color:${e.color}">● ${e.compound} ~${e.life}t · ${e.wearPerLap.toFixed(1)}%/t</div>`).join('')}
+            ` : ''}
+          </div>
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:10px;font-family:var(--fh);font-size:12px">
+            <div style="color:var(--gold);font-weight:700;margin-bottom:5px">🏎️ Grille de départ</div>
+            ${grid.filter(d=>d.isPlayer).map(d=>{
+              const driver=F1Data.drivers.find(dr=>dr.id===d.driverId);
+              return `<div><strong style="color:var(--gold)">P${d.gridPos}</strong> — ${driver?.firstName||''} ${driver?.name||'?'}</div>`;
+            }).join('')||'<div style="color:var(--muted)">Non disponible</div>'}
+            <div style="color:var(--muted);margin-top:4px">${circuit.overtakingDifficulty>0.7?'⛔ Dépassements difficiles':circuit.overtakingDifficulty<0.4?'✅ Piste propice':'⚠️ Dépassements possibles'}</div>
+            <div style="color:var(--muted)">DRS : ${circuit.drsZones} zone${circuit.drsZones>1?'s':''} · Pit loss : ${circuit.pitLoss}s</div>
+          </div>
+        </div>
+
+        <!-- RECOMMANDATIONS STRATÉGIE -->
+        <div style="font-family:var(--fh);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">
+          🛞 Stratégies recommandées — ${circuit.laps} tours
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;margin-bottom:14px">
+          ${stratOpts.slice(0,4).map((opt,i)=>{
+            const isRec   = i===0 && opt.feasible;
+            const isRisky = !opt.feasible;
+            const badge   = isRec?'⭐ Recommandée':isRisky?'⚠️ Risquée':'✅ Viable';
+            const bdrClr  = isRec?'var(--gold)':isRisky?'#ff4444':'#2979ff44';
+            const bgClr   = isRec?'#1a1a00':isRisky?'#1a0000':'var(--surface2)';
+            return `
+              <div style="background:${bgClr};border:1px solid ${bdrClr};border-radius:5px;padding:10px;font-family:var(--fh)">
+                <div style="font-size:9px;font-weight:700;color:${isRec?'var(--gold)':isRisky?'#ff6666':'var(--green)'};margin-bottom:4px">${badge}</div>
+                <div style="font-size:12px;font-weight:700;color:var(--text);margin-bottom:6px">${opt.stops} arrêt${opt.stops>1?'s':''}</div>
+                <div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap;margin-bottom:5px">
+                  ${opt.compounds.map((c,ci)=>{
+                    const t=F1Data.tyres[c];
+                    const laps=ci===0?opt.pitLaps[0]:ci<opt.pitLaps.length?opt.pitLaps[ci]-opt.pitLaps[ci-1]:circuit.laps-opt.pitLaps[opt.pitLaps.length-1];
+                    return `${ci>0?'<span style="color:var(--muted);font-size:10px">→</span>':''}
+                      <span style="color:${t.color};font-size:11px;font-weight:700">●${laps}t</span>`;
+                  }).join('')}
+                </div>
+                <div style="font-size:10px;color:var(--muted)">Pit T.${opt.pitLaps.join(' / T.')}</div>
+                <button class="mini-sel" style="margin-top:6px;width:100%;cursor:pointer;background:var(--accent);color:#fff;border:none;border-radius:3px;font-family:var(--fh);font-weight:700;font-size:10px;padding:4px"
+                  onclick="applyStratReco(${i})">Appliquer</button>
+              </div>
+            `;
+          }).join('')}
+        </div>
+
+        <!-- STRATÉGIE MANUELLE -->
+        <div class="ph" style="border:1px solid var(--border);border-radius:5px;margin-bottom:8px"><div class="dot"></div>🔧 Stratégie personnalisée — Tes pilotes</div>
+        <div id="raceStratConfig">
+          ${myDrivers.map(driver=>{
+            // Chercher dans qualiGrid — par driverId ou par nom
+            const gridEntry = grid.find(g => g.driverId === driver.id) ||
+              (save.qualiGrid||[]).find(g => g.driverId === driver.id) ||
+              (save.qualiGrid||[]).find(g => {
+                const gd = F1Data.drivers.find(d => d.id === g.driverId);
+                return gd && gd.name === driver.name;
+              });
+            const gridPos = gridEntry?.gridPos || '?';
+            const defPit=circuit.tyreDegradation>1.2?[Math.round(circuit.laps*.33),Math.round(circuit.laps*.66)]:[Math.round(circuit.laps*.48)];
+            return `
+              <div class="strat-row">
+                <div class="strat-grid-pos">P${gridPos}</div>
+                <div class="strat-name">${driver.firstName} ${driver.name}</div>
+                <select class="mini-sel" id="rc1-${driver.id}">${tyreOpts('MEDIUM')}</select>
+                <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">→ T.</span>
+                <input class="mini-sel" id="rp1-${driver.id}" type="number" min="2" max="${circuit.laps-3}" value="${defPit[0]||''}" style="width:52px">
+                <select class="mini-sel" id="rc2-${driver.id}">${tyreOpts('HARD')}</select>
+                <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">→ T.</span>
+                <input class="mini-sel" id="rp2-${driver.id}" type="number" min="2" max="${circuit.laps-3}" value="${defPit[1]||''}" style="width:52px">
+                <select class="mini-sel" id="rc3-${driver.id}">${tyreOpts('SOFT')}</select>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn btn-sec" onclick="goPhase('quali')">← Revoir les qualifs</button>
+      <button class="btn btn-red" onclick="goToRace()">🏁 Lancer la course !</button>
+    </div>
+  `;
+  return el;
+}
+
+// Stocke les options calculées pour y accéder via index
+let _stratOptions = [];
+
+function calcStrategyOptions(tyreEst) {
+  const L       = circuit.laps;
+  const lifeMap = {};
+  tyreEst.forEach(e => lifeMap[e.compound] = e.life);
+  ['SOFT','MEDIUM','HARD'].forEach(c => {
+    if (!lifeMap[c]) {
+      const t = F1Data.tyres[c];
+      lifeMap[c] = Math.min(Math.round(80 / (t.degradationRate * circuit.tyreDegradation * 100)), L-2);
+    }
+  });
+
+  const options = [];
+
+  // 1 arrêt
+  [['MEDIUM','HARD'],['HARD','MEDIUM'],['SOFT','HARD'],['MEDIUM','MEDIUM']].forEach(([c1,c2])=>{
+    const l1=lifeMap[c1]||20, l2=lifeMap[c2]||30;
+    const p1=Math.min(l1,Math.round(L*0.48));
+    if(p1>=5&&p1<=L-5&&(L-p1)<=l2+6){
+      options.push({ stops:1, compounds:[c1,c2], pitLaps:[p1], feasible:p1<=l1+3&&(L-p1)<=l2+6 });
+    }
+  });
+  // 2 arrêts
+  [['SOFT','MEDIUM','HARD'],['SOFT','HARD','MEDIUM'],['MEDIUM','SOFT','HARD'],['SOFT','SOFT','HARD']].forEach(([c1,c2,c3])=>{
+    const l1=lifeMap[c1]||15, l2=lifeMap[c2]||20, l3=lifeMap[c3]||30;
+    const p1=Math.min(l1,Math.round(L*0.30));
+    const p2=Math.min(p1+l2,Math.round(L*0.62));
+    if(p1>=4&&p2>p1&&p2<=L-5&&(L-p2)<=l3+6){
+      options.push({ stops:2, compounds:[c1,c2,c3], pitLaps:[p1,p2], feasible:p1<=l1+2&&(p2-p1)<=l2+3&&(L-p2)<=l3+6 });
+    }
+  });
+  // 3 arrêts si haute dégradation
+  if(circuit.tyreDegradation>1.2){
+    const p1=Math.round(L*.22),p2=Math.round(L*.47),p3=Math.round(L*.72);
+    if(p3<=L-4) options.push({ stops:3, compounds:['SOFT','SOFT','SOFT','HARD'], pitLaps:[p1,p2,p3], feasible:(lifeMap['SOFT']||12)>=10 });
+  }
+
+  _stratOptions = options.sort((a,b) => b.feasible - a.feasible || (a.stops - b.stops));
+  return _stratOptions;
+}
+
+// Applique une stratégie recommandée aux selects (par index)
+function applyStratReco(idx) {
+  const opt = _stratOptions[idx];
+  if (!opt) return;
+  myDrivers.forEach(driver => {
+    const c1 = opt.compounds[0]||'MEDIUM', c2 = opt.compounds[1]||'HARD', c3 = opt.compounds[2]||'MEDIUM';
+    const p1 = opt.pitLaps[0], p2 = opt.pitLaps[1];
+    const sel1 = document.getElementById(`rc1-${driver.id}`);
+    const sel2 = document.getElementById(`rc2-${driver.id}`);
+    const sel3 = document.getElementById(`rc3-${driver.id}`);
+    const inp1 = document.getElementById(`rp1-${driver.id}`);
+    const inp2 = document.getElementById(`rp2-${driver.id}`);
+    if(sel1) sel1.value = c1;
+    if(sel2) sel2.value = c2;
+    if(sel3) sel3.value = c3;
+    if(inp1) inp1.value = p1||'';
+    if(inp2) inp2.value = p2||'';
+  });
+  // Flash confirmation
+  const rows = document.querySelectorAll('.strat-row');
+  rows.forEach(r => { r.style.background='#1a2a00'; setTimeout(()=>r.style.background='',600); });
+}
+
+function tyreOpts(sel) {
+  return ['SOFT','MEDIUM','HARD','INTER','WET'].map(c =>
+    `<option value="${c}" ${c===sel?'selected':''}>${F1Data.tyres[c].name}</option>`
+  ).join('');
+}
+
+// Calcule l'estimation de durée pour chaque compound testé en EL
+function calcTyreEstimates() {
+  const estimates = [];
+  const tested    = {};
+
+  fpResults.forEach(r => {
+    if (r.program !== 'long_run' && r.program !== 'quali_sim') return;
+    if (tested[r.compound]) return;
+    tested[r.compound] = true;
+
+    const wearPerLap = (100 - r.tyreLife) / r.laps;
+    // Ignorer si le run est trop court (<8 tours) — données non représentatives
+    if (wearPerLap <= 0 || r.laps < 8) return;
+
+    // Estimer combien de tours avant d'atteindre 20% de vie (cliff)
+    const lifeTotal = Math.round(80 / wearPerLap);
+    const tyre      = F1Data.tyres[r.compound];
+
+    // Sanity check — si la durée estimée dépasse 90% des tours de course, ignorer
+    if (lifeTotal > circuit.laps * 0.9) return;
+
+    estimates.push({
+      compound:   r.compound,
+      color:      tyre.color,
+      life:       Math.min(lifeTotal, circuit.laps),
+      wearPerLap: wearPerLap,
+    });
+  });
+
+  // Si pas de données EL, estimer depuis les stats circuit
+  if (!estimates.length) {
+    ['SOFT','MEDIUM','HARD'].forEach(c => {
+      const tyre       = F1Data.tyres[c];
+      const wearPerLap = tyre.degradationRate * circuit.tyreDegradation * 100;
+      const lifeTotal  = Math.round(80 / wearPerLap);
+      estimates.push({ compound:c, color:tyre.color, life:Math.min(lifeTotal,circuit.laps), wearPerLap });
+    });
+  }
+
+  return estimates.sort((a,b) => a.life - b.life); // du plus fragile au plus dur
+}
+
+function goToRace() {
+  // Sauvegarder les stratégies de course
+  const strategies = {};
+  myDrivers.forEach(driver => {
+    const c1 = document.getElementById(`rc1-${driver.id}`)?.value || 'MEDIUM';
+    const c2 = document.getElementById(`rc2-${driver.id}`)?.value || 'HARD';
+    const c3 = document.getElementById(`rc3-${driver.id}`)?.value || 'SOFT';
+    const p1 = parseInt(document.getElementById(`rp1-${driver.id}`)?.value || '', 10);
+    const p2 = parseInt(document.getElementById(`rp2-${driver.id}`)?.value || '', 10);
+    const compounds = [c1, c2];
+    const pitLaps   = [];
+    if (Number.isFinite(p1)) pitLaps.push(p1);
+    if (Number.isFinite(p2)) { pitLaps.push(p2); compounds.push(c3); }
+    strategies[driver.id] = { compounds, pitLaps };
+  });
+
+  save.raceStrategies  = strategies;
+  save.raceQualiGrid   = save.qualiGrid;
+  save.weekendKnowledge= save.weekendKnowledge || {};
+  Save.save(save);
+
+  window.location.href = 'race.html';
+}
+
+// ── HELPERS ─────────────────────────────────────────────
+function getDriverName(id) {
+  const d = F1Data.drivers.find(dr => dr.id === id);
+  return d ? `${d.firstName} ${d.name}` : '—';
+}
+
+function toast(msg, isError=false, duration=1500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `toast${isError?' error':''}`;
+  t.classList.add('show');
+  clearTimeout(t._toastTimer);
+  t._toastTimer = setTimeout(() => t.classList.remove('show'), duration);
+}
+
+init();
+
+function updateSetupHint(val) {
+  const hints = {
+    balanced:   '⚖️ Neutre — aucun bonus ni malus en course.',
+    low_drag:   '💨 +vitesse ligne droite, -grip en virage. Circuits rapides (Monza, Baku).',
+    high_df:    '🔄 +grip en virage, -vitesse max. Circuits techniques (Monaco, Suzuka).',
+    quali_mode: '⚡ -0.08s/tour en course MAIS +12% dégradation pneus. Stratégie 1 arrêt risquée.',
+    race_mode:  '🏁 +0.05s/tour MAIS -10% dégradation. Idéal pour stratégie 2 arrêts ou pluie.',
+  };
+  const colors = {
+    quali_mode: 'background:rgba(245,200,66,.08);color:var(--gold);border:1px solid rgba(245,200,66,.15)',
+    race_mode:  'background:rgba(0,217,126,.08);color:var(--green);border:1px solid rgba(0,217,126,.15)',
+  };
+  const el = document.getElementById('setup-hint');
+  if (!el) return;
+  el.textContent = hints[val] || hints.balanced;
+  el.style.cssText = `font-family:var(--fh);font-size:11px;padding:6px 10px;border-radius:5px;margin-bottom:10px;${colors[val]||'background:var(--surface2);color:var(--muted);border:1px solid var(--border)'}`;
+}
+</script>
+
+<script>
+(function(){
+  function syncUnifiedTopbar(){
+    try{
+      const save = ((window.Save && Save.load) ? Save.load() : null) || JSON.parse(localStorage.getItem('f1manager_v1') || localStorage.getItem('f1manager_save') || localStorage.getItem('f1-manager-save') || '{}') || {};
+      const season = document.getElementById('seasonBadge');
+      const budget = document.getElementById('budgetBadge');
+      if(season && (!season.textContent || season.textContent.trim()==='—')) season.textContent = `Saison ${save.season || 2025}`;
+      if(budget && (!budget.textContent || budget.textContent.trim()==='—')) budget.textContent = `💰 ${Math.round((save.budget || 0)*10)/10}M €`;
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncUnifiedTopbar); else syncUnifiedTopbar();
+})();
+</script>
+
+</body>
+</html>

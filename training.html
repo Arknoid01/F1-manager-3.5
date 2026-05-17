@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260508f">
+<title>Entraînement — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px 60px}
+
+/* Cartes pilote */
+.driver-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:16px}
+.dc-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.dc-flag{font-size:24px}
+.dc-info{flex:1}
+.dc-name{font-family:var(--fh);font-weight:900;font-size:17px}
+.dc-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.dc-sessions{font-family:var(--fh);font-size:11px;padding:3px 8px;border-radius:6px;background:var(--surface2);border:1px solid var(--border)}
+
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.stat-row{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 10px}
+.stat-row .sr-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.stat-row .sr-lbl{font-family:var(--fh);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase}
+.stat-row .sr-val{font-family:var(--fh);font-weight:900;font-size:16px}
+.stat-row .sr-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden}
+.stat-row .sr-fill{height:100%;border-radius:2px;transition:width .4s}
+.stat-row .sr-pot{font-family:var(--fh);font-size:9px;color:var(--muted);margin-top:3px}
+
+/* Boutons entraînement */
+.training-section{margin-bottom:12px}
+.ts-title{font-family:var(--fh);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ts-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.train-btn{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;text-align:left}
+.train-btn:active{opacity:.7}
+.train-btn.disabled{opacity:.4;cursor:not-allowed}
+.train-btn.sim{border-color:rgba(100,160,255,.3)}
+.train-btn.phys{border-color:rgba(0,200,120,.3)}
+.tb-icon{font-size:20px;flex-shrink:0}
+.tb-info{flex:1}
+.tb-name{font-family:var(--fh);font-weight:700;font-size:13px}
+.tb-desc{font-size:11px;color:var(--muted);margin-top:2px}
+.tb-cost{font-family:var(--fh);font-size:11px;flex-shrink:0;text-align:right}
+.tb-cost .cost-val{font-weight:900;font-size:13px}
+.tb-cost .cost-lbl{font-size:9px;color:var(--muted);display:block}
+
+/* Sélecteur stat pour simulateur */
+.stat-selector{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.stat-pill{font-family:var(--fh);font-size:11px;padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .15s}
+.stat-pill.selected{background:rgba(100,160,255,.15);border-color:rgba(100,160,255,.4);color:#64a0ff}
+.stat-pill:active{opacity:.7}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:8px;padding:10px 16px;font-family:var(--fh);font-size:13px;z-index:300;white-space:nowrap;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.toast.error{border-left-color:var(--accent)}
+
+/* Info box */
+.info-box{background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.15);border-radius:8px;padding:12px 14px;font-size:12px;color:#bbb;line-height:1.6;margin-bottom:16px}
+.info-box strong{color:var(--gold);font-family:var(--fh)}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
+  <a href="index.html" class="nav-back">← Accueil</a>
+  <div class="top-pills" id="topPills"></div>
+</div>
+
+<div class="wrap">
+  <div id="content"><div style="padding:40px;text-align:center;color:var(--muted);font-family:var(--fh)">Chargement...</div></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let save = Save.load();
+
+  // Appliquer driverStates sur TOUS les pilotes F1Data (y compris GAS, COL etc.)
+  // pour refléter les changements d'équipe en cours de saison
+  if (save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const state = save.driverStates[d.id];
+      if (!state) return;
+      if (Object.prototype.hasOwnProperty.call(state, 'teamId')) {
+        d.teamId = state.teamId;
+      }
+      if (Object.prototype.hasOwnProperty.call(state, 'retired')) {
+        d.retired = state.retired;
+      }
+    });
+  }
+
+const STAT_LABELS = {
+  pace:        { label:'Pace',        icon:'⚡', color:'#e8003d' },
+  consistency: { label:'Régularité',  icon:'📊', color:'#0090ff' },
+  wetSkill:    { label:'Pluie',       icon:'🌧️', color:'#00b4d8' },
+  overtaking:  { label:'Dépassement', icon:'🏎️', color:'#ff8800' },
+  defending:   { label:'Défense',     icon:'🛡️', color:'#00c875' },
+};
+
+// Sessions utilisées ce GP — stockées dans save
+function getSessionsUsed(driverId, type) {
+  const key = `train_${type}_${driverId}_${save.race||0}_${save.season||2025}`;
+  return save[key] || 0;
+}
+
+function getMaxSessions(type) {
+  return type === 'simulator' ? 2 : 1;
+}
+
+// Gain maximum selon la stat actuelle et le potentiel
+function calcGain(driverId, stat, type) {
+  const state   = save.driverStates?.[driverId];
+  const driver  = F1Data.drivers.find(d=>d.id===driverId);
+  if (!state || !driver) return 0;
+
+  const current   = state[stat] || driver[stat] || 75;
+  const potential = state.potential || driver.potential || 85;
+
+  // Plafonné par le potentiel
+  if (current >= potential) return 0;
+
+  // Gain de base selon le type
+  const baseGain = type === 'simulator'
+    ? 0.15 + Math.random() * 0.15  // 0.15 à 0.30
+    : 0.08 + Math.random() * 0.12; // 0.08 à 0.20
+
+  // Réduction si proche du potentiel
+  const gap = potential - current;
+  const factor = gap <= 3 ? 0.3 : gap <= 6 ? 0.6 : 1.0;
+
+  // Arrondi à 1 décimale
+  return Math.round(baseGain * factor * 10) / 10;
+}
+
+function statColor(val, pot) {
+  const pct = val / pot;
+  return pct >= 0.95 ? 'var(--gold)' : pct >= 0.85 ? 'var(--green)' : 'var(--muted)';
+}
+
+let selectedStats = {}; // driverId → stat choisie pour le simulateur
+
+function selectStat(driverId, stat) {
+  selectedStats[driverId] = stat;
+  render();
+}
+
+function doTrain(driverId, type) {
+  save = Save.load();
+
+  const driver  = F1Data.drivers.find(d=>d.id===driverId);
+  if (!driver) { showToast('Pilote introuvable', true); return; }
+  // Initialiser driverStates si absent (save ancien)
+  if (!save.driverStates) save.driverStates = {};
+  if (!save.driverStates[driverId]) {
+    save.driverStates[driverId] = {
+      pace: driver.pace, consistency: driver.consistency, wetSkill: driver.wetSkill,
+      overtaking: driver.overtaking, defending: driver.defending, potential: driver.potential,
+      age: driver.age,
+    };
+  }
+  const state = save.driverStates[driverId];
+
+  const sessKey = `train_${type}_${driverId}_${save.race||0}_${save.season||2025}`;
+  const used    = save[sessKey] || 0;
+  const max     = getMaxSessions(type);
+
+  if (used >= max) { showToast('Sessions épuisées pour ce GP', true); return; }
+
+  // Vérifier le coût
+  if (type === 'simulator') {
+    if ((save.tokens||0) < 1) { showToast('Pas assez de tokens R&D', true); return; }
+    const stat = selectedStats[driverId] || 'pace';
+    selectedStats[driverId] = stat;
+
+    const gain = calcGain(driverId, stat, type);
+    if (gain <= 0) { showToast(`${driver.firstName} ${driver.name} a atteint son potentiel sur cette stat !`, true); return; }
+
+    // Appliquer
+    save.tokens = (save.tokens||0) - 1;
+    if (!save.driverStates[driverId]) save.driverStates[driverId] = {};
+    const current = save.driverStates[driverId][stat] || driver[stat] || 75;
+    save.driverStates[driverId][stat] = Math.round((current + gain) * 10) / 10;
+    save[sessKey] = used + 1;
+
+    // News
+    if (!save.news) save.news = [];
+    save.news.push({ icon:'🎮', category:'entrainement',
+      title:`Simulateur — ${driver.firstName} ${driver.name}`,
+      text:`Session simulateur sur ${STAT_LABELS[stat].label}. +${gain} point${gain >= 2 ? 's' : ''} gagné${gain >= 2 ? 's' : ''}.` });
+
+    Save.save(save);
+    save = Save.load();
+    showToast(`✅ ${STAT_LABELS[stat].icon} ${STAT_LABELS[stat].label} +${gain} pts`);
+
+  } else {
+    // Physique
+    const cost = 0.5; // 0.5M€
+    if ((save.budget||0) < cost) { showToast('Budget insuffisant (0.5M€ requis)', true); return; }
+
+    // Physique améliore consistency + légèrement defending
+    const gainCons = calcGain(driverId, 'consistency', type);
+    const gainDef  = Math.round(calcGain(driverId, 'defending', type) * 0.5 * 10) / 10;
+
+    if (gainCons <= 0 && gainDef <= 0) { showToast(`${driver.firstName} ${driver.name} est à son maximum physique !`, true); return; }
+
+    save.budget = Math.round(((save.budget||0) - cost) * 10) / 10;
+    if (!save.driverStates[driverId]) save.driverStates[driverId] = {};
+
+    if (gainCons > 0) {
+      const cur = save.driverStates[driverId].consistency || driver.consistency || 75;
+      save.driverStates[driverId].consistency = Math.round((cur + gainCons) * 10) / 10;
+    }
+    if (gainDef > 0) {
+      const cur = save.driverStates[driverId].defending || driver.defending || 75;
+      save.driverStates[driverId].defending = Math.round((cur + gainDef) * 10) / 10;
+    }
+
+    save[sessKey] = used + 1;
+
+    if (!save.news) save.news = [];
+    save.news.push({ icon:'🏋️', category:'entrainement',
+      title:`Physique — ${driver.firstName} ${driver.name}`,
+      text:`Session d'entraînement physique. Régularité +${gainCons}${gainDef > 0 ? `, Défense +${gainDef}` : ''}.` });
+
+    Save.save(save);
+    save = Save.load();
+    showToast(`✅ 💪 Physique — Régularité +${gainCons}${gainDef > 0 ? ` / Défense +${gainDef}` : ''}`);
+  }
+
+  render();
+}
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast${isError?' error':''} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function render() {
+  if (!save?.playerTeamId) {
+    document.getElementById('content').innerHTML = '<div style="padding:40px;text-align:center;color:var(--muted)">Aucune carrière. <a href="index.html" style="color:var(--accent)">Retour</a></div>';
+    return;
+  }
+
+  const myTeam  = F1Data.teams.find(t=>t.id===save.playerTeamId);
+  const drivers = F1Data.drivers.filter(d=>d.teamId&&d.teamId===save.playerTeamId&&!d.retired);
+  const season  = save.season || 2025;
+  const race    = save.race || 0;
+
+  document.getElementById('topPills').innerHTML = `
+    <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">Saison ${season}</span>
+    <span style="font-family:var(--fh);font-size:11px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px">💰 ${Math.round((save.budget||0)*10)/10}M€</span>
+    <span style="font-family:var(--fh);font-size:11px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px">🔬 ${save.tokens||0} tokens</span>`;
+
+  let html = `
+    <div class="info-box">
+      <strong>Comment ça fonctionne</strong><br>
+      Les pilotes progressent principalement <strong>en course</strong>. L'entraînement apporte de très petits gains (+0.1 à +0.3 pts) et ne peut dépasser le <strong>potentiel naturel</strong> du pilote. Sur 2-3 saisons, un jeune talent peut atteindre son plafond.
+      <br><br>
+      <strong>🎮 Simulateur</strong> — 1 token R&D · 2 sessions max/GP · +0.15 à +0.30 pts sur la stat choisie<br>
+      <strong>🏋️ Physique</strong> — 0.5M€ · 1 session max/GP · +0.08 à +0.20 pts (Régularité + Défense)
+    </div>`;
+
+  drivers.forEach(d => {
+    const state   = save.driverStates?.[d.id] || {};
+    const pot     = state.potential || d.potential || 85;
+    const simUsed = getSessionsUsed(d.id, 'simulator');
+    const phyUsed = getSessionsUsed(d.id, 'physical');
+    const simMax  = getMaxSessions('simulator');
+    const phyMax  = getMaxSessions('physical');
+    const selectedStat = selectedStats[d.id] || 'pace';
+
+    // Stats actuelles
+    const stats = ['pace','consistency','wetSkill','overtaking','defending'].map(stat => {
+      const cur = state[stat] || d[stat] || 75;
+      const atMax = cur >= pot;
+      return { stat, cur, atMax };
+    });
+
+    html += `<div class="driver-card">
+      <div class="dc-header">
+        <div class="dc-flag">${d.flag||'🏁'}</div>
+        <div class="dc-info">
+          <div class="dc-name">${d.firstName} ${d.name}</div>
+          <div class="dc-sub">${d.age} ans · Potentiel max : ${pot}</div>
+        </div>
+        <div class="dc-sessions" style="color:var(--muted)">
+          🎮 ${simUsed}/${simMax} · 🏋️ ${phyUsed}/${phyMax}
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        ${stats.map(s => {
+          const info = STAT_LABELS[s.stat];
+          const pct  = Math.min(100, Math.round(s.cur / pot * 100));
+          const col  = statColor(s.cur, pot);
+          return `<div class="stat-row">
+            <div class="sr-top">
+              <span class="sr-lbl">${info.icon} ${info.label}</span>
+              <span class="sr-val" style="color:${info.color}">${s.cur}</span>
+            </div>
+            <div class="sr-bar"><div class="sr-fill" style="width:${pct}%;background:${info.color}"></div></div>
+            <div class="sr-pot">${s.atMax ? '✨ Potentiel atteint' : `Potentiel : ${pot}`}</div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <!-- SIMULATEUR -->
+      <div class="training-section">
+        <div class="ts-title">🎮 Simulateur</div>
+        <div class="stat-selector">
+          ${Object.entries(STAT_LABELS).map(([stat, info]) => {
+            const cur    = state[stat] || d[stat] || 75;
+            const atMax  = cur >= pot;
+            return `<div class="stat-pill ${selectedStat===stat?'selected':''} ${atMax?'disabled':''}"
+              ${atMax ? '' : `onclick="selectStat('${d.id}','${stat}')"`}
+              style="${atMax?'opacity:.4;cursor:not-allowed':''}">${info.icon} ${info.label}</div>`;
+          }).join('')}
+        </div>
+        <button class="train-btn sim ${simUsed >= simMax ? 'disabled' : ''}"
+          onclick="${simUsed >= simMax ? '' : `doTrain('${d.id}','simulator')`}">
+          <span class="tb-icon">🎮</span>
+          <div class="tb-info">
+            <div class="tb-name">Session simulateur — ${STAT_LABELS[selectedStat].label}</div>
+            <div class="tb-desc">${simUsed >= simMax ? 'Sessions épuisées pour ce GP' : `Gain estimé : +0.15 à +0.30 pts · Session ${simUsed+1}/${simMax}`}</div>
+          </div>
+          <div class="tb-cost">
+            <span class="cost-val" style="color:${(save.tokens||0)>=1?'var(--gold)':'var(--accent)'}">1 🔬</span>
+            <span class="cost-lbl">token</span>
+          </div>
+        </button>
+      </div>
+
+      <!-- PHYSIQUE -->
+      <div class="training-section">
+        <div class="ts-title">🏋️ Entraînement physique</div>
+        <button class="train-btn phys ${phyUsed >= phyMax ? 'disabled' : ''}"
+          onclick="${phyUsed >= phyMax ? '' : `doTrain('${d.id}','physical')`}">
+          <span class="tb-icon">🏋️</span>
+          <div class="tb-info">
+            <div class="tb-name">Session physique — Régularité + Défense</div>
+            <div class="tb-desc">${phyUsed >= phyMax ? 'Session épuisée pour ce GP' : `Gain estimé : +0.08 à +0.20 pts · Coût 0.5M€`}</div>
+          </div>
+          <div class="tb-cost">
+            <span class="cost-val" style="color:${(save.budget||0)>=0.5?'var(--green)':'var(--accent)'}">0.5M€</span>
+            <span class="cost-lbl">budget</span>
+          </div>
+        </button>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('content').innerHTML = html;
+}
+
+render();
+</script>
+</body>
+</html>

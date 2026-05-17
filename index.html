@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+<title>F1 Manager — QG</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{
+  width:100%;height:100%;
+  background:#07070d;
+  overflow:hidden;
+  font-family:'Barlow Condensed',sans-serif;
+  color:#e4e4f0;
+  user-select:none;
+  -webkit-user-select:none;
+}
+
+/* ── SCENE PHOTO ── */
+.scene{position:fixed;inset:0;}
+.hq-img{
+  width:100%;height:100%;
+  object-fit:cover;
+  object-position:35% center;
+  filter:brightness(.68) saturate(.9) contrast(1.05);
+  display:block;
+}
+.scene::after{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 40% 55%, transparent 35%, rgba(0,0,0,.50) 100%),
+    linear-gradient(180deg, rgba(7,7,13,.78) 0%, transparent 18%, transparent 72%, rgba(7,7,13,.88) 100%);
+  pointer-events:none; z-index:1;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:30;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 14px;
+}
+.tb-left{display:flex;align-items:center;gap:8px;}
+.f1-logo{
+  font-family:'Orbitron',sans-serif;font-size:13px;font-weight:900;
+  color:#e8003d;letter-spacing:2px;
+  text-shadow:0 0 16px rgba(232,0,61,.6);
+  animation:logo-pulse 3s ease-in-out infinite alternate;
+}
+@keyframes logo-pulse{
+  from{text-shadow:0 0 8px rgba(232,0,61,.35);}
+  to  {text-shadow:0 0 22px rgba(232,0,61,.8);}
+}
+.team-badge{
+  display:flex;align-items:center;gap:5px;
+  background:rgba(7,7,13,.72);border:1px solid rgba(255,255,255,.14);
+  border-radius:20px;padding:4px 10px;backdrop-filter:blur(12px);
+}
+.team-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.team-nm{font-size:11px;font-weight:700;letter-spacing:1px;}
+.tb-right{display:flex;align-items:center;gap:5px;}
+.fs-btn{
+  width:28px;height:24px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(7,7,13,.72);
+  color:#fff;font-size:13px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(10px);
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.fs-btn:active{transform:scale(.94);}
+.pill{
+  font-size:9px;font-weight:900;letter-spacing:1px;
+  padding:3px 8px;border-radius:20px;text-transform:uppercase;
+  backdrop-filter:blur(10px);
+}
+.pill-s{background:rgba(245,200,66,.12);border:1px solid rgba(245,200,66,.28);color:#f5c842;}
+.pill-g{background:rgba(0,217,126,.10);border:1px solid rgba(0,217,126,.25);color:#00d97e;}
+
+/* ── PINS ── */
+.pins-layer{position:fixed;inset:0;z-index:10;pointer-events:none;}
+
+.pin{
+  position:absolute;
+  pointer-events:all;
+  display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;
+  transform:translate(-50%,-100%);
+  -webkit-tap-highlight-color:transparent;
+}
+
+/* Tooltip */
+.pin-tip{
+  background:rgba(7,7,13,.90);
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;padding:8px 12px;
+  text-align:center;
+  backdrop-filter:blur(18px);
+  box-shadow:0 10px 30px rgba(0,0,0,.6);
+  min-width:130px;white-space:nowrap;
+  margin-bottom:6px;
+  pointer-events:none;
+  opacity:0;transform:translateY(5px);
+  transition:opacity .18s,transform .18s;
+  border-top:2px solid var(--c);
+}
+.pin-tip.open{opacity:1;transform:translateY(0);}
+.tt-icon{font-size:18px;line-height:1;margin-bottom:3px;}
+.tt-name{font-size:13px;font-weight:900;letter-spacing:.3px;color:#fff;}
+.tt-sub{font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;letter-spacing:.5px;}
+.tt-go{
+  display:inline-block;margin-top:6px;
+  font-size:9px;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  border-radius:5px;padding:2px 10px;
+  border:1px solid var(--c);color:var(--c);
+  background:rgba(0,0,0,.2);
+}
+
+/* Tête + label inline */
+.pin-head{
+  width:auto;height:26px;border-radius:13px;
+  display:flex;align-items:center;gap:5px;
+  padding:0 9px;
+  font-size:12px;
+  border:1.5px solid var(--c);
+  color:#fff;
+  background:rgba(7,7,13,.82);
+  backdrop-filter:blur(8px);
+  box-shadow:0 3px 14px rgba(0,0,0,.55);
+  position:relative;flex-shrink:0;
+  transition:transform .15s;
+  white-space:nowrap;
+}
+.pin-icon{font-size:12px;line-height:1;}
+.pin-label{font-size:10px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;}
+.pin-head::before{
+  content:'';position:absolute;inset:-5px;border-radius:18px;
+  border:1.5px solid var(--c);opacity:.18;
+  animation:ring-a 2.4s ease-out infinite;
+}
+@keyframes ring-a{
+  0%{transform:scale(.8);opacity:.25} 100%{transform:scale(1.5);opacity:0}
+}
+
+/* Tige */
+.pin-leg{
+  width:1.5px;height:12px;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),transparent);
+  flex-shrink:0;
+}
+
+/* ── LÉGENDE ── */
+.legend{
+  position:fixed;bottom:0;left:0;right:0;z-index:20;
+  display:flex;align-items:center;justify-content:center;
+  gap:10px;flex-wrap:wrap;
+  padding:8px 12px 14px;
+  background:linear-gradient(0deg,rgba(7,7,13,.82) 0%,transparent 100%);
+}
+.leg-i{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.42);}
+.leg-d{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+
+/* ── TEAM SELECT ── */
+.sel{
+  position:fixed;inset:0;z-index:100;
+  background:rgba(7,7,13,.96);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;overflow-y:auto;
+}
+.sel.gone{display:none;}
+.sel-t{font-family:'Orbitron',sans-serif;font-size:17px;font-weight:900;letter-spacing:2px;margin-bottom:5px;color:#fff;text-align:center;}
+.sel-s{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:18px;text-align:center;}
+.tg{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%;max-width:480px;margin-bottom:14px;}
+.tc{background:rgba(15,15,24,.9);border:2px solid rgba(255,255,255,.07);border-radius:10px;padding:11px 10px;cursor:pointer;transition:all .15s;text-align:center;}
+.tc:active{transform:scale(.97);}
+.tc.sel-d{border-color:#f5c842;background:rgba(245,200,66,.06);}
+.tc-n{font-weight:900;font-size:14px;margin-bottom:2px;}
+.tc-sh{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:1px;}
+.tc-b{font-size:11px;color:#f5c842;margin-top:3px;}
+.btn-go{
+  font-family:'Orbitron',sans-serif;font-weight:700;font-size:13px;
+  letter-spacing:2px;text-transform:uppercase;
+  background:#e8003d;color:#fff;border:none;border-radius:8px;
+  padding:13px;cursor:pointer;width:100%;max-width:480px;
+  display:none;
+}
+.btn-go.on{display:block;}
+</style>
+</head>
+<body>
+
+<div class="scene">
+  <img class="hq-img" src="img/hq-bg.jpg" alt="" draggable="false"/>
+</div>
+
+<div class="topbar">
+  <div class="tb-left">
+    <div class="f1-logo">F1</div>
+    <div class="team-badge">
+      <div class="team-dot" id="tDot"></div>
+      <div class="team-nm"  id="tNm">—</div>
+    </div>
+  </div>
+  <div class="tb-right">
+    <button class="fs-btn" id="fsBtn" type="button" title="Plein écran" aria-label="Plein écran">⛶</button>
+    <div class="pill pill-s" id="pS">—</div>
+    <div class="pill pill-g" id="pG">—</div>
+  </div>
+</div>
+
+<div class="pins-layer" id="pins"></div>
+<div class="legend"      id="leg"></div>
+
+<!-- Bannière portrait -->
+<div id="rot-banner" style="display:none;position:fixed;inset:0;z-index:200;background:rgba(7,7,13,.97);flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:'Barlow Condensed',sans-serif;text-align:center;padding:24px;">
+  <div style="font-size:52px;animation:rot-phone 2s ease-in-out infinite;">📱</div>
+  <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;letter-spacing:2px;color:#fff;">TOURNE TON TÉLÉPHONE</div>
+  <div style="font-size:13px;color:rgba(255,255,255,.4);letter-spacing:1px;">Le QG s'affiche en mode paysage</div>
+  <div onclick="document.getElementById('rot-banner').style.display='none'" style="margin-top:8px;font-size:11px;color:rgba(255,255,255,.25);text-decoration:underline;cursor:pointer;">Continuer quand même</div>
+</div>
+<style>
+@keyframes rot-phone{
+  0%,100%{transform:rotate(0deg);}
+  40%,60%{transform:rotate(90deg);}
+}
+</style>
+
+<div class="sel" id="sel">
+  <div class="sel-t">🏎 CHOISIR TON ÉCURIE</div>
+  <div class="sel-s">Sélectionne l'équipe que tu vas diriger</div>
+  <div class="tg" id="tGrid"></div>
+  <button class="btn-go" id="btnGo">Entrer au QG →</button>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script>
+
+/* ── Force paysage ── */
+(function(){
+  function lock(){
+    try{
+      if(screen.orientation&&screen.orientation.lock)
+        screen.orientation.lock('landscape').catch(function(){});
+      else if(screen.lockOrientation) screen.lockOrientation('landscape');
+    }catch(e){}
+  }
+  lock();
+  window.addEventListener('orientationchange',function(){ setTimeout(lock,200); });
+
+  /* Bannière portrait */
+  function checkPortrait(){
+    var b=document.getElementById('rot-banner');
+    if(!b) return;
+    b.style.display = window.innerHeight>window.innerWidth ? 'flex' : 'none';
+  }
+  document.addEventListener('DOMContentLoaded',function(){
+    checkPortrait();
+    window.addEventListener('resize', checkPortrait);
+    window.addEventListener('orientationchange',function(){ setTimeout(checkPortrait,300); });
+  });
+})();
+(function(){
+
+/* Pins positionnés sur les bâtiments de la photo */
+var PINS = [
+  {x:12,y:32,cat:'race', icon:'🏎', name:'Circuit',      sub:'Weekend · FP · Course',   href:'weekend.html'},
+  {x:18,y:52,cat:'mgmt', icon:'🔧', name:'Staff',         sub:'Ingénieurs & mécaniciens',href:'staff.html'},
+  {x:30,y:65,cat:'tech', icon:'🏭', name:'R&D',           sub:'Développement voiture',   href:'rd.html'},
+  {x:45,y:32,cat:'mgmt', icon:'💪', name:'Entraînement',  sub:'Performance pilotes',     href:'training.html'},
+  {x:52,y:52,cat:'race', icon:'❓', name:'Aide',          sub:'Guide & tutoriel',        href:'aide.html'},
+  {x:62,y:72,cat:'mgmt', icon:'👨‍✈️',name:'Pilotes',      sub:'Effectif & contrats',    href:'drivers.html'},
+  {x:68,y:25,cat:'biz',  icon:'💼', name:'Sponsors',      sub:'Partenariats & budget',   href:'sponsors.html'},
+  {x:75,y:45,cat:'biz',  icon:'📊', name:'Direction',     sub:'Conseil & finances',      href:'board.html'},
+  {x:82,y:28,cat:'media',icon:'📰', name:'Actualités',    sub:'News F1 & équipe',        href:'news.html'},
+  {x:90,y:45,cat:'media',icon:'📲', name:'Social',        sub:'Image & réputation',      href:'social.html'},
+  {x:85,y:65,cat:'media',icon:'📓', name:'Journal',       sub:'Historique saison',       href:'gp-journal.html'},
+  {x:50,y:18,cat:'qg',   icon:'🏢', name:'QG',            sub:'Quartier Général',        href:'qg.html'},
+];
+
+var CAT={
+  race: {c:'#e8003d',l:'Course'},
+  mgmt: {c:'#3d7eff',l:'Gestion'},
+  tech: {c:'#a855f7',l:'Technique'},
+  biz:  {c:'#f5c842',l:'Business'},
+  media:{c:'#00d97e',l:'Médias'},
+  qg:   {c:'#ff8c42',l:'QG'},
+};
+
+/* ── Save / Team select ── */
+var save=(typeof Save!=='undefined')?Save.load():{};
+
+if(!save||!save.playerTeamId){
+  var selEl=document.getElementById('sel'),
+      grid =document.getElementById('tGrid'),
+      btn  =document.getElementById('btnGo'),
+      sel  =null;
+
+  if(typeof F1Data!=='undefined') F1Data.teams.forEach(function(t){
+    var c=document.createElement('div'); c.className='tc';
+    c.innerHTML='<div class="tc-n" style="color:'+t.color+'">'+t.name+'</div>'+
+      '<div class="tc-sh">'+t.shortName+'</div><div class="tc-b">'+t.budget+'M€</div>';
+    c.addEventListener('click',function(){
+      document.querySelectorAll('.tc').forEach(function(x){x.classList.remove('sel-d');});
+      c.classList.add('sel-d'); sel=t; btn.classList.add('on');
+    });
+    grid.appendChild(c);
+  });
+
+  btn.addEventListener('click',function(){
+    if(!sel) return;
+    var s=Save.load()||{};
+    s.playerTeamId=sel.id; s.season=s.season||2025; s.race=s.race||0; s.budget=s.budget||sel.budget;
+    Save.save(s); selEl.classList.add('gone'); initHQ();
+  });
+} else {
+  document.getElementById('sel').classList.add('gone');
+  initHQ();
+}
+
+function initHQ(){
+  var s=(typeof Save!=='undefined')?Save.load():{};
+  var pid=s.playerTeamId||'';
+  var team=(typeof F1Data!=='undefined')?F1Data.teams.find(function(t){return t.id===pid;}):null;
+  if(team){
+    document.getElementById('tDot').style.background=team.color;
+    document.getElementById('tNm').textContent=team.shortName||team.name;
+  }
+  document.getElementById('pS').textContent='S.'+(s.season||2025)+' · GP'+(s.race||0);
+  document.getElementById('pG').textContent=(s.budget!=null?Math.round(s.budget):'—')+'M€';
+
+  /* Attend que l'image soit chargée pour calculer les positions exactes */
+  var img = document.querySelector('.hq-img');
+  if(img.complete && img.naturalWidth){
+    buildPins();
+  } else {
+    img.addEventListener('load', buildPins);
+  }
+  buildLeg();
+}
+
+function buildPins(){
+  var layer=document.getElementById('pins');
+  layer.innerHTML='';
+
+  /* Calcule le cadrage réel de l'image (object-fit:cover, object-position:35% center) */
+  var img    = document.querySelector('.hq-img');
+  var sw     = window.innerWidth;
+  var sh     = window.innerHeight;
+  var iw     = img.naturalWidth  || 1774;
+  var ih     = img.naturalHeight || 887;
+
+  /* Scale cover : quelle dimension contraint ? */
+  var scaleX = sw / iw;
+  var scaleY = sh / ih;
+  var scale  = Math.max(scaleX, scaleY);   /* cover = max */
+
+  /* Taille rendue de l'image */
+  var rw = iw * scale;
+  var rh = ih * scale;
+
+  /* object-position: 35% center
+     → offset horizontal = (rw - sw) * 0.35 coupé à gauche
+     → offset vertical   = (rh - sh) * 0.50 coupé en haut  */
+  var ox = (rw - sw) * 0.35;
+  var oy = (rh - sh) * 0.50;
+
+  /* Décalage topbar navigateur (~80px sur mobile) */
+  var TOP_OFFSET = 80;
+
+  PINS.forEach(function(p,i){
+    var col=CAT[p.cat].c;
+    var a=document.createElement('a');
+    a.href=p.href;
+    a.className='pin';
+
+    var px = (p.x / 100) * rw - ox;
+    var py = (p.y / 100) * rh - oy + TOP_OFFSET;
+
+    px = Math.max(50, Math.min(sw - 50, px));
+    py = Math.max(TOP_OFFSET + 20, Math.min(sh - 60, py));
+
+    a.style.cssText = 'left:'+px+'px;top:'+py+'px;--c:'+col+';position:absolute;';
+
+    var tid='t'+i;
+    a.innerHTML=
+      '<div class="pin-tip" id="'+tid+'">'+
+        '<div class="tt-icon">'+p.icon+'</div>'+
+        '<div class="tt-name">'+p.name+'</div>'+
+        '<div class="tt-sub">'+p.sub+'</div>'+
+        '<div class="tt-go">ACCÉDER →</div>'+
+      '</div>'+
+      '<div class="pin-head">'+
+        '<span class="pin-icon">'+p.icon+'</span>'+
+        '<span class="pin-label">'+p.name+'</span>'+
+      '</div>'+
+      '<div class="pin-leg"></div>';
+
+    a.addEventListener('click',function(e){
+      var tip=document.getElementById(tid);
+      var open=tip.classList.contains('open');
+      document.querySelectorAll('.pin-tip').forEach(function(x){x.classList.remove('open');});
+      if(!open){
+        e.preventDefault();
+        tip.classList.add('open');
+        setTimeout(function(){
+          document.addEventListener('click',function once(ev){
+            if(!a.contains(ev.target)) tip.classList.remove('open');
+            document.removeEventListener('click',once);
+          });
+        },20);
+      }
+    });
+
+    layer.appendChild(a);
+  });
+
+  /* Recalcule si la fenêtre change (rotation) */
+  window.removeEventListener('resize', buildPins);
+  window.addEventListener('resize', function(){
+    clearTimeout(buildPins._t);
+    buildPins._t = setTimeout(buildPins, 200);
+  });
+}
+
+function buildLeg(){
+  var el=document.getElementById('leg'); el.innerHTML='';
+  Object.keys(CAT).forEach(function(k){
+    var d=CAT[k];
+    var i=document.createElement('div'); i.className='leg-i';
+    i.innerHTML='<div class="leg-d" style="background:'+d.c+'"></div>'+d.l;
+    el.appendChild(i);
+  });
+}
+
+})();
+</script>
+</body>
+</html>

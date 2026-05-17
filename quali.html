@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260509">
+<title>Qualifications — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:700px;margin:0 auto;padding:8px 6px 40px}
+.quali-live{display:flex;flex-direction:column;gap:8px;align-items:stretch}
+.quali-main{width:100%;min-width:0}
+.quali-side{width:100%;display:flex;flex-direction:column;gap:8px}
+.panel-head{background:var(--surface2);border-bottom:1px solid var(--border);padding:6px 12px;font-family:var(--fh);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
+.panel-head .dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.quali-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+.quali-card-body{padding:8px 4px}
+.run-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.run-meta .mini{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 8px;font-family:var(--fh)}
+.run-meta .mini b{display:block;font-size:15px;color:var(--text)}
+.run-meta .mini span{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+
+@media(min-width:760px){
+  .quali-live{flex-direction:row;align-items:flex-start}
+  .quali-main{flex:1;width:auto}
+  .quali-side{width:260px;flex-shrink:0}
+}
+
+
+/* Header session */
+.session-header{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:14px}
+.sh-phase{font-family:var(--fh);font-weight:900;font-size:28px;letter-spacing:2px}
+.sh-info{flex:1}
+.sh-circuit{font-family:var(--fh);font-weight:700;font-size:15px}
+.sh-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.sh-timer{font-family:var(--fh);font-weight:900;font-size:22px;color:var(--gold);text-align:right}
+.sh-timer.critical{color:var(--accent);animation:blink .6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Classement live */
+.leaderboard{display:flex;flex-direction:column;gap:3px;margin-bottom:10px}
+.lb-row{display:flex;align-items:center;gap:5px;padding:6px 6px;background:var(--surface);border:1px solid var(--border);border-radius:7px;transition:all .3s;position:relative;overflow:hidden;min-width:0}
+.lb-row.player{border-color:var(--gold);background:rgba(245,200,66,.06)}
+.lb-row.eliminated{opacity:.45;background:rgba(232,0,61,.04);border-color:rgba(232,0,61,.2)}
+.lb-row.danger{border-color:rgba(232,0,61,.4);background:rgba(232,0,61,.06)}
+.lb-row.improved{animation:flash-green .5s}
+@keyframes flash-green{0%{background:rgba(0,200,120,.25)}100%{background:var(--surface)}}
+.lb-row.player.improved{animation:flash-gold .5s}
+@keyframes flash-gold{0%{background:rgba(245,200,66,.35)}100%{background:rgba(245,200,66,.06)}}
+
+/* Barre de couleur équipe */
+.lb-teambar{width:3px;height:28px;border-radius:2px;flex-shrink:0}
+
+.lb-pos{font-family:var(--fh);font-weight:900;font-size:16px;width:24px;text-align:center;flex-shrink:0}
+.lb-pos.p1{color:var(--gold)}
+.lb-pos.p2{color:#c0c0c0}
+.lb-pos.p3{color:#cd7f32}
+
+.lb-num{font-family:var(--fh);font-size:12px;color:var(--muted);width:24px;flex-shrink:0}
+.lb-name{font-family:var(--fh);font-weight:700;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-name.player-name{color:var(--gold)}
+.lb-team{font-family:var(--fh);font-size:10px;color:var(--muted);letter-spacing:1px}
+
+.lb-time{font-family:var(--fh);font-weight:900;font-size:13px;text-align:right;flex-shrink:0}
+.lb-gap{font-family:var(--fh);font-size:11px;color:var(--muted);width:48px;text-align:right;flex-shrink:0}
+
+.lb-status{font-family:var(--fh);font-size:10px;padding:2px 6px;border-radius:4px;flex-shrink:0}
+.lb-status.out{background:rgba(232,0,61,.2);color:var(--accent)}
+.lb-status.q3{background:rgba(0,200,120,.15);color:var(--green)}
+.lb-status.improving{background:rgba(100,160,255,.15);color:#64a0ff}
+
+/* Zone coupure */
+.cut-line{height:2px;background:var(--accent);border-radius:1px;margin:4px 0;position:relative}
+.cut-line::after{content:attr(data-label);position:absolute;right:0;top:-10px;font-family:var(--fh);font-size:9px;letter-spacing:1px;color:var(--accent);text-transform:uppercase}
+
+/* Radio messages */
+.radio-feed{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 10px;max-height:220px;overflow-y:auto}
+.radio-msg{font-size:12px;color:#ccc;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:8px}
+.radio-msg:last-child{border:none;color:var(--gold)}
+.radio-time{font-family:var(--fh);font-size:10px;color:var(--muted);flex-shrink:0;width:30px}
+.radio-icon{flex-shrink:0}
+
+/* Contrôles joueur */
+.player-controls{background:var(--surface);border:1px solid var(--gold);border-radius:6px;padding:0;overflow:hidden;margin-bottom:0}
+.pc-title{font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;background:var(--surface2);border-bottom:1px solid var(--border);padding:7px 10px;margin-bottom:0}
+.pc-drivers{display:flex;flex-direction:column;gap:8px;padding:10px}
+.pc-driver{display:flex;align-items:center;gap:10px}
+.pc-name{font-family:var(--fh);font-weight:700;font-size:13px;flex:1}
+.pc-btn{font-family:var(--fh);font-size:11px;padding:5px 12px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;transition:all .15s}
+.pc-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.pc-btn:active{opacity:.7}
+.pc-status{font-family:var(--fh);font-size:11px;color:var(--muted)}
+
+/* Bouton lancer run */
+.btn-run{display:block;width:100%;background:var(--accent);color:#fff;font-family:var(--fh);font-weight:900;font-size:15px;letter-spacing:2px;padding:14px;border:none;border-radius:8px;cursor:pointer;margin-bottom:10px}
+.btn-run:disabled{opacity:.4;cursor:not-allowed}
+.btn-run.secondary{background:var(--surface2);border:1px solid var(--border);color:var(--text)}
+
+/* Phase badge */
+.phase-badge{display:inline-flex;align-items:center;gap:6px;font-family:var(--fh);font-size:11px;padding:3px 10px;border-radius:4px;margin-bottom:8px}
+.phase-badge.q1{background:rgba(100,160,255,.15);color:#64a0ff;border:1px solid rgba(100,160,255,.3)}
+.phase-badge.q2{background:rgba(255,136,0,.15);color:#ff8800;border:1px solid rgba(255,136,0,.3)}
+.phase-badge.q3{background:rgba(245,200,66,.15);color:var(--gold);border:1px solid rgba(245,200,66,.3)}
+
+/* Final results */
+.final-grid{display:flex;flex-direction:column;gap:3px}
+.fg-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:7px}
+.fg-row.player{border-color:var(--gold);background:rgba(245,200,66,.06)}
+.fg-pos{font-family:var(--fh);font-weight:900;font-size:16px;width:28px;text-align:center}
+.fg-elim{font-family:var(--fh);font-size:10px;padding:2px 6px;background:rgba(232,0,61,.15);color:var(--accent);border-radius:4px}
+
+/* Toast */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:8px;padding:10px 16px;font-family:var(--fh);font-size:13px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
+  <div class="top-pills" id="topPills"></div>
+</div>
+
+<div class="wrap">
+  <div id="content"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/weekend.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+if (!save?.playerTeamId) location.href = 'weekend.html';
+
+// Synchroniser F1Data avec la sauvegarde (pilotes titulaires + juniors promus)
+function restoreDriverStatesForQuali() {
+  // 1. Mettre a jour les stats des pilotes F1Data standards
+  if (save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const st = save.driverStates[d.id];
+      if (!st) return;
+      // Appliquer stats mais pas retired ni teamId si free_agent
+      if (st.pace       !== undefined) d.pace       = st.pace;
+      if (st.consistency!== undefined) d.consistency= st.consistency;
+      if (st.wetSkill   !== undefined) d.wetSkill   = st.wetSkill;
+      if (st.overtaking !== undefined) d.overtaking = st.overtaking;
+      if (st.defending  !== undefined) d.defending  = st.defending;
+      if (st.potential  !== undefined) d.potential  = st.potential;
+      // teamId et retired : seulement si la clé existe et est significative
+      if (Object.prototype.hasOwnProperty.call(st, 'teamId') && st.teamId !== undefined) {
+        d.teamId = st.teamId;
+      }
+      if (Object.prototype.hasOwnProperty.call(st, 'retired') && st.retired !== undefined) {
+        d.retired = st.retired;
+      }
+    });
+  }
+  // 2. Ajouter les juniors promus
+  if (save.generatedDrivers?.length) {
+    save.generatedDrivers.forEach(gd => {
+      const st = save.driverStates?.[gd.id] || {};
+      const merged = {...gd};
+      // Stats
+      ['pace','consistency','wetSkill','overtaking','defending','potential','age','salary'].forEach(k => {
+        if (st[k] !== undefined) merged[k] = st[k];
+      });
+      // teamId depuis driverStates en priorité
+      merged.teamId  = st.teamId  !== undefined ? st.teamId  : gd.teamId;
+      merged.retired = st.retired !== undefined ? st.retired : (gd.retired || false);
+      // Exclure si pas d equipe ou agent libre ou retraite
+      if (!merged.teamId || merged.teamId === 'free_agent' || merged.retired) return;
+      const idx = F1Data.drivers.findIndex(d => d.id === gd.id);
+      if (idx < 0) F1Data.drivers.push(merged);
+      else Object.assign(F1Data.drivers[idx], merged);
+    });
+  }
+}
+restoreDriverStatesForQuali();
+
+
+const playerTeamId = save.playerTeamId;
+const circuit      = F1Data.circuits[(save.race||0) % F1Data.circuits.length];
+const weather      = save.weekendWeather || 'dry';
+// Forcer la cohérence depuis driverStates pour tous les pilotes
+F1Data.drivers.forEach(d => {
+  const st = save.driverStates?.[d.id];
+  if (!st) return;
+  // Appliquer teamId seulement si défini et pas undefined
+  if (st.teamId !== undefined) d.teamId = st.teamId;
+  // Ne jamais forcer retired=true sur un pilote actif du joueur
+  if (st.retired !== undefined) {
+    // Protéger les pilotes du joueur — s'ils ont un contrat actif, ils ne sont pas retraités
+    const hasContract = save.contracts?.[d.id]?.years > 0;
+    if (!hasContract || st.retired === false) d.retired = st.retired;
+  }
+});
+
+const myDrivers    = F1Data.drivers.filter(d => d.teamId && d.teamId !== 'free_agent' && d.teamId === playerTeamId && !d.retired);
+const allDrivers   = F1Data.drivers.filter(d => d.teamId && d.teamId !== 'free_agent' && !d.retired);
+
+console.log('[Quali] myDrivers:', myDrivers.map(d=>d.firstName+' '+d.name), '| allDrivers:', allDrivers.length);
+const RUN_LAPS_COST = 3;
+
+// ── ÉTAT DE LA SESSION ────────────────────────────────────
+const state = {
+  phase: 'Q1',         // Q1 | Q2 | Q3 | done
+  running: false,
+  timer: 18 * 60,      // secondes restantes
+  timerInterval: null,
+  drivers: {},         // driverId → { bestTime, runs, inLap, status }
+  leaderboard: [],     // trié par bestTime
+  eliminated: [],      // pilotes éliminés
+  q2Drivers: [],       // pilotes qualifiés pour Q2
+  q3Drivers: [],       // pilotes qualifiés pour Q3
+  radioMessages: [],
+  runInProgress: false,
+  playerModes: {},     // driverId → 'push' | 'normal' | 'wait'
+  playerRuns: {},      // driverId → nombre de runs effectués
+  phaseComplete: false,
+};
+
+// Init modes pilotes
+myDrivers.forEach(d => {
+  state.playerModes[d.id] = state.playerModes[d.id] || 'normal';
+  state.playerRuns[d.id]  = state.playerRuns[d.id] || 0;
+});
+
+// ── CALCUL TEMPS ─────────────────────────────────────────
+function calcQualiTime(driver, variance = true, mode = 'normal') {
+  const team = F1Data.teams.find(t => t.id === driver.teamId);
+  if (!team) return 999;
+
+  // Garantir des stats valides — juniors générés peuvent avoir undefined
+  if (!driver.pace || isNaN(driver.pace))         driver.pace         = 72;
+  if (!driver.consistency || isNaN(driver.consistency)) driver.consistency = 70;
+  if (!driver.wetSkill || isNaN(driver.wetSkill)) driver.wetSkill     = 68;
+  if (!driver.overtaking || isNaN(driver.overtaking)) driver.overtaking = 68;
+  if (!driver.defending || isNaN(driver.defending)) driver.defending   = 68;
+
+  const compound = weather === 'heavy_rain' ? 'WET' : weather === 'light_rain' ? 'INTER' : 'SOFT';
+  const tyreState = { compound, condition: 1.0, age: 0 };
+  let t = Engine.calcLapTime(driver, team, circuit, tyreState, 0, weather, 1, 'attack');
+
+  // Bonus trait
+  if (driver.trait === 'qualifier')  t -= 0.30;
+  if (driver.trait === 'aggressive') t -= 0.10;
+  if (driver.trait === 'consistent') t += 0.05;
+
+  // Mode joueur
+  if (driver.teamId === playerTeamId) {
+    if (save.weekendSetup) {
+      const so = Weekend.SETUP_OPTIONS?.find(s => s.id === save.weekendSetup);
+      if (so) t -= (so.aeroBonus||0) * 0.15;
+    }
+    if (mode === 'push') {
+      t -= 0.30;
+      const errChance = Math.max(0.05, 0.22 - (driver.consistency||80) * 0.002);
+      if (Math.random() < errChance) t += 0.5 + Math.random() * 0.6;
+    } else if (mode === 'wait') {
+      t += 0.05; // légèrement pénalisé (trafic fin de session)
+    }
+  }
+
+  // Variabilité
+  if (variance) {
+    const vRange = driver.teamId === playerTeamId ? 0.20 : 0.35;
+    t += (Math.random() - 0.48) * vRange; // léger biais positif (amélioration)
+  }
+
+  return parseFloat(t.toFixed(3));
+}
+
+// ── FORMAT TEMPS ─────────────────────────────────────────
+function fmtTime(t) {
+  if (!t || t >= 999) return '—';
+  const m = Math.floor(t / 60);
+  const s = (t % 60).toFixed(3).padStart(6,'0');
+  return `${m}:${s}`;
+}
+function fmtGap(pole, t) {
+  if (!t || t >= 999 || !pole || isNaN(t) || isNaN(pole)) return '';
+  const gap = t - pole;
+  if (isNaN(gap)) return '';
+  return gap === 0 ? '' : `+${gap.toFixed(3)}`;
+}
+function fmtTimer(s) {
+  const m = Math.floor(s/60).toString().padStart(2,'0');
+  const sec = (s%60).toString().padStart(2,'0');
+  return `${m}:${sec}`;
+}
+
+function consumeRunTime(lapReference) {
+  const lap = Number(lapReference) || 90;
+  const used = Math.min(state.timer, Math.max(1, Math.ceil(lap * RUN_LAPS_COST)));
+  state.timer = Math.max(0, state.timer - used);
+  const el = document.getElementById('sessionTimer');
+  if (el) {
+    el.textContent = fmtTimer(state.timer);
+    el.className = `sh-timer${state.timer < 120 ? ' critical' : ''}`;
+  }
+  return used;
+}
+
+// ── RADIO ────────────────────────────────────────────────
+function addRadio(icon, msg, timeLeft) {
+  const mins = Math.floor(timeLeft/60);
+  const secs = (timeLeft%60).toString().padStart(2,'0');
+  state.radioMessages.unshift({ icon, msg, time: `${mins}:${secs}` });
+  state.radioMessages = state.radioMessages.slice(0, 12);
+  renderRadio();
+}
+
+// ── INITIALISER LES PILOTES ──────────────────────────────
+function initDrivers(driverList) {
+  // NE PAS réinitialiser state.drivers — conserver les bestTime existants
+  // (un pilote qualifié en Q1 garde son temps en Q2)
+  driverList.forEach(d => {
+    if (!state.drivers[d.id]) {
+      state.drivers[d.id] = {
+        bestTime: null,
+        runs: 0,
+        status: 'pits',
+        improving: false,
+      };
+    }
+  });
+}
+
+// ── SIMULER UN RUN ────────────────────────────────────────
+function simRun(driver, forceMode) {
+  // Initialiser si absent (sécurité)
+  if (!state.drivers[driver.id]) {
+    state.drivers[driver.id] = { bestTime: null, runs: 0, status: 'pits', improving: false };
+  }
+  const ds = state.drivers[driver.id];
+  const isPlayer = driver.teamId === playerTeamId;
+  const mode = isPlayer ? (forceMode || state.playerModes[driver.id]) : 'normal';
+  const t = calcQualiTime(driver, true, mode);
+
+  // Ne pas stocker les temps invalides (equipe non trouvée)
+  if (!t || t >= 990) {
+    console.warn('[Quali] Temps invalide pour', driver.firstName, driver.name, 'teamId:', driver.teamId);
+    return null;
+  }
+  const improved = !ds.bestTime || t < ds.bestTime;
+  if (improved) ds.bestTime = t;
+  ds.runs++;
+  ds.improving = improved;
+  ds.status = 'done';
+
+  if (isPlayer) {
+    state.playerRuns[driver.id] = (state.playerRuns[driver.id]||0) + 1;
+    if (improved) {
+      addRadio('📻', `${driver.firstName} ${driver.name} — Chrono amélioré ! ${fmtTime(t)}`, state.timer);
+    } else {
+      addRadio('📻', `${driver.firstName} ${driver.name} — Pas d amélioration. ${fmtTime(t)}`, state.timer);
+    }
+  }
+  return t;
+}
+
+// ── SIMULER TOUS LES RIVAUX ──────────────────────────────
+function simRivals(driverList, runCount = 1) {
+  driverList.filter(d => d.teamId !== playerTeamId).forEach(driver => {
+    for (let r = 0; r < runCount; r++) {
+      simRun(driver);
+      // 2ème run légèrement meilleur
+      if (r === 0 && Math.random() < 0.7) {
+        const ds = state.drivers[driver.id];
+        if (ds && ds.bestTime) ds.bestTime -= Math.random() * 0.06;
+      }
+    }
+  });
+}
+
+// ── CLASSEMENT ───────────────────────────────────────────
+function buildLeaderboard(driverList) {
+  const board = driverList.map(d => ({
+    driver: d,
+    bestTime: state.drivers[d.id]?.bestTime || null,
+    runs: state.drivers[d.id]?.runs || 0,
+    improving: state.drivers[d.id]?.improving || false,
+    eliminated: state.eliminated.includes(d.id),
+    isPlayer: d.teamId === playerTeamId,
+  }));
+  board.sort((a,b) => {
+    if (!a.bestTime && !b.bestTime) return 0;
+    if (!a.bestTime) return 1;
+    if (!b.bestTime) return -1;
+    return a.bestTime - b.bestTime;
+  });
+  return board;
+}
+
+// ── RENDER LEADERBOARD ───────────────────────────────────
+function renderLeaderboard(board, cutAt, phaseLabel) {
+  const el = document.getElementById('leaderboard');
+  if (!el) return;
+  const pole = board[0]?.bestTime;
+
+  el.innerHTML = board.map((entry, i) => {
+    const pos   = i + 1;
+    const team  = F1Data.teams.find(t => t.id === entry.driver.teamId);
+    const color = team?.color || '#888';
+    const pc    = pos === 1 ? 'p1' : pos === 2 ? 'p2' : pos === 3 ? 'p3' : '';
+    const elim  = entry.eliminated;
+    const danger = cutAt && pos > cutAt && !elim;
+    const cls   = `lb-row${entry.isPlayer?' player':''}${elim?' eliminated':''}${danger?' danger':''}${entry.improving?' improved':''}`;
+
+    let status = '';
+    if (elim)         status = `<span class="lb-status out">ÉLIM</span>`;
+    else if (pos <= 10 && cutAt === 10) status = `<span class="lb-status q3">Q3</span>`;
+    else if (entry.improving) status = `<span class="lb-status improving">⬆</span>`;
+
+    return `<div class="${cls}" id="row_${entry.driver.id}">
+      <div class="lb-teambar" style="background:${color}"></div>
+      <div class="lb-pos ${pc}">${pos}</div>
+      <div class="lb-num">${entry.driver.number||'?'}</div>
+      <div>
+        <div class="lb-name${entry.isPlayer?' player-name':''}">${entry.driver.firstName||''} ${entry.driver.name||'?'}</div>
+        <div class="lb-team">${team?.shortName||''}</div>
+      </div>
+      <div style="flex:1"></div>
+      ${status}
+      <div class="lb-time" style="color:${entry.isPlayer?'var(--gold)':entry.bestTime?color:'var(--muted)'}">
+        ${entry.bestTime ? fmtTime(entry.bestTime) : '<span style="font-size:10px;color:var(--muted)">—</span>'}
+      </div>
+      <div class="lb-gap">${entry.bestTime&&pos>1?fmtGap(pole,entry.bestTime):''}</div>
+    </div>`;
+  }).join('');
+
+  // Ligne de coupure
+  if (cutAt) {
+    const rows = el.querySelectorAll('.lb-row');
+    if (rows[cutAt]) {
+      const cut = document.createElement('div');
+      cut.className = 'cut-line';
+      cut.dataset.label = phaseLabel;
+      rows[cutAt].before(cut);
+    }
+  }
+}
+
+function renderRadio() {
+  const el = document.getElementById('radioFeed');
+  if (!el) return;
+  el.innerHTML = state.radioMessages.map(m =>
+    `<div class="radio-msg"><span class="radio-time">${m.time}</span><span class="radio-icon">${m.icon}</span><span>${m.msg}</span></div>`
+  ).join('');
+}
+
+// ── TIMER ────────────────────────────────────────────────
+function startTimer() {
+  state.timerInterval = setInterval(() => {
+    state.timer = Math.max(0, state.timer - 1);
+    const el = document.getElementById('sessionTimer');
+    if (el) {
+      el.textContent = fmtTimer(state.timer);
+      el.className = `sh-timer${state.timer < 120 ? ' critical' : ''}`;
+    }
+    if (state.timer === 0) endPhase();
+  }, 1000);
+}
+
+function stopTimer() {
+  clearInterval(state.timerInterval);
+  state.timerInterval = null;
+}
+
+// ── LANCER UNE PHASE ─────────────────────────────────────
+function startPhase(phase, drivers) {
+  stopTimer();
+  state.phase   = phase;
+  state.running = true;
+  state.phaseComplete = false;
+  state.radioMessages = [];
+  state.timer   = phase === 'Q1' ? 18*60 : phase === 'Q2' ? 15*60 : 12*60;
+  // Résoudre depuis F1Data pour garantir des objets complets
+  const resolvedDrivers = drivers.map(d => F1Data.drivers.find(f => f.id === d.id) || d)
+    .filter(d => d && d.teamId && d.teamId !== 'free_agent' && !d.retired);
+  initDrivers(resolvedDrivers);
+
+  // Tous les pilotes font au moins 1 run au début (garantir un bestTime)
+  resolvedDrivers.forEach(d => {
+    if (!state.drivers[d.id]) {
+      state.drivers[d.id] = { bestTime: null, runs: 0, status: 'pits', improving: false };
+    }
+    // Garantir des stats valides avant le run
+    if (!d.pace || isNaN(d.pace)) d.pace = 72;
+    if (!d.consistency || isNaN(d.consistency)) d.consistency = 70;
+    if (!d.wetSkill || isNaN(d.wetSkill)) d.wetSkill = 68;
+    if (!d.overtaking || isNaN(d.overtaking)) d.overtaking = 68;
+    if (!d.defending || isNaN(d.defending)) d.defending = 68;
+    const result = simRun(d);
+    // Si le run a échoué, forcer un temps basé sur le circuit
+    if (!result && !state.drivers[d.id].bestTime) {
+      const team = F1Data.teams.find(t => t.id === d.teamId);
+      const baseTime = circuit.baseLapTime || 90;
+      const perfBonus = team ? (85 - team.performance) * 0.030 : 0.5;
+      const paceBonus = (87 - (d.pace||72)) * 0.012;
+      const variance  = (Math.random() - 0.5) * 0.3;
+      state.drivers[d.id].bestTime = parseFloat((baseTime + perfBonus + paceBonus + variance).toFixed(3));
+    }
+  });
+
+  addRadio('🚦', `${phase} — Session lancée ! ${resolvedDrivers.length} pilotes en piste.`, state.timer);
+
+  const board = buildLeaderboard(resolvedDrivers);
+  renderPhase(phase, resolvedDrivers, board);
+  startTimer();
+}
+
+// ── RENDER PHASE ─────────────────────────────────────────
+function renderPhase(phase, drivers, board) {
+  const cutAt = phase === 'Q1' ? 15 : phase === 'Q2' ? 10 : null;
+  const cutLabel = phase === 'Q1' ? 'ÉLIMINÉS Q1' : 'ÉLIMINÉS Q2';
+  const phaseColors = { Q1:'q1', Q2:'q2', Q3:'q3' };
+
+  document.getElementById('content').innerHTML = `
+    <div class="session-header">
+      <div>
+        <div class="sh-phase" style="color:${phase==='Q3'?'var(--gold)':phase==='Q2'?'#ff8800':'#64a0ff'}">${phase}</div>
+        <div style="font-family:var(--fh);font-size:10px;color:var(--muted)">${drivers.length} pilotes</div>
+      </div>
+      <div class="sh-info">
+        <div class="sh-circuit">${circuit.name||'Circuit'}</div>
+        <div class="sh-sub" id="sessionSub"></div>
+      </div>
+      <div>
+        <div class="sh-timer" id="sessionTimer">${fmtTimer(state.timer)}</div>
+        <div style="font-family:var(--fh);font-size:9px;color:var(--muted);text-align:right">RESTANT</div>
+      </div>
+    </div>
+
+    <div class="quali-live">
+      <section class="quali-main quali-card">
+        <div class="panel-head"><span class="dot"></span>Classement live</div>
+        <div class="quali-card-body">
+          <div class="leaderboard" id="leaderboard"></div>
+        </div>
+      </section>
+
+      <aside class="quali-side">
+        <div class="player-controls">
+          <div class="pc-title">🎮 Mur des stands</div>
+          <div class="pc-drivers" id="playerControls">
+            ${myDrivers.filter(d => !state.eliminated.includes(d.id) && drivers.find(x=>x.id===d.id)).map(d => `
+              <div class="pc-driver">
+                <div class="pc-name">${d.firstName} ${d.name}</div>
+                <span class="pc-status" id="status_${d.id}">En attente</span>
+              </div>
+              <div class="pc-driver" style="padding-left:0">
+                <button class="pc-btn${state.playerModes[d.id]==='push'?' active':''}" onclick="setMode('${d.id}','push')">⚡ Push</button>
+                <button class="pc-btn${state.playerModes[d.id]==='normal'?' active':''}" onclick="setMode('${d.id}','normal')">🎯 Normal</button>
+              </div>
+            `).join('')}
+            <button class="btn-run" id="btnRun" onclick="doPlayerRun()">🏎️ Lancer un run</button>
+            <button class="btn-run secondary" id="btnEnd" onclick="endPhase()">⏭ Terminer ${phase}</button>
+            <div class="run-meta">
+              <div class="mini"><span>Coût run</span><b>3 tours</b></div>
+              <div class="mini"><span>Sortie</span><b>1 tour</b></div>
+              <div class="mini"><span>Retour</span><b>1 tour</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="quali-card">
+          <div class="panel-head"><span class="dot"></span>Radio</div>
+          <div class="radio-feed" id="radioFeed"></div>
+        </div>
+      </aside>
+    </div>
+  `;
+
+  const subEl = document.getElementById('sessionSub');
+  if (subEl) subEl.textContent = (weather==='dry'?'Piste seche':weather==='light_rain'?'Piste humide':'Pluie forte') + ' · ' + (phase==='Q1'?'18':phase==='Q2'?'15':'12') + ' min';
+  renderLeaderboard(board, cutAt, cutLabel);
+  renderRadio();
+  updatePlayerStatus();
+}
+
+function setMode(driverId, mode) {
+  state.playerModes[driverId] = mode;
+  // Mettre à jour les boutons
+  const ctrl = document.getElementById('playerControls');
+  if (!ctrl) return;
+  myDrivers.forEach(d => {
+    ['push','normal'].forEach(m => {
+      const btn = ctrl.querySelector(`button[onclick="setMode('${d.id}','${m}')"]`);
+      if (btn) btn.className = `pc-btn${state.playerModes[d.id]===m?' active':''}`;
+    });
+  });
+}
+
+function updatePlayerStatus() {
+  myDrivers.forEach(d => {
+    const el = document.getElementById(`status_${d.id}`);
+    if (!el) return;
+    const runs = state.playerRuns[d.id]||0;
+    const ds   = state.drivers[d.id];
+    if (state.eliminated.includes(d.id)) {
+      el.textContent = '❌ Éliminé';
+      el.style.color = 'var(--accent)';
+    } else if (ds?.bestTime) {
+      el.textContent = `${fmtTime(ds.bestTime)} · ${runs} run${runs>1?'s':''}`;
+      el.style.color = 'var(--green)';
+    } else {
+      el.textContent = 'Pas de chrono';
+      el.style.color = 'var(--muted)';
+    }
+  });
+}
+
+// ── RUN JOUEUR ───────────────────────────────────────────
+function doPlayerRun() {
+  if (state.runInProgress || state.timer <= 0) return;
+  state.runInProgress = true;
+
+  const btn = document.getElementById('btnRun');
+  if (btn) { btn.disabled = true; btn.textContent = '🔄 Run en cours...'; }
+
+  const currentDrivers = getCurrentDrivers();
+
+  // Simuler run joueur : les deux voitures sortent sur la même fenêtre de piste.
+  const playerTimes = [];
+  myDrivers.filter(d => !state.eliminated.includes(d.id) && currentDrivers.find(x=>x.id===d.id)).forEach(d => {
+    const t = simRun(d);
+    if (t) playerTimes.push(t);
+  });
+  const used = consumeRunTime(playerTimes.length ? Math.max(...playerTimes) : 90);
+  addRadio('⏱️', `Run terminé — ${RUN_LAPS_COST} tours consommés (${fmtTimer(used)}).`, state.timer);
+
+  // Simuler aussi quelques rivaux qui s'améliorent
+  const rivals = currentDrivers.filter(d => d.teamId !== playerTeamId);
+  const improvingRivals = rivals.filter(() => Math.random() < 0.4);
+  improvingRivals.forEach(d => {
+    const ds = state.drivers[d.id];
+    if (ds?.bestTime) ds.bestTime -= Math.random() * 0.05;
+    ds.improving = true;
+  });
+
+  // Maj classement avec animation
+  setTimeout(() => {
+    const board = buildLeaderboard(currentDrivers);
+    const cutAt = state.phase === 'Q1' ? 15 : state.phase === 'Q2' ? 10 : null;
+    const cutLabel = state.phase === 'Q1' ? 'ÉLIMINÉS Q1' : 'ÉLIMINÉS Q2';
+    renderLeaderboard(board, cutAt, cutLabel);
+    updatePlayerStatus();
+
+    // Vérifier position danger
+    checkDangerZone(board, currentDrivers);
+
+    state.runInProgress = false;
+    if (btn) { btn.disabled = false; btn.textContent = '🏎️ Lancer un run'; }
+
+    // Réinitialiser improving
+    setTimeout(() => {
+      Object.values(state.drivers).forEach(ds => ds.improving = false);
+    }, 600);
+  }, 1200);
+}
+
+function checkDangerZone(board, drivers) {
+  const cutAt = state.phase === 'Q1' ? 15 : state.phase === 'Q2' ? 10 : null;
+  if (!cutAt) return;
+  myDrivers.forEach(d => {
+    const pos = board.findIndex(e => e.driver.id === d.id) + 1;
+    if (pos > cutAt && pos <= cutAt + 2) {
+      addRadio('⚠️', `${d.firstName} ${d.name} — P${pos} — EN ZONE D ÉLIMINATION !`, state.timer);
+    } else if (pos === cutAt) {
+      addRadio('📻', `${d.firstName} ${d.name} — P${pos} — Sur la ligne de coupure.`, state.timer);
+    }
+  });
+}
+
+function getCurrentDrivers() {
+  if (state.phase === 'Q1') return allDrivers.filter(d => !state.eliminated.includes(d.id));
+  if (state.phase === 'Q2') return state.q2Drivers;
+  return state.q3Drivers;
+}
+
+// ── FIN DE PHASE ─────────────────────────────────────────
+function endPhase() {
+  stopTimer();
+  state.running = false;
+
+  const currentDrivers = getCurrentDrivers();
+
+  // S'assurer que tous les pilotes ont au moins un run
+  currentDrivers.forEach(d => {
+    if (!state.drivers[d.id]?.bestTime) simRun(d);
+  });
+
+  const board = buildLeaderboard(currentDrivers);
+  const pole  = board[0]?.bestTime;
+
+  if (state.phase === 'Q1') {
+    // Éliminer les 5 derniers
+    const eliminated = board.slice(15);
+    eliminated.forEach(e => state.eliminated.push(e.driver.id));
+    state.q2Drivers = board.slice(0, 15).map(e => e.driver);
+
+    eliminated.forEach(e => {
+      if (e.isPlayer) addRadio('❌', `${e.driver.firstName} ${e.driver.name} ÉLIMINÉ en Q1 — P${board.indexOf(e)+1}`, 0);
+    });
+
+    addRadio('🏁', 'Q1 terminée — 5 pilotes éliminés.', 0);
+    showPhaseResult('Q1', board, 15, () => startPhase('Q2', state.q2Drivers));
+
+  } else if (state.phase === 'Q2') {
+    // S'assurer que les pilotes joueur ont un bestTime
+    myDrivers.forEach(d => {
+      if (state.q2Drivers.find(x=>x.id===d.id) && !state.drivers[d.id]?.bestTime) {
+        simRun(d);
+        console.log('[Quali Q2] Run forcé pour', d.firstName, d.name);
+      }
+    });
+    const boardFinal = buildLeaderboard(currentDrivers);
+    const eliminated = boardFinal.slice(10);
+    eliminated.forEach(e => state.eliminated.push(e.driver.id));
+    state.q3Drivers = boardFinal.slice(0, 10).map(e => e.driver);
+
+    eliminated.forEach(e => {
+      if (e.isPlayer) addRadio('❌', `${e.driver.firstName} ${e.driver.name} ÉLIMINÉ en Q2 — P${boardFinal.indexOf(e)+1}`, 0);
+    });
+
+    addRadio('🏁', 'Q2 terminée — 5 pilotes éliminés.', 0);
+    showPhaseResult('Q2', board, 10, () => startPhase('Q3', state.q3Drivers));
+
+  } else {
+    // Q3 — résultat final
+    addRadio('🏆', `POLE POSITION : ${board[0]?.driver.firstName} ${board[0]?.driver.name} — ${fmtTime(pole)}`, 0);
+    showFinalResult(board);
+  }
+}
+
+// ── RÉSULTAT INTER-PHASE ─────────────────────────────────
+function showPhaseResult(phase, board, cutAt, nextFn) {
+  const nextPhase = phase === 'Q1' ? 'Q2' : 'Q3';
+  document.getElementById('content').innerHTML = `
+    <div style="text-align:center;padding:16px 0">
+      <div style="font-family:var(--fh);font-weight:900;font-size:28px;color:${phase==='Q1'?'#64a0ff':'#ff8800'}">${phase} TERMINÉE</div>
+      <div style="font-family:var(--fh);font-size:12px;color:var(--muted);margin-top:4px">5 pilotes éliminés</div>
+    </div>
+    <div class="leaderboard">
+      ${board.map((e,i) => {
+        const team = F1Data.teams.find(t => t.id === e.driver.teamId);
+        const elim = i >= cutAt;
+        return `<div class="${`lb-row${e.isPlayer?' player':''}${elim?' eliminated':''}`}">
+          <div class="lb-teambar" style="background:${team?.color||'#888'}"></div>
+          <div class="lb-pos ${i===0?'p1':i===1?'p2':i===2?'p3':''}">${i+1}</div>
+          <div class="lb-num">${e.driver.number||'?'}</div>
+          <div>
+            <div class="lb-name${e.isPlayer?' player-name':''}">${e.driver.firstName||''} ${e.driver.name}</div>
+            <div class="lb-team">${team?.shortName||''}</div>
+          </div>
+          <div style="flex:1"></div>
+          ${elim?'<span class="lb-status out">ÉLIM</span>':''}
+          <div class="lb-time">${fmtTime(e.bestTime)}</div>
+          <div class="lb-gap">${i>0?fmtGap(board[0].bestTime,e.bestTime):''}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <button class="btn-run" onclick="nextPhase()" style="margin-top:12px">⚡ Lancer ${nextPhase} →</button>
+  `;
+
+  // Insérer ligne de coupure
+  setTimeout(() => {
+    const rows = document.querySelectorAll('.lb-row');
+    if (rows[cutAt]) {
+      const cut = document.createElement('div');
+      cut.className = 'cut-line';
+      cut.dataset.label = `ÉLIMINÉS ${phase}`;
+      rows[cutAt].before(cut);
+    }
+  }, 50);
+
+  window._nextPhaseFn = nextFn;
+}
+
+function nextPhase() {
+  if (window._nextPhaseFn) window._nextPhaseFn();
+}
+
+// ── RÉSULTAT FINAL ────────────────────────────────────────
+function showFinalResult(q3Board) {
+  // Construire la grille complète
+  const allBoard = [];
+
+  // Q3 (P1-P10)
+  q3Board.forEach((e,i) => allBoard.push({ ...e, gridPos: i+1, phase:'Q3' }));
+
+  // Q2 éliminés — pilotes passés en Q2 mais PAS qualifiés en Q3
+  // FIX: on garde bien les pilotes éliminés en Q2 dans la grille finale.
+  const q2Elims = state.q2Drivers.filter(d =>
+    !q3Board.find(q => q.driver.id === d.id)
+  );
+  // Simplification : ordre aléatoire pour Q2 éliminés
+  q2Elims.sort((a,b) => (state.drivers[a.id]?.bestTime||999) - (state.drivers[b.id]?.bestTime||999));
+  q2Elims.forEach((d,i) => allBoard.push({ driver:d, bestTime:state.drivers[d.id]?.bestTime, gridPos:11+i, phase:'Q2', isPlayer:d.teamId===playerTeamId }));
+
+  // Q1 éliminés
+  const q1Elims = allDrivers.filter(d =>
+    state.eliminated.includes(d.id) &&
+    !q2Elims.find(q=>q.id===d.id) &&
+    !state.q2Drivers.find(q=>q.id===d.id)
+  );
+  q1Elims.sort((a,b) => (state.drivers[a.id]?.bestTime||999) - (state.drivers[b.id]?.bestTime||999));
+  q1Elims.forEach((d,i) => allBoard.push({ driver:d, bestTime:state.drivers[d.id]?.bestTime, gridPos:16+i, phase:'Q1', isPlayer:d.teamId===playerTeamId }));
+
+  // Sauvegarder
+  const finalGrid = allBoard.map(e => ({
+    driverId:    e.driver.id,
+    teamId:      e.driver.teamId,
+    gridPos:     e.gridPos,
+    qualiTime:   e.bestTime,
+    isPlayer:    e.isPlayer,
+    eliminatedIn: e.phase === 'Q3' ? null : e.phase,
+  }));
+
+  save.qualiGrid        = finalGrid;
+  save.weekendQualiDone = true;
+  Save.save(save);
+
+  const pole     = allBoard[0];
+  const playerPos = allBoard.filter(e=>e.isPlayer).map(e=>`P${e.gridPos}`).join(' / ');
+
+  document.getElementById('content').innerHTML = `
+    <div style="text-align:center;padding:16px 0 10px">
+      <div style="font-family:var(--fh);font-weight:900;font-size:28px;color:var(--gold)">QUALIFICATIONS TERMINÉES</div>
+      <div style="font-family:var(--fh);font-size:13px;color:var(--muted);margin-top:4px">Tes pilotes : ${playerPos}</div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--gold);border-radius:10px;padding:12px 14px;margin-bottom:12px;text-align:center">
+      <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:6px">🏆 POLE POSITION</div>
+      <div style="font-family:var(--fh);font-weight:900;font-size:20px;color:var(--gold)">${pole?.driver.firstName||''} ${pole?.driver.name||'?'}</div>
+      <div style="font-family:var(--fh);font-size:14px;color:var(--muted);margin-top:2px">${fmtTime(pole?.bestTime)} · ${F1Data.teams.find(t=>t.id===pole?.driver.teamId)?.name||''}</div>
+    </div>
+
+    <div class="leaderboard">
+      ${allBoard.map((e,i) => {
+        const team = F1Data.teams.find(t => t.id === e.driver.teamId);
+        const pc = i===0?'p1':i===1?'p2':i===2?'p3':'';
+        return `<div class="${`lb-row${e.isPlayer?' player':''}`}">
+          <div class="lb-teambar" style="background:${team?.color||'#888'}"></div>
+          <div class="lb-pos ${pc}">${e.gridPos}</div>
+          <div class="lb-num">${e.driver.number||'?'}</div>
+          <div>
+            <div class="lb-name${e.isPlayer?' player-name':''}">${e.driver.firstName||''} ${e.driver.name}</div>
+            <div class="lb-team">${team?.shortName||''} ${e.phase&&e.phase!=='Q3'?`<span class="fg-elim">ÉLIM ${e.phase}</span>`:''}</div>
+          </div>
+          <div style="flex:1"></div>
+          <div class="lb-time" style="color:${e.isPlayer?'var(--gold)':(team?.color||'#888')}">${fmtTime(e.bestTime)}</div>
+          <div class="lb-gap">${i>0?fmtGap(allBoard[0].bestTime,e.bestTime):''}</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    <a href="weekend.html" class="btn-run" style="text-decoration:none;display:block;text-align:center;margin-top:14px">
+      🏁 Retour au week-end →
+    </a>
+  `;
+
+  // Toast résumé
+  showToast(`✅ Qualifications terminées ! ${playerPos}`);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── ÉCRAN DE DÉPART ───────────────────────────────────────
+function renderStart() {
+  const myTeam = F1Data.teams.find(t => t.id === playerTeamId);
+  document.getElementById('topPills').innerHTML = `
+    <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">${circuit.name||'Circuit'}</span>
+    <span style="font-family:var(--fh);font-size:11px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px">S${save.season||2025} · GP${(save.race||0)+1}</span>`;
+
+  document.getElementById('content').innerHTML = `
+    <div class="session-header" style="flex-direction:column;text-align:center;gap:8px">
+      <div style="font-size:36px">⚡</div>
+      <div>
+        <div style="font-family:var(--fh);font-weight:900;font-size:22px">Qualifications</div>
+        <div style="font-family:var(--fh);font-size:12px;color:var(--muted);margin-top:4px">${circuit.name||'Circuit'} · ${weather==='dry'?'Piste sèche':weather==='light_rain'?'Humide':'Pluie'}</div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:10px">FORMAT</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px">
+          <span style="color:#64a0ff">Q1 — 18 min</span><span style="color:var(--muted)">20 pilotes → élimine les 5 derniers</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px">
+          <span style="color:#ff8800">Q2 — 15 min</span><span style="color:var(--muted)">15 pilotes → élimine les 5 derniers</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:13px">
+          <span style="color:var(--gold)">Q3 — 12 min</span><span style="color:var(--muted)">10 pilotes → pole position</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
+      <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:10px">TES PILOTES</div>
+      ${myDrivers.map(d => `
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05)">
+          <span style="font-size:18px">${d.flag||'🏁'}</span>
+          <div style="flex:1">
+            <div style="font-family:var(--fh);font-weight:900">#${d.number} ${d.firstName} ${d.name}</div>
+            <div style="font-family:var(--fh);font-size:11px;color:var(--muted)">${d.trait} · Pace ${save.driverStates?.[d.id]?.pace||d.pace}</div>
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div style="background:rgba(245,200,66,.05);border:1px solid rgba(245,200,66,.2);border-radius:8px;padding:12px;font-size:12px;color:#bbb;margin-bottom:14px;line-height:1.6">
+      💡 Pendant chaque session tu peux <strong style="color:var(--gold)">choisir le mode</strong> de tes pilotes (Push ou Normal) et <strong style="color:var(--gold)">lancer des runs</strong> quand tu veux. Les rivaux s'améliorent aussi entre tes runs.
+    </div>
+
+    <button class="btn-run" onclick="startPhase('Q1', allDrivers)">⚡ Lancer Q1 →</button>
+    <a href="weekend.html" class="btn-run secondary" style="text-decoration:none;display:block;text-align:center;margin-top:6px">← Retour</a>
+  `;
+}
+
+renderStart();
+</script>
+</body>
+</html>

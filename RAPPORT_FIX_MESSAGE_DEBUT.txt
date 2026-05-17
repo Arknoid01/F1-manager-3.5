@@ -1,0 +1,5 @@
+Fix appliqué :
+- Suppression à la source du message pilote isolé au démarrage d'une nouvelle partie.
+- Ajout d'une vraie réunion pilotes + staff dans team-intro.html.
+- La réunion reste liée à l'onboarding de création de carrière.
+- Les messages sociaux automatiques ne commencent qu'après un premier GP/résumé de course.

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260508f">
+<title>Briefing Qualifications — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px 40px}
+.hero{background:linear-gradient(135deg,#0a0a1a 0%,#07070d 60%,#0f0a00 100%);border:1px solid var(--border);border-radius:12px;padding:18px 16px;margin:14px 0;position:relative;overflow:hidden}
+.hero-day{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:4px}
+.hero-title{font-family:var(--fh);font-weight:900;font-size:28px;line-height:1;margin-bottom:2px}
+.hero-sub{font-family:var(--fb);font-size:12px;color:var(--muted)}
+.section{margin:14px 0}
+.section-title{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.el-summary{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.el-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
+.el-card .ec-session{font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:4px}
+.el-card .ec-name{font-family:var(--fh);font-weight:900;font-size:15px}
+.el-card .ec-time{font-family:var(--fh);font-size:12px;color:var(--gold);margin-top:4px}
+.el-card .ec-pos{font-size:11px;color:var(--muted);margin-top:2px}
+.track-analysis{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.ta-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--fh);font-size:13px}
+.ta-row:last-child{border:none}
+.ta-row span{color:var(--muted);font-size:11px}
+.bar-wrap{width:80px;height:6px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px}
+.quote-card{background:linear-gradient(135deg,rgba(245,200,66,.06),transparent);border:1px solid rgba(245,200,66,.15);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px}
+.quote-text{font-size:14px;color:#ddd;line-height:1.6;font-style:italic;margin-bottom:8px}
+.quote-author{font-family:var(--fh);font-size:11px;color:var(--gold);letter-spacing:1px}
+.strat-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.strat-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.strat-row:last-child{border:none}
+.strat-icon{font-size:18px;flex-shrink:0;margin-top:2px}
+.si-title{font-family:var(--fh);font-weight:700;font-size:13px}
+.si-text{font-size:12px;color:var(--muted);margin-top:2px;line-height:1.4}
+.anecdote{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;color:#ccc;line-height:1.6}
+.anecdote strong{color:var(--text);font-family:var(--fh)}
+.cta{margin-top:20px}
+.btn-cta{display:block;background:var(--gold);color:#000;font-family:var(--fh);font-weight:900;font-size:16px;letter-spacing:2px;text-transform:uppercase;padding:16px;border-radius:10px;text-decoration:none;text-align:center}
+</style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
+  <a href="index.html" class="nav-back">← Accueil</a>
+  <div class="top-pills" id="topPills"></div>
+</div>
+<div class="wrap"><div id="content"></div></div>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script>
+const QUALI_ANECDOTES = {
+  monaco:     'A Monaco, la pole est presque synonyme de victoire. Depuis 2003, plus de 75% des pole sitters ont gagne la course. Chaque dixieme en qualif vaut de l\'or ici.',
+  silverstone:'Le record de la pole a Silverstone depasse les 260 km/h de moyenne. La sequence Copse-Maggots-Becketts est l\'une des plus belles en F1.',
+  spa:        'La pole a Spa se gagne souvent dans le secteur 1 — Eau Rouge-Raidillon est un moment de verite. Une sortie la peut ruiner une session entiere.',
+  monza:      'A Monza, l\'aspiration entre pilotes cree des trains en qualif. Se positionner dans le bon groupe au bon moment peut faire gagner 3 dixiemes d\'un coup.',
+  suzuka:     'La sequence S-Curves de Suzuka est l\'endroit ou les grands pilotes se revelent. Un tour parfait ici est une oeuvre d\'art mecanique.',
+  barcelona:  'La derniere chicane de Barcelona est souvent contournee en qualif. Couper sur le vibreur peut faire gagner 2 dixiemes sans sanction si bien execute.',
+  baku:       'La ligne droite de Baku est si longue qu\'un train DRS vaut plus de 0.5s. Le positionnement en Q3 est strategique — ne pas sortir premier est crucial.',
+  singapore:  'En qualif nocturne a Singapore, la piste s\'ameliore tout au long de la session. Le dernier run est toujours le plus rapide.',
+  abu_dhabi:  'A Yas Marina, le secteur 3 remodele offre de vraies opportunites. Une bonne position reste importante mais moins que Monaco.',
+};
+const QUOTES = [
+  "Les pneus sont prets, la voiture repond bien. On va chercher la pole.",
+  "Quelques reglages a peaufiner mais le potentiel est la. Je me sens bien.",
+  "La piste va encore evoluer en Q3. Il faut etre le dernier a sortir.",
+  "On a trouve du temps ce matin. Si on reproduit ca en qualif, on sera dans le coup.",
+  "C'est un circuit que j'adore. Je connais chaque virage — je vais me faire plaisir.",
+  "Le secteur 2 est notre force ici. C'est la qu'on peut faire la difference.",
+  "J'ai un bon feeling avec la voiture. Les pneus neufs vont tout changer en Q3.",
+  "On a travaille dur cette semaine. Maintenant c'est a moi de delivrer.",
+  "Je suis concentre. Le tour parfait est dans la tete, maintenant je le pose sur la piste.",
+  "Q3, c'est la que ca se joue. Un tour, une chance. Je serai pret.",
+  "La voiture est en forme. Le muret a fait un excellent travail ce week-end.",
+  "Je connais ce circuit par coeur. Je sais ou je peux attaquer et ou il faut gerer.",
+  "Les conditions sont bonnes. Un bon tour de chauffe et on devrait etre dans le coup.",
+  "On a ajuste le setup cette nuit. Je me sens mieux dans la voiture qu'hier.",
+  "Objectif simple : donner tout ce que j'ai sur ce tour. Le chrono dira le reste.",
+  "J'ai visualise mon tour depuis ce matin. Chaque point de freinage, chaque apex.",
+  "L'equipe a fait un travail remarquable. Je veux leur rendre ca avec un beau chrono.",
+  "La pole serait fantastique ici. La course se gagne souvent en qualif sur ce circuit.",
+  "On a la voiture pour faire quelque chose de bien aujourd'hui. Je le sens.",
+];
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function esc(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function render(){
+  const save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+
+  // Appliquer driverStates sur TOUS les pilotes F1Data (y compris GAS, COL etc.)
+  // pour refléter les changements d'équipe en cours de saison
+  if (save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const state = save.driverStates[d.id];
+      if (!state) return;
+      if (Object.prototype.hasOwnProperty.call(state, 'teamId')) {
+        d.teamId = state.teamId;
+      }
+      if (Object.prototype.hasOwnProperty.call(state, 'retired')) {
+        d.retired = state.retired;
+      }
+    });
+  }
+  if(!save||!save.playerTeamId){ document.getElementById('content').innerHTML='<div style="padding:40px;text-align:center;color:var(--muted)">Aucune carriere. <a href="index.html" style="color:var(--accent)">Retour</a></div>'; return; }
+  const raceNum   = (save.race||0) % F1Data.circuits.length;
+  const circuit   = F1Data.circuits[raceNum];
+  const cid       = circuit.id;
+  // Restaurer les pilotes generés (juniors promus) avant de filtrer
+  if (save.generatedDrivers?.length) {
+    save.generatedDrivers.forEach(gd => {
+      const state  = save.driverStates?.[gd.id];
+      const merged = { ...gd, ...(state||{}) };
+      if (state && state.teamId !== undefined) merged.teamId = state.teamId;
+      if (!merged.flag && gd.flag) merged.flag = gd.flag;
+      if (!merged.teamId || merged.teamId === 'free_agent') return;
+      const idx = F1Data.drivers.findIndex(d => d.id === gd.id);
+      if (idx < 0) F1Data.drivers.push(merged);
+      else Object.assign(F1Data.drivers[idx], merged);
+    });
+  }
+
+  const myDrivers = F1Data.drivers.filter(d=>d.teamId&&d.teamId===save.playerTeamId&&!d.retired);
+  const weather   = save.weekendWeather||'dry';
+  const isWet     = weather !== 'dry';
+  const fpDone    = save.weekendFPDone||0;
+  const fpResults = save.weekendFPResults||[];
+  const season    = save.season||2025;
+  const gpNum     = (save.race||0)+1;
+
+  document.getElementById('topPills').innerHTML = `
+    <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">Saison ${season}</span>
+    <span style="font-family:var(--fh);font-size:11px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px">GP ${gpNum}</span>`;
+
+  // Debug — voir la structure des résultats EL
+  console.log('[QualiB] fpResults:', JSON.stringify(fpResults.slice(0,2)));
+  console.log('[QualiB] myDrivers ids:', myDrivers.map(d=>d.id));
+
+  // Calculer la degradation estimee selon le circuit et la voiture
+  const tyreBase    = circuit.tyreDegradation || 1.0;
+  const reliability = save.carDev?.reliability?.level || 75;
+  const degradFactor = Math.round(tyreBase * (1 + (100 - reliability) / 200) * 100) / 100;
+  const degradLabel = degradFactor > 1.3 ? 'Elevee' : degradFactor > 1.1 ? 'Moderee' : 'Faible';
+  const degradColor = degradFactor > 1.3 ? 'var(--accent)' : degradFactor > 1.1 ? 'var(--gold)' : 'var(--green)';
+
+  const elCards = myDrivers.map(d=>{
+    const dRes   = fpResults.filter(r=>(r.driverId||r.driver?.id||r.driver)===d.id);
+    const state  = save.driverStates?.[d.id];
+
+    // Meilleur temps — simuler si pas de données EL réelles
+    let bestRaw = dRes.length ? Math.min(...dRes.map(r=>r.bestLap||999)) : null;
+    if (!bestRaw || bestRaw >= 999) {
+      // Simuler un temps réaliste selon le circuit et la perf pilote
+      const baseTime   = circuit.lapRecord || 90;
+      const carPerf    = ((save.carDev?.aero?.level||70) + (save.carDev?.chassis?.level||70) + (save.carDev?.engine?.level||70)) / 3;
+      const driverPace = state?.pace || d.pace || 80;
+      const perfFactor = 1 + ((100 - carPerf) * 0.002) + ((100 - driverPace) * 0.001);
+      bestRaw = baseTime * perfFactor * (0.98 + Math.random() * 0.04);
+    }
+    const mins = Math.floor(bestRaw / 60);
+    const secs = (bestRaw % 60).toFixed(3).padStart(6,'0');
+    const bestFormatted = `${mins}:${secs}`;
+
+    // Pneu recommande pour les qualifs
+    const tyreTip = circuit.tyreDegradation > 1.2
+      ? 'Soft neuf pour Q3 — 1 run max'
+      : 'Soft neuf pour Q3 — 2 runs possibles';
+
+    // Progression EL (nombre de sessions)
+    const sessionsDone = dRes.length || fpDone;
+
+    return `<div class="el-card">
+      <div class="ec-session">Bilan EL · ${sessionsDone} session${sessionsDone!==1?'s':''}</div>
+      <div class="ec-name">${esc(d.firstName)} ${esc(d.name)}</div>
+      <div class="ec-time" style="font-size:20px;font-weight:900;color:var(--gold);font-family:var(--fh)">&#9201; ${bestFormatted}</div>
+      <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap">
+        <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">Pneus : <strong style="color:var(--text)">${tyreTip}</strong></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:5px">
+        <span style="font-family:var(--fh);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase">Degradation</span>
+        <span style="font-family:var(--fh);font-size:12px;font-weight:700;color:${degradColor}">${degradLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  const gripLevel = Math.min(100, 60+fpDone*12);
+  const tempColor = isWet?'var(--blue)':circuit.trackTemp>28?'var(--accent)':'var(--green)';
+  const tempLabel = isWet?'Humide':circuit.trackTemp>28?'Chaud ('+circuit.trackTemp+'C)':'Ideale ('+circuit.trackTemp+'C)';
+
+  const driver1 = myDrivers[0];
+  const anecdote = QUALI_ANECDOTES[cid]||`Les qualifications a ${circuit.name} sont toujours un moment de verite. La piste est a son meilleur en Q3.`;
+
+  document.getElementById('content').innerHTML = `
+    <div class="hero">
+      <div class="hero-day">Samedi · Briefing Qualifications</div>
+      <div class="hero-title">${esc(circuit.name)}</div>
+      <div class="hero-sub">Qualifications · Saison ${season} · ${isWet?'Piste humide':'Piste seche'}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#128203; Bilan des essais libres</div>
+      <div class="el-summary">${elCards}</div>
+      <div class="anecdote"><strong>Analyse ingenieur — </strong>${fpDone>=3
+        ? pick(['La voiture a bien repondu sur les trois sessions. On est en bonne forme pour la qualif.','Les donnees EL confirment notre setup. Quelques micro-ajustements cette nuit. On est prets.','Les adversaires ont montre leur rythme. On a les donnees pour repondre.'])
+        : 'Sessions EL incompletes. Moins de donnees mais les fondamentaux sont bons.'}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#128506; Etat de la piste</div>
+      <div class="track-analysis">
+        <div class="ta-row"><span>Niveau de grip</span><div class="bar-wrap"><div class="bar-fill" style="width:${gripLevel}%;background:var(--green)"></div></div></div>
+        <div class="ta-row"><span>Temperature piste</span><b style="color:${tempColor}">${tempLabel}</b></div>
+        <div class="ta-row"><span>Degradation attendue</span><b style="color:${circuit.tyreDegradation>1.2?'var(--accent)':circuit.tyreDegradation>0.9?'var(--gold)':'var(--green)'}">${circuit.tyreDegradation>1.2?'Elevee':circuit.tyreDegradation>0.9?'Moderee':'Faible'}</b></div>
+        <div class="ta-row"><span>Zones DRS</span><b>${circuit.drsZones} zone${circuit.drsZones>1?'s':''}</b></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#129504; Strategie qualifications</div>
+      <div class="strat-card">
+        <div class="strat-row"><div class="strat-icon">&#128308;</div><div><div class="si-title">Pneu Q1/Q2</div><div class="si-text">${isWet?'Intermediaires selon evolution de la piste.':'Pneu Medium — economiser les Softs neufs pour le Q3.'}</div></div></div>
+        <div class="strat-row"><div class="strat-icon">&#9889;</div><div><div class="si-title">Pneu Q3</div><div class="si-text">${isWet?'Full Wet si piste trempee. Surveille le sechage.':'Pneu Soft neuf — deux runs max, le second generalement plus rapide.'}</div></div></div>
+        <div class="strat-row"><div class="strat-icon">&#8987;</div><div><div class="si-title">Timing de sortie</div><div class="si-text">Sortir dans les 3 dernieres minutes en Q3. La piste est a son meilleur et l\'aspiration peut faire gagner des dixiemes.</div></div></div>
+        <div class="strat-row"><div class="strat-icon">&#127919;</div><div><div class="si-title">Secteur cle</div><div class="si-text">${circuit.overtakingDifficulty>0.7?'La pole est decisive ici — tout donner en Q3.':'Bonne grille utile mais les depassements restent possibles en course.'}</div></div></div>
+      </div>
+    </div>
+
+    ${driver1?`<div class="section">
+      <div class="section-title">&#127897;&#65039; ${esc(driver1.firstName)} ${esc(driver1.name)}</div>
+      <div class="quote-card">
+        <div class="quote-text">"${pick(QUOTES)}"</div>
+        <div class="quote-author">— ${esc(driver1.firstName)} ${esc(driver1.name)}, avant les qualifications</div>
+      </div>
+    </div>`:''}
+
+    <!-- EFFETS PILOTES ACTIFS -->
+    ${myDrivers.some(d=>save.driverEffects?.[d.id]) ? `
+    <div class="section">
+      <div class="section-title">&#9889; Effets actifs ce week-end</div>
+      ${myDrivers.filter(d=>save.driverEffects?.[d.id]).map(d=>{
+        const e = save.driverEffects[d.id];
+        const pos = (e.pace||0)+(e.consistency||0) > 0;
+        const col = pos ? 'var(--green)' : 'var(--accent)';
+        return '<div class="anecdote" style="border-left:3px solid '+col+';margin-bottom:6px"><strong style="color:'+col+'">'+(pos?'&#128170;':'&#129291;')+' '+esc(d.firstName)+' '+esc(d.name)+'</strong> &mdash; '+esc(e.label||'Effet actif')+' &middot; Pace '+(e.pace>=0?'+':'')+(e.pace||0)+'</div>';
+      }).join('')}
+    </div>` : ''}
+
+    <!-- MORAL PILOTES -->
+    <div class="section">
+      <div class="section-title">&#128149; Moral de l'equipe</div>
+      <div class="track-analysis">
+        ${myDrivers.map(d => {
+          const moral = save.immersion?.driverMorale?.[d.id]?.value ?? 70;
+          const col   = moral>=70?'var(--green)':moral>=40?'var(--gold)':'var(--accent)';
+          const lbl   = moral>=70?'En forme':''+moral>=40?'Correct':'Bas';
+          return '<div class="ta-row"><span>'+esc(d.firstName)+' '+esc(d.name)+'</span><div style="display:flex;align-items:center;gap:8px"><div class="bar-wrap"><div class="bar-fill" style="width:'+moral+'%;background:'+col+'"></div></div><b style="color:'+col+'">'+moral+'</b></div></div>';
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">&#128161; ${esc(circuit.name)} en qualifications</div>
+      <div class="anecdote">${anecdote}</div>
+    </div>
+
+    <div class="cta"><a href="weekend.html" class="btn-cta">&#9889; Demarrer les qualifications &#8594;</a></div>
+  `;
+}
+render();
+</script>
+
+</body>
+</html>

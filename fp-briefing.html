@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260508f">
+<title>Briefing Essais Libres — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:680px;margin:0 auto;padding:0 14px 40px}
+
+/* Hero circuit */
+.hero{background:linear-gradient(135deg,#12000e 0%,#07070d 60%,#0a0f1a 100%);border:1px solid var(--border);border-radius:12px;padding:18px 16px;margin:14px 0;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;right:0;width:120px;height:100%;background:linear-gradient(90deg,transparent,rgba(232,0,61,.04));pointer-events:none}
+.hero-day{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:4px}
+.hero-title{font-family:var(--fh);font-weight:900;font-size:28px;line-height:1;margin-bottom:2px}
+.hero-sub{font-family:var(--fb);font-size:12px;color:var(--muted)}
+.hero-flag{font-size:32px;position:absolute;right:16px;top:16px;opacity:.6}
+
+/* Météo strip */
+.weather-strip{display:flex;gap:8px;margin:14px 0;overflow-x:auto;padding-bottom:2px}
+.weather-day{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:8px 12px;text-align:center;flex-shrink:0;min-width:70px}
+.weather-day .wd-label{font-family:var(--fh);font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.weather-day .wd-icon{font-size:20px;display:block;margin-bottom:2px}
+.weather-day .wd-temp{font-family:var(--fh);font-size:13px;font-weight:700}
+.weather-day.today{border-color:var(--gold)}
+
+/* Sections */
+.section{margin:14px 0}
+.section-title{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* Cards pilotes */
+.drivers-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.driver-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px}
+.driver-card .dc-flag{font-size:18px;margin-bottom:6px}
+.driver-card .dc-name{font-family:var(--fh);font-weight:900;font-size:16px;line-height:1}
+.driver-card .dc-sub{font-family:var(--fb);font-size:11px;color:var(--muted);margin:2px 0 8px}
+.driver-card .dc-stat{display:flex;justify-content:space-between;font-family:var(--fh);font-size:12px;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.driver-card .dc-stat:last-child{border:none}
+.driver-card .dc-stat span{color:var(--muted)}
+.driver-card .dc-moral{margin-top:8px;font-size:11px;font-family:var(--fh);padding:4px 8px;border-radius:4px;text-align:center}
+.moral-high{background:rgba(0,217,126,.1);color:var(--green);border:1px solid rgba(0,217,126,.2)}
+.moral-mid{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.2)}
+.moral-low{background:rgba(232,0,61,.1);color:var(--accent);border:1px solid rgba(232,0,61,.2)}
+
+/* Standings */
+.standings-table{width:100%;border-collapse:collapse}
+.standings-table tr{border-bottom:1px solid rgba(255,255,255,.04)}
+.standings-table td{padding:7px 6px;font-family:var(--fh);font-size:13px}
+.standings-table .pos{color:var(--muted);width:28px;font-size:11px}
+.standings-table .pts{color:var(--gold);font-weight:700;text-align:right}
+.standings-table .me{background:rgba(232,0,61,.06);border-left:2px solid var(--accent)}
+.standings-table .me td{color:var(--text)}
+
+/* Rivaux */
+.rival-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;gap:12px;align-items:center}
+.rival-flag{font-size:22px;flex-shrink:0}
+.rival-info .ri-name{font-family:var(--fh);font-weight:900;font-size:15px}
+.rival-info .ri-team{font-size:11px;color:var(--muted);font-family:var(--fh)}
+.rival-info .ri-threat{font-size:11px;margin-top:4px;color:#ccc}
+.rival-badge{margin-left:auto;font-family:var(--fh);font-size:10px;padding:3px 8px;border-radius:4px;flex-shrink:0;text-align:center}
+.threat-high{background:rgba(232,0,61,.15);color:var(--accent);border:1px solid rgba(232,0,61,.3)}
+.threat-mid{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.2)}
+.threat-low{background:rgba(0,217,126,.1);color:var(--green);border:1px solid rgba(0,217,126,.2)}
+
+/* Historique circuit */
+.history-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.history-card .hc-stat{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-family:var(--fh);font-size:13px}
+.history-card .hc-stat:last-child{border:none}
+.history-card .hc-stat span{color:var(--muted);font-size:11px}
+.history-card .hc-stat b{color:var(--text)}
+
+/* Objectif board */
+.objective-card{background:linear-gradient(135deg,rgba(232,0,61,.08),rgba(232,0,61,.02));border:1px solid rgba(232,0,61,.2);border-radius:10px;padding:14px}
+.objective-card .oc-title{font-family:var(--fh);font-weight:900;font-size:14px;color:var(--accent);margin-bottom:6px}
+.objective-card .oc-text{font-size:13px;color:#ccc;line-height:1.5}
+
+/* Anecdote */
+.anecdote{background:linear-gradient(135deg,rgba(245,200,66,.06),transparent);border:1px solid rgba(245,200,66,.15);border-left:3px solid var(--gold);border-radius:8px;padding:12px 14px;font-size:13px;color:#ccc;line-height:1.6;font-style:italic}
+.anecdote strong{color:var(--gold);font-style:normal;font-family:var(--fh)}
+
+/* CTA */
+.cta{margin-top:20px;text-align:center}
+.btn-cta{display:block;background:var(--accent);color:#fff;font-family:var(--fh);font-weight:900;font-size:16px;letter-spacing:2px;text-transform:uppercase;padding:16px;border-radius:10px;text-decoration:none;border:none;cursor:pointer;width:100%;transition:opacity .15s}
+.btn-cta:active{opacity:.8}
+
+/* Tags */
+.tag{display:inline-block;font-family:var(--fh);font-size:10px;letter-spacing:1px;padding:2px 7px;border-radius:3px;text-transform:uppercase}
+.tag-wet{background:rgba(61,126,255,.15);color:var(--blue);border:1px solid rgba(61,126,255,.2)}
+.tag-dry{background:rgba(245,200,66,.1);color:var(--gold);border:1px solid rgba(245,200,66,.2)}
+.tag-rain{background:rgba(61,126,255,.15);color:#7aabff;border:1px solid rgba(61,126,255,.2)}
+</style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
+  <a href="index.html" class="nav-back">← Accueil</a>
+  <div class="top-pills" id="topPills"></div>
+</div>
+
+<div class="wrap">
+  <div id="content"></div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/events.js"></script>
+
+<script>
+const CIRCUIT_DATA = {
+  bahrain:    { flag:'🇧🇭', spectators:'[42 000', anecdote:'Bahreïn a accueilli le premier GP sous les projecteurs de l\'histoire de la F1 en 2014. La chaleur du désert et la poussière de sable créent des conditions uniques pour les pneus.', setup:'Équilibré — bon appui mais longues lignes droites. Privilégie la traction en sortie de virage.' },
+  monaco:     { flag:'🇲🇨', spectateurs:'200 000', anecdote:'Monaco est le seul circuit où une victoire en qualifications vaut presque autant qu\'une victoire en course. 78% des pole positions se sont converties en victoire ici depuis 2000.', setup:'Appui maximum — chaque dixième en vitesse de virage compte. Oublie la vitesse de pointe.' },
+  silverstone:{ flag:'🇬🇧', spectateurs:'350 000', anecdote:'Silverstone a accueilli le tout premier GP de F1 en 1950. Les virages rapides comme Copse et Maggots sont parmi les plus exigeants du calendrier pour les pneumatiques avant.', setup:'Appui élevé avec bon équilibre — les virages rapides en séquence demandent une voiture stable.' },
+  spa:        { flag:'🇧🇪', spectateurs:'280 000', anecdote:'Spa détient le record de la plus grande remontée en F1 : Räikkönen P18 en 2009, vainqueur. La météo change parfois d\'une extrémité du circuit à l\'autre en pleine course.', setup:'Faible appui — la longue ligne droite de Kemmel pénalise les charges trop élevées. Compromis délicat.' },
+  monza:      { flag:'🇮🇹', spectateurs:'300 000', anecdote:'Monza est le circuit le plus rapide du calendrier. La vitesse de pointe dépasse souvent les 360 km/h dans la variante Goodyear. Les tifosi transforment chaque victoire Ferrari en liesse nationale.', setup:'Appui minimal — ailes rasées, vitesse de pointe maximale. La motricité sera la clé.' },
+  barcelona:  { flag:'🇪🇸', spectateurs:'140 000', anecdote:'Barcelona est tellement connu des pilotes qu\'ils le mémorisent intégralement après quelques tours. C\'est pour ça que les tests hivernaux s\'y déroulent chaque année.', setup:'Setup polyvalent — le circuit teste tout. Le secteur 3 très lent contraste avec les rapides S1 et S2.' },
+  suzuka:     { flag:'🇯🇵', spectateurs:'180 000', anecdote:'Suzuka est le seul circuit en forme de 8 du calendrier. La séquence S-Curves en début de tour est considérée par beaucoup de pilotes comme la plus belle du monde.', setup:'Appui élevé — les enchaînements de virages à haute vitesse nécessitent une voiture très stable.' },
+  baku:       { flag:'🇦🇿', spectateurs:'85 000', anecdote:'Le mur du château au virage 8 est le plus étroit du calendrier : 7,6 mètres. Plus d\'une carrière s\'y est jouée. La longue ligne droite génère des batailles DRS spectaculaires.', setup:'Compromis extrême — maximum de vitesse de pointe mais il faut survivre au secteur city.' },
+  singapore:  { flag:'🇸🇬', spectateurs:'90 000', anecdote:'Singapore est la course la plus longue de la saison en temps réel — souvent plus de 2 heures. La chaleur et l\'humidité font perdre jusqu\'à 3 kg aux pilotes en course.', setup:'Appui maximum — circuit de rue, vitesse de pointe secondaire. Refroidissement moteur critique.' },
+  abu_dhabi:  { flag:'🇦🇪', spectateurs:'55 000', anecdote:'Abu Dhabi a accueilli le titre de champion au dernier tour lors du duel Verstappen-Hamilton en 2021. Yas Marina est régulièrement remanié pour améliorer le spectacle.', setup:'Équilibré à tendance vitesse — le secteur 3 remodelé favorise les overtakes mais demande du grip.' },
+};
+
+const WEATHER_ICONS = { dry:'☀️', light_rain:'🌦️', heavy_rain:'🌧️', overcast:'☁️' };
+const WEATHER_LABELS = { dry:'Sec', light_rain:'Bruine', heavy_rain:'Pluie', overcast:'Nuageux' };
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+function esc(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function moralClass(m){
+  if(m>=70) return 'moral-high';
+  if(m>=40) return 'moral-mid';
+  return 'moral-low';
+}
+function moralLabel(m){
+  if(m>=70) return '😤 En forme';
+  if(m>=40) return '😐 Correct';
+  return '😞 Moral bas';
+}
+
+function threatLevel(ovr, playerOvr){
+  const diff = ovr - playerOvr;
+  if(diff > 5) return { cls:'threat-high', label:'⚠️ Danger' };
+  if(diff > -5) return { cls:'threat-mid', label:'👀 À surveiller' };
+  return { cls:'threat-low', label:'✅ Maîtrisable' };
+}
+
+function getPlayerOvr(save){
+  const drivers = F1Data.drivers.filter(d=>d.teamId===save.playerTeamId&&!d.retired);
+  if(!drivers.length) return 75;
+  return Math.round(drivers.reduce((s,d)=>s+(d.ovr||d.pace||75),0)/drivers.length);
+}
+
+function getCircuitHistory(save, circuitId){
+  const results = (save.raceResults||[]).filter(r=>r.circuitId===circuitId);
+  if(!results.length) return null;
+  const best = results.reduce((b,r)=>{
+    const playerRes = (r.results||[]).filter(x=>x.teamId===save.playerTeamId).sort((a,b)=>a.position-b.position)[0];
+    if(!playerRes) return b;
+    return (!b || playerRes.position < b.position) ? playerRes : b;
+  }, null);
+  return { races: results.length, bestPos: best?.position||null };
+}
+
+function getChampionshipStandings(save){
+  const standings = save.teamStandings||{};
+  return F1Data.teams
+    .map(t=>({ id:t.id, name:t.shortName||t.name, pts:standings[t.id]||0 }))
+    .sort((a,b)=>b.pts-a.pts)
+    .slice(0,8);
+}
+
+function getDriverStandings(save){
+  const standings = save.driverStandings||{};
+  return F1Data.drivers
+    .filter(d=>!d.retired)
+    .map(d=>({ id:d.id, name:d.name, teamId:d.teamId, pts:standings[d.id]||0 }))
+    .sort((a,b)=>b.pts-a.pts)
+    .slice(0,8);
+}
+
+function render(){
+  const save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+
+  // Appliquer driverStates sur TOUS les pilotes F1Data (y compris GAS, COL etc.)
+  // pour refléter les changements d'équipe en cours de saison
+  if (save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const state = save.driverStates[d.id];
+      if (!state) return;
+      if (Object.prototype.hasOwnProperty.call(state, 'teamId')) {
+        d.teamId = state.teamId;
+      }
+      if (Object.prototype.hasOwnProperty.call(state, 'retired')) {
+        d.retired = state.retired;
+      }
+    });
+  }
+  if(!save||!save.playerTeamId){
+    document.getElementById('content').innerHTML='<div style="padding:40px;text-align:center;color:var(--muted)">Aucune carrière trouvée. <a href="index.html" style="color:var(--accent)">Retour accueil</a></div>';
+    return;
+  }
+
+  const raceNum = (save.race||0) % F1Data.circuits.length;
+  const circuit = F1Data.circuits[raceNum];
+  const cid     = circuit.id;
+  const cd      = CIRCUIT_DATA[cid] || { flag:'🏁', spectateurs:'—', anecdote:`${circuit.fullName||circuit.name} est l'un des circuits emblématiques du calendrier.`, setup:'Setup équilibré recommandé.' };
+  const myTeam  = F1Data.teams.find(t=>t.id===save.playerTeamId);
+  // Restaurer les pilotes generés avant filtrage
+  if (save.generatedDrivers?.length) {
+    save.generatedDrivers.forEach(gd => {
+      const state  = save.driverStates?.[gd.id];
+      const merged = { ...gd, ...(state||{}) };
+      if (state && state.teamId !== undefined) merged.teamId = state.teamId;
+      // Ne pas ajouter dans F1Data si pas de teamId (non promu)
+      if (!merged.teamId || merged.teamId === 'free_agent') return;
+      const idx = F1Data.drivers.findIndex(d => d.id === gd.id);
+      if (idx < 0) F1Data.drivers.push(merged);
+      else Object.assign(F1Data.drivers[idx], merged);
+    });
+  }
+    const myDrivers = F1Data.drivers.filter(d=>d.teamId===save.playerTeamId&&!d.retired);
+  const weather = save.weekendWeather || 'dry';
+  const season  = save.season||2025;
+  const gpNum   = (save.race||0)+1;
+  const totalGP = F1Data.circuits.length;
+  const history = getCircuitHistory(save, cid);
+  const playerOvr = getPlayerOvr(save);
+
+  // Pills topbar
+  document.getElementById('topPills').innerHTML = `
+    <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">Saison ${season}</span>
+    <span style="font-family:var(--fh);font-size:11px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border);border-radius:4px">GP ${gpNum}/${totalGP}</span>`;
+
+  // Rivaux à surveiller (top équipes hors joueur)
+  const rivals = F1Data.drivers
+    .filter(d=>d.teamId!==save.playerTeamId&&!d.retired)
+    .sort((a,b)=>(b.ovr||b.pace||75)-(a.ovr||a.pace||75))
+    .slice(0,3)
+    .map(d=>{
+      const team = F1Data.teams.find(t=>t.id===d.teamId);
+      const thr  = threatLevel(d.ovr||d.pace||75, playerOvr);
+      const threats = [
+        `Fort en qualifications sur ce type de circuit.`,
+        `Excellent gestionnaire de pneus — attention en fin de relance.`,
+        `Agressif au départ, occupe toujours l'espace.`,
+        `Régulier et sans faute — difficile à surprendre.`,
+        `Rapide sous la pluie, à surveiller si météo change.`,
+      ];
+      return { d, team, thr, threat: pick(threats) };
+    });
+
+  // Standings constructeurs
+  const constructors = getChampionshipStandings(save);
+  const myPos = constructors.findIndex(t=>t.id===save.playerTeamId)+1;
+
+  // Objectif board
+  const objectives = [
+    `Terminer dans le top ${Math.min(10, myPos+2)} des constructeurs d'ici la fin de saison.`,
+    `Marquer des points avec les deux pilotes lors de ce GP.`,
+    `Atteindre le top 6 constructeurs cette saison.`,
+    `Confirmer la progression de l'équipe avec un résultat dans les points.`,
+  ];
+  const objective = save.boardObjective || pick(objectives);
+
+  // HTML
+  const html = `
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-day">Vendredi · Briefing EL</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:4px">
+        <div style="width:64px;height:32px;flex-shrink:0">${myTeam?.logo ? '<img src=\"'+myTeam.logo+'\" style=\"width:100%;height:100%;object-fit:contain\" alt=\"\">' : ''}</div>
+        <div class="hero-title" style="margin:0">${esc(myTeam?.name||'')}</div>
+      </div>
+      <div class="hero-sub">Grand Prix de ${esc(circuit.name)} · Saison ${season} · ${circuit.laps} tours · ${circuit.lapDistance}km/tour</div>
+      <div class="hero-flag">${cd.flag}</div>
+    </div>
+
+    <!-- MÉTÉO -->
+    <div class="section">
+      <div class="section-title">🌤️ Météo du week-end</div>
+      <div class="weather-strip">
+        <div class="weather-day today">
+          <div class="wd-label">Vendredi</div>
+          <span class="wd-icon">${WEATHER_ICONS[weather]||'☀️'}</span>
+          <div class="wd-temp">${WEATHER_LABELS[weather]||'Sec'}</div>
+        </div>
+        <div class="weather-day">
+          <div class="wd-label">Samedi</div>
+          <span class="wd-icon">${Math.random()>.7?'🌦️':'☀️'}</span>
+          <div class="wd-temp">${Math.random()>.7?'Nuageux':'Sec'}</div>
+        </div>
+        <div class="weather-day">
+          <div class="wd-label">Dimanche</div>
+          <span class="wd-icon">${Math.random()>.6?'☁️':'☀️'}</span>
+          <div class="wd-temp">${Math.random()>.6?'Couvert':'Sec'}</div>
+        </div>
+        <div class="weather-day">
+          <div class="wd-label">Spectateurs</div>
+          <span class="wd-icon">🏟️</span>
+          <div class="wd-temp">${cd.spectateurs}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PILOTES -->
+    <div class="section">
+      <div class="section-title">🏎️ Vos pilotes</div>
+      <div class="drivers-grid">
+        ${myDrivers.map(d=>{
+          const moral = save.immersion?.driverMorale?.[d.id]?.value ?? 70;
+          const contract = save.contracts?.[d.id];
+          const yearsLeft = contract?.years ?? '—';
+          return `<div class="driver-card">
+            <div class="dc-flag">${d.flag||'🏁'}</div>
+            <div class="dc-name">${esc(d.firstName)} ${esc(d.name)}</div>
+            <div class="dc-sub">${esc(d.nationality||'')} · ${d.age||'—'} ans</div>
+            <div class="dc-stat"><span>OVR</span><b>${d.ovr||d.pace||75}</b></div>
+            <div class="dc-stat"><span>Contrat</span><b>${yearsLeft} an${yearsLeft>1?'s':''}</b></div>
+            <div class="dc-stat"><span>Points</span><b>${save.driverStandings?.[d.id]||0}</b></div>
+            <div class="dc-moral ${moralClass(moral)}">${moralLabel(moral)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- VOITURE -->
+    <div class="section">
+      <div class="section-title">🔧 État de la voiture</div>
+      <div class="history-card">
+        ${['aero','chassis','engine','reliability'].map(stat => {
+          const base  = myTeam?.[stat] || 70;
+          const level = save.carDev?.[stat]?.level || base;
+          const delta = level - base;
+          const col   = delta>0?'var(--green)':delta<0?'var(--accent)':'var(--muted)';
+          const label = {aero:'Aérodynamique',chassis:'Châssis',engine:'Moteur',reliability:'Fiabilité'}[stat];
+          const bar   = Math.round((level/100)*100);
+          return `<div class="hc-stat">
+            <span>${label}</span>
+            <b style="color:${col}">${level} ${delta!==0?`<span style="font-size:10px">(${delta>0?'+':''}${delta})</span>`:''}</b>
+          </div>`;
+        }).join('')}
+        <div class="hc-stat"><span>Setup semaine</span>
+          <b style="color:${save.weekendSetup==='qualify'?'var(--gold)':save.weekendSetup==='race'?'var(--green)':'var(--muted)'}">${
+            {qualify:'⚡ Qualifications',race:'🏁 Course',balanced:'⚖️ Équilibré'}[save.weekendSetup]||'⚖️ Équilibré'
+          }</b>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIQUE CIRCUIT -->
+    <div class="section">
+      <div class="section-title">📈 Historique sur ce circuit</div>
+      <div class="history-card">
+        ${history ? `
+          <div class="hc-stat"><span>Courses disputées ici</span><b>${history.races}</b></div>
+          <div class="hc-stat"><span>Meilleur résultat</span><b>${history.bestPos ? 'P'+history.bestPos : '—'}</b></div>
+        ` : `
+          <div style="color:var(--muted);font-size:13px;font-family:var(--fh)">📋 Première fois sur ce circuit — tout reste à écrire.</div>
+        `}
+        <div class="hc-stat"><span>Setup recommandé</span><b style="font-size:12px;color:#ccc">${cd.setup}</b></div>
+        <div class="hc-stat"><span>Dégradation pneus</span><b style="color:${circuit.tyreDegradation>1.2?'var(--accent)':circuit.tyreDegradation>0.9?'var(--gold)':'var(--green)'}">${circuit.tyreDegradation>1.2?'⚠️ Élevée':circuit.tyreDegradation>0.9?'Moyenne':'Faible'}</b></div>
+        <div class="hc-stat"><span>Difficulté dépassement</span><b>${circuit.overtakingDifficulty>0.7?'😤 Difficile':circuit.overtakingDifficulty>0.4?'Normal':'😊 Favorable'}</b></div>
+      </div>
+    </div>
+
+    <!-- OBJECTIF BOARD -->
+    <div class="section">
+      <div class="section-title">🎯 Objectif de la direction</div>
+      <div class="objective-card">
+        <div class="oc-title">📋 Message du board</div>
+        <div class="oc-text">${objective} Actuellement P${myPos} au championnat constructeurs avec ${save.teamStandings?.[save.playerTeamId]||0} points.</div>
+      </div>
+    </div>
+
+    <!-- RIVAUX -->
+    <div class="section">
+      <div class="section-title">👀 Rivaux à surveiller</div>
+      ${rivals.map(({d,team,thr,threat})=>`
+        <div class="rival-card">
+          <div class="rival-flag">${d.flag||'🏁'}</div>
+          <div class="rival-info">
+            <div class="ri-name">${esc(d.firstName)} ${esc(d.name)}</div>
+            <div class="ri-team">${esc(team?.name||'—')} · OVR ${d.ovr||d.pace||75}</div>
+            <div class="ri-threat">${threat}</div>
+          </div>
+          <div class="rival-badge ${thr.cls}">${thr.label}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- CLASSEMENTS -->
+    <div class="section">
+      <div class="section-title">🏆 Championnat constructeurs</div>
+      <div class="history-card" style="padding:8px 14px">
+        <table class="standings-table">
+          ${constructors.map((t,i)=>`
+            <tr class="${t.id===save.playerTeamId?'me':''}">
+              <td class="pos">${i+1}</td>
+              <td>${esc(t.name)}</td>
+              <td class="pts">${t.pts}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">🏎️ Championnat pilotes (Top 8)</div>
+      <div class="history-card" style="padding:8px 14px">
+        <table class="standings-table">
+          ${getDriverStandings(save).map((d,i)=>`
+            <tr class="${d.teamId===save.playerTeamId?'me':''}">
+              <td class="pos">${i+1}</td>
+              <td>${esc(d.name)}</td>
+              <td class="pts">${d.pts}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    </div>
+
+    <!-- ÉVÉNEMENT PADDOCK -->
+    ${save.weekendPaddockEvent ? `
+    <div class="section">
+      <div class="section-title">📰 Nouvelle du paddock</div>
+      <div class="anecdote" style="border-left:3px solid ${['performance','financial'].includes(save.weekendPaddockEvent.category)?'var(--green)':['medical','regulatory'].includes(save.weekendPaddockEvent.category)?'var(--accent)':'var(--gold)'}">
+        <strong>${save.weekendPaddockEvent.icon||'📰'} ${esc(save.weekendPaddockEvent.title)} — </strong>${esc(save.weekendPaddockEvent.text)}
+      </div>
+    </div>` : ''}
+
+    <!-- EFFETS PILOTES ACTIFS -->
+    ${myDrivers.some(d=>save.driverEffects?.[d.id]) ? `
+    <div class="section">
+      <div class="section-title">⚡ Effets actifs sur les pilotes</div>
+      ${myDrivers.filter(d=>save.driverEffects?.[d.id]).map(d=>{
+        const e = save.driverEffects[d.id];
+        const pos = (e.pace||0)+(e.consistency||0) > 0;
+        const col = pos ? 'var(--green)' : 'var(--accent)';
+        return `<div class="anecdote" style="border-left:3px solid ${col};margin-bottom:6px">
+          <strong style="color:${col}">${pos?'💪':'🤕'} ${esc(d.firstName)} ${esc(d.name)}</strong> — ${esc(e.label||'Effet actif')}
+          · Pace ${e.pace>=0?'+':''}${e.pace||0} · Régularité ${e.consistency>=0?'+':''}${e.consistency||0}
+          · ${e.races||1} course${(e.races||1)>1?'s':''} restante${(e.races||1)>1?'s':''}
+        </div>`;
+      }).join('')}
+    </div>` : ''}
+
+    <!-- ANECDOTE -->
+    <div class="section">
+      <div class="section-title">💡 Le saviez-vous ?</div>
+      <div class="anecdote"><strong>${esc(circuit.name)} — </strong>${cd.anecdote}</div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta">
+      <a href="weekend.html" class="btn-cta">🔧 Démarrer les essais libres →</a>
+    </div>
+  `;
+
+  document.getElementById('content').innerHTML = html;
+}
+
+render();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>F1 Manager — News</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>/* TEAM SELECT */
+.select-screen{padding:20px 4px}
+.select-title{font-family:var(--fh);font-weight:900;font-size:26px;letter-spacing:2px;margin-bottom:4px}
+.select-sub{font-family:var(--fh);font-size:13px;color:var(--muted);margin-bottom:20px}
+.teams-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px}
+.team-card{background:var(--surface);border:2px solid var(--border);border-radius:8px;padding:12px 10px;cursor:pointer;transition:all .15s;text-align:center}
+.team-card:active{transform:scale(.97)}
+.team-card.selected{border-color:var(--gold);background:var(--surface2)}
+.tc-name{font-family:var(--fh);font-weight:900;font-size:15px;margin-bottom:3px}
+.tc-perf{font-family:var(--fh);font-size:11px;color:var(--muted)}
+.tc-budget{font-family:var(--fh);font-size:12px;color:var(--gold);margin-top:3px}
+.btn-confirm{font-family:var(--fh);font-weight:900;font-size:15px;letter-spacing:2px;text-transform:uppercase;background:var(--accent);color:#fff;border:none;border-radius:6px;padding:12px 32px;cursor:pointer;display:none;width:100%;transition:background .15s}
+
+/* RACE HERO */
+.race-hero{background:linear-gradient(135deg,#12000e,#07070d);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px;display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit;transition:background .15s}
+.race-hero:active{background:var(--surface)}
+.rh-flag{font-size:36px;line-height:1}
+.rh-info{flex:1}
+.rh-label{font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:3px}
+.rh-name{font-family:var(--fh);font-weight:900;font-size:20px;letter-spacing:1px}
+.rh-detail{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:3px}
+.rh-cta{font-family:var(--fh);font-weight:900;font-size:11px;letter-spacing:1px;text-transform:uppercase;background:var(--accent);color:#fff;padding:8px 14px;border-radius:5px;white-space:nowrap;flex-shrink:0}
+
+/* SECTION LABEL */
+
+/* PILOTES */
+.driver-row{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border);text-decoration:none;color:inherit;transition:background .1s}
+.driver-row:last-child{border-bottom:0}
+.driver-row:active{background:var(--surface2)}
+.dr-num{font-family:var(--fh);font-weight:900;font-size:26px;min-width:40px;text-align:center}
+.dr-info{flex:1}
+.dr-name{font-family:var(--fh);font-weight:700;font-size:16px}
+.dr-trait{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:2px}
+.dr-pace{font-family:var(--fh);font-weight:900;font-size:24px}
+
+/* TUILES */
+
+.tile{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:13px;text-decoration:none;color:inherit;display:block;transition:background .1s}
+.tile:active{background:var(--surface2)}
+.tile-icon{font-size:20px;margin-bottom:6px;display:block}
+.tile-lbl{font-family:var(--fh);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.tile-val{font-family:var(--fh);font-weight:900;font-size:20px;line-height:1;margin-bottom:3px}
+.tile-sub{font-family:var(--fh);font-size:11px;color:var(--muted);line-height:1.4}
+
+/* STAT BAR */
+
+/* CLASSEMENT */
+.st-row{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);font-family:var(--fh);font-size:13px}
+.st-row:last-child{border-bottom:0}
+.st-pos{font-weight:900;font-size:15px;width:22px}
+.st-bar{width:3px;height:18px;border-radius:2px;flex-shrink:0}
+.st-name{flex:1}
+.st-pts{color:var(--gold);font-weight:700}
+
+/* NEWS */
+.news-row{padding:11px 14px;border-bottom:1px solid var(--border)}
+.news-row:last-child{border-bottom:0}
+.news-title{font-family:var(--fh);font-weight:700;font-size:14px;margin-bottom:3px}
+.news-text{font-family:var(--fb);font-size:12px;color:var(--muted);line-height:1.5}
+
+/* BANNER SAISON */
+.season-banner{background:linear-gradient(135deg,#1a1a00,#0a1400);border:1px solid var(--gold);border-left:3px solid var(--gold);border-radius:8px;padding:14px 16px}
+
+/* PANEL */
+
+/* BTN */
+
+.btn-gold{background:#161200;color:var(--gold);border:1px solid #3a3400}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 18px;font-family:var(--fh);font-size:13px;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{border-left-color:var(--accent)}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+    
+    
+    
+    .nav-link{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--muted);text-decoration:none;letter-spacing:1px;text-transform:uppercase;padding:4px 8px}
+    .nav-link:hover,.nav-link.active{color:var(--accent)}
+    .tb-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+    .badge-pill{font-family:var(--fh);font-weight:700;font-size:13px;padding:4px 12px;border-radius:4px;background:var(--surface2);border:1px solid var(--border)}
+
+    
+
+    
+    .ph{background:var(--surface2);border-bottom:1px solid var(--border);padding:8px 14px;font-family:var(--fh);font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px}
+    .ph .dot{width:7px;height:7px;border-radius:50%;background:var(--accent)}
+    .ph .ml{margin-left:auto;font-size:11px}
+
+    /* FILTRES */
+    .filters{display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}
+    .filter-btn{font-family:var(--fh);font-weight:700;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border:1px solid var(--border);border-radius:3px;background:none;color:var(--muted);cursor:pointer;transition:all .15s}
+    .filter-btn:hover{color:var(--text);border-color:var(--text)}
+    .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+    /* NEWS ITEMS */
+    .news-list{padding:10px;display:flex;flex-direction:column;gap:8px}
+    .news-item{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:12px;display:flex;gap:12px;transition:border-color .2s;cursor:default}
+    .news-item:hover{border-color:#3a3a5a}
+    .news-item.breaking{border-left:3px solid var(--accent)}
+    .news-item.positive{border-left:3px solid var(--green)}
+    .news-item.negative{border-left:3px solid #ff4444}
+    .news-item.neutral{border-left:3px solid var(--muted)}
+    .news-icon{font-size:24px;width:36px;text-align:center;flex-shrink:0;padding-top:2px}
+    .news-content{flex:1}
+    .news-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}
+    .news-title{font-family:var(--fh);font-weight:700;font-size:15px;line-height:1.2}
+    .news-meta{font-family:var(--fh);font-size:10px;color:var(--muted);white-space:nowrap;padding-top:2px}
+    .news-text{font-size:12px;color:var(--muted);line-height:1.5}
+    .news-category{display:inline-block;font-family:var(--fh);font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;margin-top:5px;letter-spacing:1px;text-transform:uppercase}
+
+    /* CATÉGORIE COULEURS */
+    .cat-race_result{background:#1a1a00;color:var(--gold);border:1px solid #3a3a00}
+    .cat-pre{background:#001a2a;color:#4488ff;border:1px solid #003a5a}
+    .cat-post{background:#001a0a;color:var(--green);border:1px solid #003a18}
+    .cat-technical{background:#1a0a00;color:var(--orange);border:1px solid #3a1a00}
+    .cat-financial{background:#001a00;color:#00cc44;border:1px solid #003a00}
+    .cat-mercato{background:#1a001a;color:#cc44ff;border:1px solid #3a003a}
+    .cat-medical{background:#1a0000;color:#ff6666;border:1px solid #3a0000}
+    .cat-board{background:#0a0a1a;color:#8888ff;border:1px solid #1a1a3a}
+    .cat-media{background:#0a1a1a;color:#44cccc;border:1px solid #1a3a3a}
+    .cat-competitor{background:#1a0a1a;color:#ff44ff;border:1px solid #3a1a3a}
+    .cat-transfer{background:#1a1a00;color:var(--gold);border:1px solid #3a3a00}
+    .cat-general,.cat-internal{background:var(--surface);color:var(--muted);border:1px solid var(--border)}
+
+    /* STATS RAPIDES */
+    .quick-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
+    .qs{background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:10px;text-align:center}
+    .qs-val{font-family:var(--fh);font-weight:900;font-size:22px;color:var(--gold)}
+    .qs-lbl{font-family:var(--fh);font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+
+    
+
+    ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+  
+/* Topbar unifiée (style mobile staff) */
+
+.back-home:hover{color:var(--text)!important;border-color:var(--accent)!important}
+
+
+</style>
+<link rel="stylesheet" href="css/immersive-theme.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></div>
+  <a href="index.html" class="back-home">← Accueil</a>
+  <div class="top-pills">
+    <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-gold" id="budgetBadge">—</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- STATS RAPIDES -->
+  <div class="panel">
+    <div class="ph"><div class="dot"></div>📊 Résumé de carrière</div>
+    <div class="quick-stats" id="quickStats"></div>
+  </div>
+
+  <!-- NEWS FEED -->
+  <div class="panel">
+    <div class="ph">
+      <div class="dot"></div>📰 Fil d'actualités
+      <span class="ml" id="newsCount"></span>
+    </div>
+    <div class="filters" id="filtersBar"></div>
+    <div class="news-list" id="newsList"></div>
+  </div>
+
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/immersion.js"></script>
+<script src="js/events.js"></script>
+<script src="js/career.js"></script>
+<script>
+
+function getCareerEventsSafe(){
+  if (typeof window !== 'undefined' && window.CareerEvents) return window.CareerEvents;
+  if (typeof CareerEvents !== 'undefined') return CareerEvents;
+  return {
+    ensure(s){
+      s.news = Array.isArray(s.news) ? s.news : [];
+      s.reputation = Number.isFinite(s.reputation) ? s.reputation : 50;
+      s.fanBase = Number.isFinite(s.fanBase) ? s.fanBase : 50;
+      s.boardPressure = Number.isFinite(s.boardPressure) ? s.boardPressure : 0;
+      s.boardObjectives = s.boardObjectives || {
+        season:s.season||2025, constructorPos:8, driverPos:12, minPointsRaces:3, budgetSurplus:8
+      };
+      return s;
+    },
+    generateObjectives(s){ return this.ensure(s).boardObjectives; },
+    evaluateObjectives(s){ return {score:0, details:[], constPos:null, driverPos:null}; },
+    getPressureLevel(p){
+      if (p >= 80) return { label:'🔴 Licenciement imminent', color:'#ff2244', fire:true };
+      if (p >= 60) return { label:'🟠 Forte pression', color:'#ff8844', fire:false };
+      if (p >= 40) return { label:'🟡 Sous surveillance', color:'#ffdd44', fire:false };
+      if (p >= 20) return { label:'🟢 Acceptable', color:'#44cc44', fire:false };
+      return { label:'✅ Direction satisfaite', color:'#00e676', fire:false };
+    },
+    log(s,item){ s.news = Array.isArray(s.news) ? s.news : []; s.news.unshift({date:new Date().toISOString(), season:s.season, race:s.race, ...item}); }
+  };
+}
+
+let save       = null;
+let activeFilter = 'all';
+
+const CATEGORIES = {
+  all:          { label:'Tout',         icon:'📋' },
+  race_result:  { label:'Résultats',    icon:'🏁' },
+  pre:          { label:'Avant GP',     icon:'🔮' },
+  post:         { label:'Après GP',     icon:'📊' },
+  technical:    { label:'Technique',    icon:'🔧' },
+  financial:    { label:'Finance',      icon:'💰' },
+  mercato:      { label:'Mercato',      icon:'🔄' },
+  transfer:     { label:'Transferts',   icon:'✅' },
+  medical:      { label:'Médical',      icon:'🏥' },
+  board:        { label:'Direction',    icon:'🏢' },
+  media:        { label:'Médias',       icon:'🎤' },
+  competitor:   { label:'Concurrents',  icon:'⚡' },
+};
+
+function getNewsStyle(item) {
+  const cat = item.category || item.phase || 'general';
+  if (cat === 'race_result') return item.icon?.includes('🏆') ? 'positive breaking' : 'neutral';
+  if (['financial','media','post'].includes(cat)) return 'positive';
+  if (['medical','board'].includes(cat) && item.text?.includes('problème')) return 'negative';
+  if (cat === 'technical' && item.text?.includes('fuite')) return 'negative';
+  return 'neutral';
+}
+
+function formatDate(iso, season, race) {
+  if (season && race !== undefined) return `S${season} · GP ${race+1}`;
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('fr-FR', { day:'2-digit', month:'short' });
+}
+
+function init() {
+  save = Save.load();
+  if (!save) {
+    document.querySelector('.page').innerHTML = `<div style="padding:40px;text-align:center;color:var(--muted);font-family:var(--fh)"><div style="font-size:24px;margin-bottom:12px">Aucune carrière trouvée</div><a href="index.html" style="background:var(--accent);color:#fff;padding:8px 20px;border-radius:4px;text-decoration:none;font-family:var(--fh);font-weight:700">Créer</a></div>`;
+    return;
+  }
+  getCareerEventsSafe().ensure(save);
+  document.getElementById('seasonBadge').textContent = `Saison ${save.season||2025}`;
+  renderQuickStats();
+  renderFilters();
+  renderNews();
+}
+
+function renderQuickStats() {
+  const news   = save.news || [];
+  const wins   = news.filter(n=>n.icon==='🏆').length;
+  const podiums= news.filter(n=>['🏆','🥈'].includes(n.icon)).length;
+  const total  = (save.raceResults||[]).length;
+  const pts    = Object.values(save.driverStandings||{}).reduce((s,p)=>s+p,0);
+
+  document.getElementById('quickStats').innerHTML = `
+    <div class="qs"><div class="qs-val">${wins}</div><div class="qs-lbl">Victoires</div></div>
+    <div class="qs"><div class="qs-val">${podiums}</div><div class="qs-lbl">Podiums</div></div>
+    <div class="qs"><div class="qs-val">${pts}</div><div class="qs-lbl">Points saison</div></div>
+  `;
+}
+
+function renderFilters() {
+  const news  = save.news || [];
+  const cats  = new Set(['all', ...news.map(n=>n.category||n.phase||'general').filter(Boolean)]);
+  const bar   = document.getElementById('filtersBar');
+
+  bar.innerHTML = [...cats].map(cat => {
+    const def = CATEGORIES[cat] || { label: cat, icon:'📌' };
+    return `<button class="filter-btn${cat===activeFilter?' active':''}" onclick="setFilter('${cat}')">${def.icon} ${def.label}</button>`;
+  }).join('');
+}
+
+function setFilter(cat) {
+  activeFilter = cat;
+  renderFilters();
+  renderNews();
+}
+
+function renderNews() {
+  const news = (save.news||[])
+    .filter(n => {
+      if (activeFilter === 'all') return true;
+      return (n.category||n.phase||'general') === activeFilter;
+    })
+    .slice()
+    .reverse(); // Plus récent en premier
+
+  document.getElementById('newsCount').textContent = `${news.length} article${news.length!==1?'s':''}`;
+
+  const list = document.getElementById('newsList');
+
+  if (!news.length) {
+    list.innerHTML = `<div class="empty">Aucune actualité pour ce filtre.<br>Joue des courses pour remplir le fil !</div>`;
+    return;
+  }
+
+  list.innerHTML = news.map(item => {
+    const style = getNewsStyle(item);
+    const cat   = item.category || item.phase || 'general';
+    const catDef= CATEGORIES[cat] || { label:cat, icon:'📌' };
+    const icon  = item.icon || catDef.icon || '📰';
+    const meta  = formatDate(item.date, item.season, item.race);
+
+    return `
+      <div class="news-item ${style}">
+        <div class="news-icon">${icon}</div>
+        <div class="news-content">
+          <div class="news-header">
+            <div class="news-title">${item.title||'—'}</div>
+            <div class="news-meta">${meta}</div>
+          </div>
+          <div class="news-text">${item.text||''}</div>
+          <span class="news-category cat-${cat}">${catDef.icon} ${catDef.label}</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+init();
+</script>
+
+<script>
+(function(){
+  function syncUnifiedTopbar(){
+    try{
+      const save = ((window.Save && Save.load) ? Save.load() : null) || JSON.parse(localStorage.getItem('f1manager_v1') || localStorage.getItem('f1manager_save') || localStorage.getItem('f1-manager-save') || '{}') || {};
+      const season = document.getElementById('seasonBadge');
+      const budget = document.getElementById('budgetBadge');
+      if(season && (!season.textContent || season.textContent.trim()==='—')) season.textContent = `Saison ${save.season || 2025}`;
+      if(budget && (!budget.textContent || budget.textContent.trim()==='—')) budget.textContent = `💰 ${Math.round((save.budget || 0)*10)/10}M €`;
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncUnifiedTopbar); else syncUnifiedTopbar();
+})();
+</script>
+
+</body>
+</html>

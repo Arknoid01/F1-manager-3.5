@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F1 Manager — Profil</title>
+<style>*{box-sizing:border-box}.nav-link{font-family:var(--fh);font-size:12px;font-weight:700;color:var(--muted);text-decoration:none;letter-spacing:1px;text-transform:uppercase;padding:3px 7px}.nav-link:hover,.nav-link.active{color:var(--accent)}.hero-top{height:8px;background:var(--accent)}.hero-.avatar{width:82px;height:82px;border-radius:12px;background:#090911;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:42px}.title{font-family:var(--fh);font-weight:900;font-size:36px;line-height:1}.subtitle{font-family:var(--fh);font-size:15px;color:var(--muted);margin-top:6px}.score{font-family:var(--fh);font-weight:900;font-size:44px;color:var(--gold);text-align:right}.score small{display:block;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-top:14px}.ph{height:38px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 14px;font-family:var(--fh);font-weight:800;font-size:15px;text-transform:uppercase;letter-spacing:1px}.dot{width:3px;height:16px;background:var(--accent);border-radius:2px}.content{padding:14px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}.stat{background:#0c0c14;border:1px solid var(--border);border-radius:6px;padding:10px}.stat b{display:block;font-family:var(--fh);font-size:24px}.stat span{font-family:var(--fh);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px}.line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #20202c}.line:last-child{border-bottom:0}.label{font-family:var(--fh);color:var(--muted);text-transform:uppercase;font-size:12px}.value{font-family:var(--fh);font-weight:800}.desc{color:#cfcfd8;line-height:1.6;font-size:14px}.badge{display:inline-block;font-family:var(--fh);font-size:12px;font-weight:800;color:var(--gold);border:1px solid #4a3a00;background:#1a1400;border-radius:4px;padding:4px 8px;margin:4px 4px 0 0}.entity-link{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}.entity-link:hover{color:var(--gold)}.back{display:inline-block;margin-bottom:12px;color:var(--muted);font-family:var(--fh);font-weight:800;text-decoration:none}.back:hover{color:var(--text)}@media(max-width:760px){.hero-.score{text-align:left}.grid{grid-template-columns:1fr}}
+
+/* Topbar unifiée (style mobile staff) */
+
+.back-home:hover{color:#e4e4f0!important;border-color:#e8003d!important}
+
+
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></div>
+  <a href="index.html" class="back-home">← Accueil</a>
+  <div class="top-pills">
+    <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-gold" id="budgetBadge">—</div>
+  </div>
+</div>
+<div class="page">
+  <a href="javascript:history.back()" class="back">← Retour</a>
+  <div id="profile"></div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/events.js"></script>
+<script src="js/career.js"></script>
+<script src="js/profiles.js"></script>
+<script src="js/immersion.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const type = params.get('type');
+const id = params.get('id');
+const save = Profiles.loadSave() || {};
+const entity = Profiles.getEntity(type, id, save);
+const root = document.getElementById('profile');
+const esc = Profiles.escapeHtml;
+function fmt(v, fallback='—'){ if (v === undefined || v === null || v === '') return fallback; if (typeof v === 'number' && !Number.isInteger(v)) return v.toFixed(2); return esc(v); }
+function full(d){ return Profiles.fullName(d); }
+function driverScore(d){ return typeof Career !== 'undefined' && Career.getDriverScore ? Career.getDriverScore(d) : Math.round(((d.pace||0)+(d.consistency||0)+(d.wetSkill||0)+(d.overtaking||0)+(d.defending||0))/5); }
+function line(label, value){ return `<div class="line"><div class="label">${label}</div><div class="value">${value}</div></div>`; }
+function stats(items){ return `<div class="stats">${items.map(s=>`<div class="stat"><b style="color:${s.color||'var(--text)'}">${s.value}</b><span>${s.label}</span></div>`).join('')}</div>`; }
+function hero(icon, title, subtitle, score, accent){ return `<div class="hero"><div class="hero-top" style="background:${accent||'var(--accent)'}"></div><div class="hero-body"><div class="avatar">${icon}</div><div><div class="title">${esc(title)}</div><div class="subtitle">${subtitle}</div></div>${score?`<div class="score">${score}<small>Note</small></div>`:''}</div></div>`; }
+
+function clamp(v){return Math.max(0,Math.min(100,Math.round(v||0)));}
+function immersiveDriverPanel(d){
+  try{ if(window.Immersion) Immersion.ensure(save); }catch(e){}
+  const im=save.immersion||{}; const id=String(d.id); const morale=im.driverMorale?.[d.id]||im.driverMorale?.[id]||null;
+  const rec=im.records||{}; const wins=rec.wins?.[id]?.value||0, pods=rec.podiums?.[id]?.value||0, pts=rec.points?.[id]?.value||0, best=rec.bestResults?.[id]?.value||null;
+  const recent=(im.gpHistory||[]).slice(-5).reverse().filter(g=>(g.podium||[]).some(n=>String(n).includes(d.name))).slice(0,3);
+  return `<div class="panel"><div class="ph"><div class="dot"></div>Immersion carrière</div><div class="content">${stats([
+    {label:'Moral',value:morale?clamp(morale.value):'—',color:'#00e676'}, {label:'Victoires',value:wins,color:'#ffd700'}, {label:'Podiums',value:pods,color:'#aa44ff'}, {label:'Points',value:pts,color:'#2979ff'}, {label:'Meilleur',value:best?'P'+best:'—',color:'#ff9944'}
+  ])}<div class="desc" style="margin-top:12px">${morale?esc(morale.note):'Le moral sera alimenté après les prochains GP.'}</div>${recent.length?`<div style="margin-top:10px">${recent.map(g=>`<span class="badge">${esc(g.circuitName)} · podium</span>`).join('')}</div>`:''}</div></div>`;
+}
+function immersiveTeamPanel(t){
+  try{ if(window.Immersion) Immersion.ensure(save); }catch(e){}
+  const im=save.immersion||{}, rep=im.teamReputation||{}, sponsor=im.sponsorMood||{}, staff=im.staffMorale||{};
+  const hist=(im.gpHistory||[]).slice(-3).reverse();
+  const tags=(rep.tags||[]).map(x=>`<span class="badge">${esc(x)}</span>`).join('');
+  return `<div class="panel"><div class="ph"><div class="dot"></div>Vie de l'équipe</div><div class="content">${stats([
+    {label:'Réputation',value:clamp(rep.value||save.reputation||50),color:'#ffd700'}, {label:'Sponsors',value:clamp(sponsor.value||60),color:'#00e676'}, {label:'Staff',value:clamp(staff.value||60),color:'#aa44ff'}, {label:'GP archivés',value:(im.gpHistory||[]).length,color:'#2979ff'}
+  ])}<div style="margin-top:10px">${tags||'<span class="badge">Projet stable</span>'}</div><div class="desc" style="margin-top:12px">${esc(sponsor.note||'Les sponsors attendent les prochains résultats.')}</div>${hist.length?hist.map(g=>line(esc(g.circuitName), `${g.teamPoints||0} pts · ${esc(g.weather||'—')}`)).join(''):''}</div></div>`;
+}
+
+if (!entity) {
+  root.innerHTML = `<div class="panel"><div class="empty">Fiche introuvable pour <strong>${esc(type||'?')}</strong> / <strong>${esc(id||'?')}</strong>.</div></div>`;
+} else if (type === 'driver' || type === 'pilote') {
+  const d = entity, team = d.teamId ? F1Data.teams.find(t=>String(t.id)===String(d.teamId)) : null;
+  root.innerHTML = hero('🏎️', full(d), `${team ? Profiles.linkTeam(team) : 'Agent libre'} · N° ${fmt(d.number)} · ${fmt(d.age)} ans`, driverScore(d), team?.color)
+    + `<div class="grid"><div class="panel"><div class="ph"><div class="dot"></div>Stats pilote</div><div class="content">${stats([
+      {label:'Pace',value:fmt(d.pace),color:'#ffd700'},{label:'Régularité',value:fmt(d.consistency),color:'#00e676'},{label:'Pluie',value:fmt(d.wetSkill),color:'#2979ff'},{label:'Attaque',value:fmt(d.overtaking),color:'#ff9944'},{label:'Défense',value:fmt(d.defending),color:'#e10600'},{label:'Potentiel',value:fmt(d.potential),color:'#aa44ff'}
+    ])}</div></div><div class="panel"><div class="ph"><div class="dot"></div>Contrat</div><div class="content">${line('Écurie', team?Profiles.linkTeam(team):'Agent libre')}${line('Salaire', `${fmt(d.salary)}M€/an`)}${line('Contrat', `${fmt(save.contracts?.[d.id]?.years, 0)} an(s)`)}${line('Trait', fmt(d.trait))}${line('Statut', d.retired?'Retraité':'Actif')}</div></div></div>` + immersiveDriverPanel(d);
+} else if (type === 'team' || type === 'ecurie' || type === 'écurie') {
+  // Restaurer les stats IA avant de lire les valeurs
+  if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+  const t = entity;
+  const drivers = F1Data.drivers.filter(d=>String(d.teamId)===String(t.id) && !d.retired);
+  const shownBudget = String(t.id)===String(save.playerTeamId) ? (save.budget ?? t.budget) : t.budget;
+  const logoHtml = t.logo ? `<img src="${t.logo}" style="max-width:70px;max-height:70px;width:auto;height:auto;object-fit:contain" alt="" onerror="this.outerHTML='🏢'">` : '🏢';
+  root.innerHTML = hero(logoHtml, t.name, `${fmt(t.shortName)} · Budget ${fmt(shownBudget)}M€`, fmt(t.performance), t.color)
+    + `<div class="grid"><div class="panel"><div class="ph"><div class="dot"></div>Performance voiture</div><div class="content">${stats([
+      {label:'Perf.',value:fmt(t.performance),color:t.color},{label:'Aéro',value:fmt(t.aero),color:'#2979ff'},{label:'Châssis',value:fmt(t.chassis),color:'#e10600'},{label:'Moteur',value:fmt(t.engine),color:'#ff9944'},{label:'Fiabilité',value:fmt(t.reliability),color:'#00e676'},{label:'Budget',value:fmt(shownBudget)+'M',color:'#ffd700'}
+    ])}</div></div><div class="panel"><div class="ph"><div class="dot"></div>Pilotes</div><div class="content">${drivers.length?drivers.map(d=>line(Profiles.linkDriver(d), `N° ${fmt(d.number)} · ${driverScore(d)}`)).join(''):'<div class="desc">Aucun pilote actif.</div>'}</div></div></div>` + immersiveTeamPanel(t);
+} else if (type === 'staff') {
+  const st = entity;
+  const displayName = st.firstName ? `${st.firstName} ${st.name}` : (st.fullName || st.name);
+  const impacts = st.impacts || {};
+  root.innerHTML = hero(st.icon||'🧑‍🔧', displayName, `${fmt(st.role)} · ${fmt(st.age,'âge inconnu')}${st.age?' ans':''}`, fmt(Math.round(st.level||0)), '#ffd700')
+    + `<div class="grid"><div class="panel"><div class="ph"><div class="dot"></div>Compétences</div><div class="content">${stats(Object.entries(impacts).map(([k,v])=>({label:k,value:'+'+v,color:'#ffd700'})))}<div class="desc" style="margin-top:12px">${fmt(st.desc,'Membre de staff qualifié.')}</div></div></div><div class="panel"><div class="ph"><div class="dot"></div>Contrat & passif</div><div class="content">${line('Spécialité', fmt(st.specialty || st.bonus))}${line('Salaire', `${fmt(st.salary)}M€/an`)}${line('Coût recrutement', `${fmt(st.cost)}M€`)}${line('Statut', save.staff?.map(Profiles.normalizeStaffId).includes(Profiles.normalizeStaffId(st.id))?'En poste':'Disponible')}<div class="badge">🔮 ${fmt(st.passive,'Bonus de performance')}</div></div></div></div>`;
+}
+</script>
+
+<script>
+(function(){
+  function syncUnifiedTopbar(){
+    try{
+      const save = ((window.Save && Save.load) ? Save.load() : null) || JSON.parse(localStorage.getItem('f1manager_v1') || localStorage.getItem('f1manager_save') || localStorage.getItem('f1-manager-save') || '{}') || {};
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+      const season = document.getElementById('seasonBadge');
+      const budget = document.getElementById('budgetBadge');
+      if(season && (!season.textContent || season.textContent.trim()==='—')) season.textContent = `Saison ${save.season || 2025}`;
+      if(budget && (!budget.textContent || budget.textContent.trim()==='—')) budget.textContent = `💰 ${Math.round((save.budget || 0)*10)/10}M €`;
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncUnifiedTopbar); else syncUnifiedTopbar();
+})();
+</script>
+
+</body>
+</html>

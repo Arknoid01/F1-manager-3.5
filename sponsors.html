@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>F1 Manager — Sponsors</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>.pill-green{color:var(--green);border-color:#003a18;background:#001a0a}
+
+/* REPUTATION PANEL */
+.rep-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
+.rep-title{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rep-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px}
+.rep-lbl{font-family:var(--fh);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.rep-val{font-family:var(--fh);font-weight:900;font-size:20px}
+.rep-bar-wrap{height:3px;background:var(--border);border-radius:2px;margin-top:5px;overflow:hidden}
+.rep-bar{height:100%;border-radius:2px;transition:width .5s}
+
+/* INCOME SUMMARY */
+.income-bar{background:linear-gradient(135deg,#0a1a00,#07070d);border:1px solid var(--green);border-radius:8px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.income-val{font-family:var(--fh);font-weight:900;font-size:28px;color:var(--green)}
+.income-sub{font-family:var(--fh);font-size:11px;color:var(--muted)}
+
+/* TABS */
+
+/* CONTRACT CARD */
+.contract-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.contract-card.title-sp{border-color:var(--gold)}
+.contract-card.principal-sp{border-color:var(--blue)}
+.contract-card.partner-sp{border-color:var(--border)}
+.cc-header{padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.cc-logo{font-size:28px;width:40px;text-align:center}
+.cc-info{flex:1}
+.cc-name{font-family:var(--fh);font-weight:900;font-size:18px}
+.cc-meta{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:2px}
+.cc-value{text-align:right}
+.cc-val{font-family:var(--fh);font-weight:900;font-size:20px;color:var(--gold)}
+.cc-dur{font-family:var(--fh);font-size:10px;color:var(--muted)}
+.type-badge{font-family:var(--fh);font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;display:inline-block}
+.type-title{background:#1a1400;color:var(--gold);border:1px solid #3a3400}
+.type-principal{background:#0a1220;color:var(--blue);border:1px solid #1a2a4a}
+.type-partner{background:#0a1a0a;color:var(--green);border:1px solid #1a3a1a}
+
+/* CLAUSES */
+.clauses-list{padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.clause-row{display:flex;align-items:center;gap:8px}
+.clause-icon{font-size:14px;width:20px}
+.clause-label{flex:1;font-family:var(--fh);font-size:12px}
+.clause-progress{font-family:var(--fh);font-size:11px;color:var(--muted);white-space:nowrap}
+.clause-bar-wrap{width:80px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;flex-shrink:0}
+.clause-bar{height:100%;border-radius:2px;transition:width .4s}
+.clause-bonus{font-family:var(--fh);font-size:10px;white-space:nowrap}
+.personality-badge{font-family:var(--fh);font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px}
+.p-loyal{background:#001a0a;color:var(--green);border:1px solid #003a18}
+.p-opportunist{background:#1a0000;color:#ff6666;border:1px solid #3a0000}
+.p-developer{background:#0a0a1a;color:var(--purple);border:1px solid #1a1a3a}
+
+/* TECH BONUS */
+.tech-bonus-row{padding:6px 14px;background:#0a0a14;font-family:var(--fh);font-size:11px;color:var(--blue);border-top:1px solid var(--border)}
+
+/* MARKET OFFER CARD */
+.offer-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px;transition:border-color .15s}
+.offer-card:hover{border-color:#3a3a5a}
+.offer-card.locked{opacity:.5}
+.oc-header{padding:12px 14px;display:flex;align-items:center;gap:10px}
+.oc-logo{font-size:26px;width:36px;text-align:center}
+.oc-info{flex:1}
+.oc-name{font-family:var(--fh);font-weight:900;font-size:16px}
+.oc-desc{font-family:var(--fb);font-size:11px;color:var(--muted);margin-top:3px;line-height:1.5}
+.oc-value{text-align:right;flex-shrink:0}
+.oc-val{font-family:var(--fh);font-weight:900;font-size:18px;color:var(--gold)}
+.oc-range{font-family:var(--fh);font-size:9px;color:var(--muted)}
+.req-row{padding:6px 14px;background:#0a0a14;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap;font-family:var(--fh);font-size:10px}
+.req-ok{color:var(--green)} .req-fail{color:var(--accent)}
+
+/* NEGOCIATION MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:flex-end;padding:0}
+.modal{background:var(--surface);border-top:1px solid var(--border);border-radius:16px 16px 0 0;width:100%;max-height:85vh;overflow-y:auto;padding:20px}
+.modal-title{font-family:var(--fh);font-weight:900;font-size:20px;margin-bottom:4px}
+.modal-sub{font-family:var(--fh);font-size:12px;color:var(--muted);margin-bottom:16px}
+.neg-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.neg-row:last-child{border-bottom:0}
+.neg-lbl{font-family:var(--fh);font-size:13px;flex:1}
+.neg-val{font-family:var(--fh);font-weight:900;font-size:16px;min-width:60px;text-align:right}
+.neg-slider{flex:1}
+.prob-bar{height:6px;border-radius:3px;margin-top:8px;transition:width .3s}
+
+/* BTN */
+
+.btn-red:hover{background:#ff1a52}
+.btn-gold{background:#161200;color:var(--gold);border:1px solid #3a3400}.btn-gold:hover{background:#2a2400}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent)}
+.btn-green{background:#001a0a;color:var(--green);border:1px solid #003a18}
+
+/* SEC LBL */
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 18px;font-family:var(--fh);font-size:13px;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{border-left-color:var(--accent)}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+    /* Correctif mobile : les onglets rouges passent sur plusieurs lignes au lieu de déborder */
+    @media (max-width:640px){
+      
+      
+      
+      .tab-btn:nth-child(3):last-child{
+        flex-basis:100%;
+      }
+    }
+</style>
+<link rel="stylesheet" href="css/immersive-theme.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">F1<span>Manager</span></div>
+  <a href="index.html" style="font-family:var(--fh);font-size:12px;color:var(--muted);text-decoration:none;padding:4px 8px;border:1px solid var(--border);border-radius:4px">← Accueil</a>
+  <div class="top-pills">
+    <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-green" id="incomeBadge">💵 —</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- RÉPUTATION -->
+  <div class="rep-panel">
+    <div class="rep-title">Réputation de l'équipe</div>
+    <div class="rep-grid" id="repGrid"></div>
+  </div>
+
+  <!-- REVENUS TOTAUX -->
+  <div class="income-bar">
+    <div>
+      <div class="income-sub">Revenus sponsors / an</div>
+      <div class="income-val" id="totalIncome">—</div>
+    </div>
+    <div style="text-align:right">
+      <div class="income-sub" id="activeCount">— contrats actifs</div>
+      <div style="font-family:var(--fh);font-size:11px;color:var(--muted)" id="expiryInfo"></div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="showTab('tab-contracts')">📋 Contrats actifs (<span id="cCount">0</span>)</button>
+      <button class="tab-btn" onclick="showTab('tab-market')">🛒 Marché (<span id="mCount">0</span>)</button>
+      <button class="tab-btn" onclick="showTab('tab-history')">📜 Historique</button>
+    </div>
+    <div class="tab-pane active" id="tab-contracts">
+      <div id="contractsList" style="padding:10px"></div>
+    </div>
+    <div class="tab-pane" id="tab-market">
+      <div id="marketList" style="padding:10px"></div>
+    </div>
+    <div class="tab-pane" id="tab-history">
+      <div id="historyList" style="padding:10px"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL NÉGOCIATION -->
+<div class="modal-overlay" id="modalOverlay" style="display:none" onclick="closeModal()">
+  <div class="modal" onclick="event.stopPropagation()" id="modalContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/events.js"></script>
+<script src="js/career.js"></script>
+<script src="js/sponsors.js"></script>
+
+<script>
+let save = null;
+let currentOffer = null;
+let negValue = 0;
+
+function resetSponsorSeasonProgressLocal(save){
+  if(!save || !Array.isArray(save.sponsors)) return false;
+  const season = Number(save.season || 2025);
+  let changed = false;
+
+  save.sponsors.forEach(sp=>{
+    const clauses = sp.clauses || [];
+    const hasOldProgress = clauses.some(cl =>
+      Number(cl.progress || 0) !== 0 ||
+      cl.bonusPaid || cl.paid || cl.completed ||
+      (cl.bonusObjective && (
+        Number(cl.bonusObjective.progress || 0) !== 0 ||
+        cl.bonusObjective.paid || cl.bonusObjective.bonusPaid ||
+        cl.bonusObjective.completed || cl.bonusObjective.unlocked
+      ))
+    );
+
+    // Après un changement de saison, les sponsors doivent repartir de 0.
+    // Pour les anciennes saves sans _progressSeason, on reset aussi si on est au début de saison.
+    const shouldReset = sp._progressSeason !== season && ((save.race || 0) <= 1 || hasOldProgress);
+
+    if(shouldReset){
+      sp.progress = 0;
+      sp.paid = false;
+      sp.satisfied = true;
+      sp._progressSeason = season;
+
+      clauses.forEach(cl=>{
+        cl.progress = 0;
+        cl.bonusPaid = false;
+        cl.paid = false;
+        cl.completed = false;
+        cl.satisfied = false;
+
+        if(cl.bonusObjective && typeof cl.bonusObjective === 'object'){
+          cl.bonusObjective.progress = 0;
+          cl.bonusObjective.paid = false;
+          cl.bonusObjective.bonusPaid = false;
+          cl.bonusObjective.completed = false;
+          cl.bonusObjective.satisfied = false;
+          cl.bonusObjective.unlocked = false;
+        }
+      });
+      changed = true;
+    }
+  });
+
+  return changed;
+}
+
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+function init() {
+  save = Save.load();
+  if (!save?.playerTeamId) {
+    document.querySelector('.page').innerHTML = `<div style="padding:30px;text-align:center;font-family:var(--fh);color:var(--muted)">Aucune carrière. <a href="index.html" style="color:var(--accent)">Retour</a></div>`;
+    return;
+  }
+
+  // Migrer les anciens contrats (hydrater depuis DB)
+  if (save.sponsors?.length) {
+    save.sponsors = save.sponsors.map(sp => {
+      const db = Sponsors.DB.find(s => s.id === sp.id);
+      if (!db) return sp;
+      return {
+        ...sp,
+        logo:        sp.logo        || db.logo        || '📋',
+        type:        sp.type        || db.type        || 'partner',
+        personality: sp.personality || db.personality || 'loyal',
+        techBonus:   sp.techBonus   || db.techBonus   || {},
+        exclusivity: sp.exclusivity || db.exclusivity || null,
+        clauses:     sp.clauses?.length ? sp.clauses : db.clauses?.map(c=>({...c,progress:0})) || [],
+      };
+    });
+    Save.save(save);
+  }
+
+  // Forcer réputation minimale de 30 (évite les saves corrompues)
+  if (save.reputation) {
+    save.reputation.sport   = Math.max(30, save.reputation.sport   || 30);
+    save.reputation.media   = Math.max(25, save.reputation.media   || 25);
+    save.reputation.tech    = Math.max(25, save.reputation.tech    || 25);
+    save.reputation.finance = Math.max(25, save.reputation.finance || 25);
+  }
+
+  // Init réputation si première visite
+  if (!save.reputation) {
+    Sponsors.initCareer(save);
+    save = Save.load();
+  }
+
+  // Init sponsors IA séparément (peut manquer sur les saves existantes)
+  if (!save.aiSponsors) {
+    Sponsors.initAISponsors(save);
+    Save.save(save);
+    save = Save.load();
+  }
+
+  // Générer les offres si vides
+  if (!save.sponsorOffers?.length) {
+    Sponsors.generateMarketOffers(save);
+    Save.save(save);
+    save = Save.load();
+  }
+
+  document.getElementById('seasonBadge').textContent = `Saison ${save.season||2025}`;
+
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDU
+// ══════════════════════════════════════════════════════════
+function renderAll() {
+  renderReputation();
+  renderIncome();
+  renderContracts();
+  renderMarket();
+  renderHistory();
+}
+
+// ── RÉPUTATION ────────────────────────────────────────────
+function renderReputation() {
+  const rep = save.reputation || { sport:40, media:40, tech:40, finance:40 };
+  const dims = [
+    { key:'sport',   icon:'🏆', label:'Sportive',    desc:'Résultats en piste' },
+    { key:'media',   icon:'📺', label:'Médiatique',  desc:'Visibilité & popularité' },
+    { key:'tech',    icon:'⚙️', label:'Technique',   desc:'Innovation & R&D' },
+    { key:'finance', icon:'💰', label:'Financière',  desc:'Stabilité budgétaire' },
+  ];
+
+  document.getElementById('repGrid').innerHTML = dims.map(d => {
+    const val   = rep[d.key] || 40;
+    const rl    = Sponsors.repLabel(val);
+    return `
+      <div class="rep-card">
+        <div class="rep-lbl">${d.icon} ${d.label}</div>
+        <div class="rep-val" style="color:${rl.color}">${val}</div>
+        <div style="font-family:var(--fh);font-size:10px;color:${rl.color}">${rl.label}</div>
+        <div class="rep-bar-wrap"><div class="rep-bar" style="width:${val}%;background:${rl.color}"></div></div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ── REVENUS ────────────────────────────────────────────────
+function renderIncome() {
+  const total   = Sponsors.totalAnnualValue(save);
+  const count   = (save.sponsors||[]).length;
+  const expiring= (save.sponsors||[]).filter(s => (s.remainingSeasons||1) === 1).length;
+
+  document.getElementById('totalIncome').textContent  = `${total} M€`;
+  document.getElementById('activeCount').innerHTML    = `${count} contrat${count>1?'s':''} / 6 max`; 
+  document.getElementById('incomeBadge').textContent  = `💵 ${total} M€/an`;
+  document.getElementById('expiryInfo').textContent   = expiring ? `⚠️ ${expiring} contrat${expiring>1?'s':''} expire${expiring>1?'nt':''} cette saison` : '';
+  document.getElementById('cCount').textContent = count;
+  document.getElementById('mCount').textContent = (save.sponsorOffers||[]).length;
+}
+
+// ── CONTRATS ACTIFS ────────────────────────────────────────
+function renderContracts() {
+  const list = document.getElementById('contractsList');
+  const contracts = save.sponsors || [];
+
+  if (!contracts.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--fh)">Aucun contrat actif. Va dans le Marché pour signer des sponsors !</div>`;
+    return;
+  }
+
+  // Trier : title > principal > partner
+  const sorted = [...contracts].sort((a,b) => {
+    const order = { title:0, principal:1, partner:2 };
+    return (order[a.type]||2) - (order[b.type]||2);
+  });
+
+  list.innerHTML = sorted.map(sp => buildContractCard(sp)).join('');
+}
+
+function buildContractCard(sp) {
+  // Hydrater depuis la DB si des champs manquent
+  const dbSp   = Sponsors.DB.find(s => s.id === sp.id) || {};
+  const merged = { ...dbSp, ...sp,
+    logo:        sp.logo        || dbSp.logo        || '📋',
+    type:        sp.type        || dbSp.type        || 'partner',
+    personality: sp.personality || dbSp.personality || 'loyal',
+    techBonus:   sp.techBonus   || dbSp.techBonus   || {},
+    clauses:     (sp.clauses?.length ? sp.clauses : null)
+                 || dbSp.clauses?.map(c=>({...c,progress:0}))
+                 || [],
+  };
+  sp = merged;
+  const typeLabel = sp.type === 'title' ? 'TITLE' : sp.type === 'principal' ? 'PRINCIPAL' : 'PARTNER';
+  const typeCls   = sp.type === 'title' ? 'title-sp' : sp.type === 'principal' ? 'principal-sp' : 'partner-sp';
+  const typeBadge = sp.type === 'title' ? 'type-title' : sp.type === 'principal' ? 'type-principal' : 'type-partner';
+  const pCls      = sp.personality === 'loyal' ? 'p-loyal' : sp.personality === 'opportunist' ? 'p-opportunist' : 'p-developer';
+  const pLabel    = sp.personality === 'loyal' ? '💚 Loyal' : sp.personality === 'opportunist' ? '⚡ Opportuniste' : '📈 Développeur';
+  const remaining = sp.remainingSeasons || sp.duration || 1;
+
+  // Bonus technique
+  const techBonusHtml = sp.techBonus && Object.keys(sp.techBonus).length
+    ? `<div class="tech-bonus-row">⚡ Bonus technique : ${Object.entries(sp.techBonus).map(([k,v])=>`${k} +${v}`).join(' · ')}</div>`
+    : '';
+
+  return `
+    <div class="contract-card ${typeCls}">
+      <div class="cc-header">
+        <div class="cc-logo">${sp.logo}</div>
+        <div class="cc-info">
+          <div class="cc-name">${sp.name}
+            <span class="type-badge ${typeBadge}" style="margin-left:6px">${typeLabel}</span>
+          </div>
+          <div class="cc-meta" style="display:flex;gap:8px;margin-top:4px">
+            <span class="personality-badge ${pCls}">${pLabel}</span>
+            ${sp.exclusivity ? `<span style="font-family:var(--fh);font-size:9px;color:var(--muted);padding:2px 6px;border:1px solid var(--border);border-radius:3px">🔒 Exclu. ${sp.exclusivity}</span>` : ''}
+          </div>
+        </div>
+        <div class="cc-value">
+          <div class="cc-val">${sp.value}M€</div>
+          <div class="cc-dur">${remaining} an${remaining>1?'s':''} restant${remaining>1?'s':''}</div>
+        </div>
+      </div>
+      ${techBonusHtml}
+      <div class="clauses-list">
+        ${(sp.clauses||[]).map(cl => buildClauseRow(cl)).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function buildClauseRow(cl) {
+  const isDnfClause = cl.type === 'dnf_max';
+  const isMet       = isDnfClause ? cl.progress <= cl.target : cl.progress >= cl.target;
+  const pct         = isDnfClause
+    ? Math.max(0, 100 - Math.round((cl.progress / cl.target) * 100))
+    : Math.min(100, Math.round((cl.progress / cl.target) * 100));
+
+  const icons  = { podiums:'🏆', top5:'🥈', top10:'📊', points:'⭐', races:'🏁', points_finishes:'📊', dnf_max:'⚠️', quali_top5:'⚡', position:'📍', position_up:'📈' };
+  const labels = { podiums:'Podiums', top5:'Top 5', top10:'Top 10', points:'Points marqués', races:'Courses disputées', points_finishes:'Courses dans les points', dnf_max:'Max abandons', quali_top5:'Qualif top 5', position:'Position constructeurs', position_up:'Places gagnées' };
+
+  const barColor   = isMet ? 'var(--green)' : pct > 60 ? 'var(--gold)' : 'var(--accent)';
+  const bonusHtml  = cl.bonus > 0 ? `<span class="clause-bonus" style="color:${cl.bonusPaid?'var(--muted)':'var(--green)'}">${cl.bonusPaid?'✅':'+'}${cl.bonus}M€</span>` : '';
+  const penaltyHtml= cl.penalty < 0 ? `<span class="clause-bonus" style="color:var(--accent)">${cl.penalty}M€</span>` : '';
+
+  // Objectif bonus (sponsor développeur)
+  const bonusObjHtml = cl.bonusObjective?.unlocked ? `
+    <div style="margin-top:4px;padding:4px 6px;background:#0d0a1a;border:1px solid #2a1a4a;border-radius:4px;font-family:var(--fh);font-size:10px;display:flex;align-items:center;gap:8px">
+      <span style="color:var(--purple)">🎯 Objectif bonus</span>
+      <span style="color:var(--muted)">${cl.progress}/${cl.bonusObjective.target}</span>
+      <span style="color:var(--purple)">${cl.bonusObjective.paid?'✅ Payé':'+'+cl.bonusObjective.bonus+'M€'}</span>
+    </div>` : '';
+
+  return `
+    <div class="clause-row">
+      <div class="clause-icon">${icons[cl.type]||'📋'}</div>
+      <div class="clause-label" style="flex:1">
+        <div>${labels[cl.type]||cl.type}</div>
+        ${bonusObjHtml}
+      </div>
+      <div class="clause-progress" style="color:${isMet?'var(--green)':'var(--muted)'}">${cl.progress}/${cl.target}</div>
+      <div class="clause-bar-wrap"><div class="clause-bar" style="width:${pct}%;background:${barColor}"></div></div>
+      ${bonusHtml}${penaltyHtml}
+    </div>
+  `;
+}
+
+// ── MARCHÉ ────────────────────────────────────────────────
+function renderMarket() {
+  const list   = document.getElementById('marketList');
+  if (!save.sponsorOffers?.length) {
+    Sponsors.generateMarketOffers(save);
+    Save.save(save);
+    save = Save.load();
+  }
+  // Reconstruire les offres depuis le DB frais — jamais depuis la save corrompue
+  const offers = (save.sponsorOffers||[]).map(o => {
+    const db = Sponsors.DB.find(s => s.id === o.id);
+    if (!db) return null;
+    return { ...db, offerValue: o.offerValue, expiresAt: o.expiresAt };
+  }).filter(Boolean);
+  const rep = save.reputation || { sport:40, media:40, tech:40, finance:40 };
+
+  if (!offers.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--fh)">
+      Aucune offre disponible. Les offres se renouvellent en fin de saison.
+      <br><br>
+      <button class="btn btn-sec" onclick="refreshOffers()">🔄 Rafraîchir les offres</button>
+    </div>`;
+    return;
+  }
+
+  // Trier : débloqués d'abord
+  const sorted = [...offers].sort((a,b) => {
+    const aOk = isOfferAccessible(a, rep);
+    const bOk = isOfferAccessible(b, rep);
+    if (aOk && !bOk) return -1;
+    if (!aOk && bOk) return 1;
+    return b.offerValue - a.offerValue;
+  });
+
+  list.innerHTML = sorted.map(sp => buildOfferCard(sp, rep)).join('');
+}
+
+function isOfferAccessible(sp, rep) {
+  const r = sp.reputationMin || {};
+  return rep.sport   >= (r.sport   || 0)
+      && rep.media   >= (r.media   || 0)
+      && rep.tech    >= (r.tech    || 0)
+      && rep.finance >= (r.finance || 0);
+}
+
+function buildOfferCard(sp, rep) {
+  const accessible = isOfferAccessible(sp, rep);
+  const r = sp.reputationMin || {};
+  const typeLabel = sp.type === 'title' ? 'TITLE' : sp.type === 'principal' ? 'PRINCIPAL' : 'PARTNER';
+  const typeBadge = sp.type === 'title' ? 'type-title' : sp.type === 'principal' ? 'type-principal' : 'type-partner';
+  const prob = accessible ? Sponsors.acceptanceProbability(save, sp, sp.offerValue||sp.baseValue) : 0;
+
+  const reqHtml = ['sport','media','tech','finance'].map(dim => {
+    const required = r[dim] || 0;
+    if (!required) return '';
+    const ok = rep[dim] >= required;
+    return `<span class="${ok?'req-ok':'req-fail'}">${ok?'✅':'❌'} Rep. ${dim} ${required}</span>`;
+  }).filter(Boolean).join('');
+
+  const techBonusHtml = sp.techBonus && Object.keys(sp.techBonus).length
+    ? `<div style="padding:5px 14px;background:#0a0a14;font-family:var(--fh);font-size:10px;color:var(--blue);border-top:1px solid var(--border)">
+        ⚡ ${Object.entries(sp.techBonus).map(([k,v])=>`${k} +${v}`).join(' · ')}
+       </div>` : '';
+
+  const aiHtml = '';
+
+  const actionHtml = accessible ? `
+    <div style="padding:8px 14px;display:flex;gap:8px;flex-wrap:wrap;border-top:1px solid var(--border)">
+      <button class="btn btn-gold" onclick="openNegotiation('${sp.id}')">🤝 Négocier</button>
+      <button class="btn btn-sec" onclick="quickSign('${sp.id}')">✅ Signer direct</button>
+    </div>
+  ` : `<div style="padding:8px 14px;font-family:var(--fh);font-size:11px;color:var(--muted);border-top:1px solid var(--border)">🔒 Réputation insuffisante</div>`;
+
+  return `
+    <div class="offer-card${accessible?'':' locked'}">
+      <div class="oc-header">
+        <div class="oc-logo">${sp.logo}</div>
+        <div class="oc-info">
+          <div class="oc-name">${sp.name}
+            <span class="type-badge ${typeBadge}" style="margin-left:6px">${typeLabel}</span>
+          </div>
+          <div class="oc-desc">${sp.desc}</div>
+        </div>
+        <div class="oc-value">
+          <div class="oc-val">${sp.offerValue||sp.baseValue}M€</div>
+          <div class="oc-range">${sp.duration} an${sp.duration>1?'s':''}</div>
+          ${accessible ? `<div style="font-family:var(--fh);font-size:10px;color:${prob>=70?'var(--green)':prob>=50?'var(--gold)':'var(--accent)'}">${prob}% accept.</div>` : ''}
+        </div>
+      </div>
+      ${techBonusHtml}
+      ${aiHtml}
+      ${reqHtml ? `<div class="req-row">${reqHtml}</div>` : ''}
+      ${actionHtml}
+    </div>
+  `;
+}
+
+// ── HISTORIQUE ─────────────────────────────────────────────
+function renderHistory() {
+  const hist = save.sponsorHistory || [];
+  const list = document.getElementById('historyList');
+  if (!hist.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--muted);font-family:var(--fh)">Aucun historique pour l'instant.</div>`;
+    return;
+  }
+  list.innerHTML = hist.slice().reverse().map(sp => `
+    <div style="padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;font-family:var(--fh)">
+      <div style="font-size:24px">${sp.logo||'📋'}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${sp.name}</div>
+        <div style="font-size:11px;color:var(--muted)">${sp.value}M€/an · Fin saison ${sp.endSeason||'?'}</div>
+      </div>
+      <div style="font-size:10px;color:${sp.endReason==='break_clause'?'var(--accent)':sp.endReason==='objectives_missed'?'var(--orange)':'var(--muted)'}">
+        ${sp.endReason==='break_clause'?'⛔ Break clause':sp.endReason==='objectives_missed'?'❌ Objectifs ratés':'✅ Contrat terminé'}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════════
+//  NÉGOCIATION
+// ══════════════════════════════════════════════════════════
+function openNegotiation(sponsorId) {
+  const sp = Sponsors.DB.find(s => s.id === sponsorId);
+  if (!sp) return;
+  currentOffer = sp;
+  negValue = sp.offerValue || sp.baseValue;
+
+  renderNegotiationModal(sp);
+  document.getElementById('modalOverlay').style.display = 'flex';
+}
+
+function renderNegotiationModal(sp) {
+  const prob    = Sponsors.acceptanceProbability(save, sp, negValue);
+  const probClr = prob >= 70 ? 'var(--green)' : prob >= 50 ? 'var(--gold)' : 'var(--accent)';
+  const min     = Math.round(sp.baseValue * 0.7);
+  const max     = sp.maxValue || Math.round(sp.baseValue * 1.6);
+
+  document.getElementById('modalContent').innerHTML = `
+    <div class="modal-title">${sp.logo} Négociation — ${sp.name}</div>
+    <div class="modal-sub">${sp.desc}</div>
+
+    <!-- Valeur proposée -->
+    <div class="neg-row">
+      <div class="neg-lbl">💰 Valeur annuelle proposée</div>
+      <div class="neg-val" id="negDisplay" style="color:var(--gold)">${negValue}M€</div>
+    </div>
+    <input type="range" class="neg-slider" min="${min}" max="${max}" value="${negValue}"
+      oninput="updateNeg(this.value)" style="width:100%;margin:8px 0 14px">
+    <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:10px;color:var(--muted);margin-bottom:14px">
+      <span>Minimum : ${min}M€</span>
+      <span>Maximum : ${max}M€</span>
+    </div>
+
+    <!-- Probabilité d'acceptation -->
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:12px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:12px;margin-bottom:6px">
+        <span style="color:var(--muted)">Probabilité d'acceptation</span>
+        <span style="color:${probClr};font-weight:700" id="probText">${prob}%</span>
+      </div>
+      <div style="height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+        <div class="prob-bar" id="probBar" style="width:${prob}%;background:${probClr}"></div>
+      </div>
+      <div style="font-family:var(--fh);font-size:10px;color:var(--muted);margin-top:5px" id="probHint">
+        ${prob >= 70 ? '✅ Bonne chance d\'acceptation' : prob >= 50 ? '⚠️ Résultat incertain' : '❌ Peu probable — augmente ta réputation ou l\'offre'}
+      </div>
+    </div>
+
+    <!-- Objectifs du contrat -->
+    <div style="font-family:var(--fh);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Objectifs du contrat</div>
+    <div style="margin-bottom:14px">
+      ${(sp.clauses||[]).map(cl => {
+        const icons = { podiums:'🏆',top5:'🥈',top10:'📊',points:'⭐',races:'🏁',media:'📺',dnf_max:'⚠️',quali_top5:'⚡',position:'📍',position_up:'📈' };
+        const labels = { podiums:'Podiums',top5:'Top 5',top10:'Top 10',points:'Points',races:'Courses',media:'Visibilité',dnf_max:'Max abandons',quali_top5:'Qualif top 5',position:'Position const.',position_up:'Places gagnées' };
+        const bonusClr = cl.bonus > 0 ? 'var(--green)' : 'var(--muted)';
+        const penClr   = cl.penalty < 0 ? 'var(--accent)' : 'var(--muted)';
+        return `
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);font-family:var(--fh);font-size:12px">
+            <span style="width:20px;text-align:center">${icons[cl.type]||'📋'}</span>
+            <span style="flex:1">${labels[cl.type]||cl.type} : <strong>${cl.target}</strong></span>
+            <span style="color:${bonusClr}">${cl.bonus>0?'+'+cl.bonus+'M€':''}</span>
+            <span style="color:${penClr}">${cl.penalty<0?cl.penalty+'M€':''}</span>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <!-- Durée et exclusivité -->
+    <div style="font-family:var(--fh);font-size:12px;color:var(--muted);margin-bottom:16px">
+      📅 Durée : <strong>${sp.duration} an${sp.duration>1?'s':''}</strong>
+      ${sp.exclusivity ? `· 🔒 Exclusivité <strong>${sp.exclusivity}</strong>` : ''}
+      ${sp.breakClause ? `· ⚡ <strong style="color:var(--orange)">Break clause</strong>` : ''}
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-red" onclick="confirmSign()" style="flex:1">🤝 Soumettre l'offre</button>
+      <button class="btn btn-sec" onclick="closeModal()">Annuler</button>
+    </div>
+  `;
+}
+
+function updateNeg(val) {
+  negValue = parseInt(val);
+  const sp  = currentOffer;
+  const prob    = Sponsors.acceptanceProbability(save, sp, negValue);
+  const probClr = prob >= 70 ? 'var(--green)' : prob >= 50 ? 'var(--gold)' : 'var(--accent)';
+  document.getElementById('negDisplay').textContent = negValue + 'M€';
+  const pt = document.getElementById('probText');
+  const pb = document.getElementById('probBar');
+  const ph = document.getElementById('probHint');
+  if(pt){ pt.textContent=prob+'%'; pt.style.color=probClr; }
+  if(pb){ pb.style.width=prob+'%'; pb.style.background=probClr; }
+  if(ph){ ph.textContent = prob>=70?'✅ Bonne chance':prob>=50?'⚠️ Incertain':'❌ Peu probable'; }
+}
+
+function confirmSign() {
+  const sp   = currentOffer;
+  const prob = Sponsors.acceptanceProbability(save, sp, negValue);
+  closeModal();
+
+  // Tirage aléatoire selon probabilité
+  if (Math.random() * 100 <= prob) {
+    const result = Sponsors.sign(save, sp.id, negValue, sp.clauses.map(c=>({...c,progress:0})));
+    if (result.ok) {
+      save = Save.load();
+      toast(`🤝 ${sp.name} a accepté ! ${negValue}M€/an sur ${sp.duration} an${sp.duration>1?'s':''}`);
+      renderAll();
+    } else {
+      toast(`❌ ${result.reason}`, true);
+    }
+  } else {
+    toast(`❌ ${sp.name} a refusé. Améliore ta réputation ou propose plus !`, true);
+  }
+}
+
+function quickSign(sponsorId) {
+  const sp = Sponsors.DB.find(s => s.id === sponsorId);
+  if (!sp) return;
+  const val = sp.offerValue || sp.baseValue;
+  const result = Sponsors.sign(save, sponsorId, val, sp.clauses.map(c=>({...c,progress:0})));
+  if (result.ok) {
+    save = Save.load(); // recharger après save dans sign()
+    toast(`✅ ${sp.name} signé pour ${val}M€/an !`);
+    renderAll();
+  } else {
+    toast(`❌ ${result.reason}`, true);
+  }
+}
+
+function refreshOffers() {
+  Sponsors.generateMarketOffers(save);
+  Save.save(save);
+  save = Save.load();
+  renderAll();
+  toast('🔄 Nouvelles offres générées !');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').style.display = 'none';
+  currentOffer = null;
+}
+
+function showTab(id) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id)?.classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    if(b.getAttribute('onclick')===`showTab('${id}')`) b.classList.add('active');
+  });
+}
+
+function toast(msg, isError=false) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast${isError?' error':''}`;
+  t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+init();
+</script>
+
+</body>
+</html>

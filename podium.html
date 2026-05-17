@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260508f">
+
+<title>Podium — F1 Manager</title>
+<style>*{box-sizing:border-box}.wrap{max-width:900px;margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.kicker{font-family:var(--fh);letter-spacing:2px;color:var(--red);font-size:11px;text-transform:uppercase}.title{font-family:var(--fh);font-size:34px;letter-spacing:1px;margin:4px 0}.sub{color:var(--muted);font-size:13px}.card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:0 18px 40px rgba(0,0,0,.28);margin-bottom:14px}.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;gap:12px;align-items:end;margin-top:18px}.step{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:16px;text-align:center;min-height:170px;display:flex;flex-direction:column;justify-content:center}.p1{min-height:230px;border-color:rgba(245,200,66,.45);box-shadow:0 0 30px rgba(245,200,66,.08)}.p2{min-height:195px}.p3{min-height:175px}.pos{font-family:var(--fh);font-size:38px;color:var(--gold)}.name{font-family:var(--fh);font-size:18px;margin-top:6px}.team{font-size:12px;color:var(--muted);margin-top:4px}.pts{font-size:13px;margin-top:10px;color:var(--green);font-weight:800}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:12px}.stat b{display:block;font-family:var(--fh);font-size:18px}.stat span{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px}.teamres{display:grid;gap:8px}.row{display:grid;grid-template-columns:42px 1fr 70px;gap:10px;align-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:10px}.badge{font-family:var(--fh);font-size:18px}.btn.sec{background:#2a2e3f}@media(max-width:700px){.podium{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.top{display:block}}
+</style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div><div class="kicker">Cérémonie officielle</div><h1 class="title" id="gpTitle">Podium</h1><div class="sub" id="gpSub">Chargement…</div></div></div>
+  <div id="content"></div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/immersion.js"></script>
+<script>
+function fmtTime(sec){ if(!Number.isFinite(sec)) return '—'; const m=Math.floor(sec/60), s=sec-m*60; return `${m}:${s.toFixed(3).padStart(6,'0')}`; }
+function esc(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+function getSummary(){ const save=Save.load(); return {save, gp:save?.lastGpSummary}; }
+function step(r, cls){
+  if(!r) return `<div class="step ${cls}"><div class="pos">—</div><div class="name">Aucun</div></div>`;
+  const team = typeof F1Data !== 'undefined' ? F1Data.teams.find(t=>t.name===r.teamName||t.shortName===r.teamName) : null;
+  const logoHtml = team?.logo ? `<img src="${team.logo}" style="width:40px;height:20px;object-fit:contain;margin-bottom:6px" alt="" onerror="this.style.display='none'">` : '';
+  return `<div class="step ${cls}">${cls==='p1'?logoHtml:''}<div class="pos">P${r.position}</div><div class="name" style="color:${esc(r.teamColor)}">${esc(r.driverName)}</div><div class="team">${esc(r.teamName)}</div><div class="pts">${r.points||0} pts</div></div>`;
+}
+// ── POOLS INTERVIEWS ────────────────────────────────────
+const INTERVIEWS = {
+  win: [
+    "C'est incroyable. Toute l'équipe a fait un travail fantastique ce week-end. La voiture était parfaite.",
+    "La victoire, c'est le fruit du travail de tout le monde. Je suis tellement fier de ce groupe.",
+    "On a tout donné depuis le jeudi. Ce GP, on le méritait vraiment.",
+    "La stratégie était parfaite. Le muret a pris les bonnes décisions au bon moment.",
+    "Quand j'ai vu le drapeau à damier, j'ai lâché un cri dans le casque. Moment inoubliable.",
+    "On a fait une course parfaite du début à la fin. Pas d'erreur, pas de panique. On a géré.",
+    "Je suis sans voix. Ce résultat, on le construit depuis des semaines. Aujourd'hui ça paye.",
+    "La voiture était fantastique. Les mécaniciens ont fait un pit stop parfait. Tout le monde au top.",
+    "Gagner ici, c'est quelque chose de spécial. Ce circuit mérite cette victoire.",
+    "C'est le travail du lundi au dimanche. Ce trophée appartient à toute l'usine.",
+  ],
+  podium: [
+    "Le podium, c'est mérité. On a tout géré proprement du début à la fin.",
+    "Satisfait du résultat. La voiture avait le rythme, on a bien exécuté le plan.",
+    "On aurait pu viser mieux, mais ce podium compte. On prend les points.",
+    "Belle course. On a su répondre à chaque situation. L'équipe peut être fière.",
+    "Un podium arraché. Ce n'est pas le résultat qu'on visait mais on repart avec des points importants.",
+    "Fier de l'équipe. On a fait face aux problèmes, on a géré. C'est ça le travail collectif.",
+    "La voiture avait le rythme ce week-end. On méritait ce podium.",
+    "Un bon week-end. On a été solides quand il le fallait.",
+  ],
+  points: [
+    "Dans les points, c'est l'essentiel. Il y avait plus de rythme en nous, mais on a sécurisé.",
+    "Course difficile, mais on a su accrocher ces points importants pour le championnat.",
+    "On a fait ce qu'on pouvait avec ce qu'on avait aujourd'hui. Les points sont là.",
+    "Pas le week-end qu'on espérait, mais le travail de l'équipe a permis de sauver quelque chose.",
+    "On marque des points. C'est loin d'être parfait mais c'est mieux que rien au championnat.",
+    "Course solide. Pas spectaculaire, mais on a ramené ce qu'il fallait.",
+    "Dans le dur aujourd'hui. Mais on garde la tête froide et on avance.",
+    "Ces points peuvent compter en fin de saison. On ne lâche jamais.",
+  ],
+  dnf: [
+    "Énorme frustration. La voiture était rapide aujourd'hui. Ce n'est pas ce qu'on méritait.",
+    "Difficile à accepter. On travaille toute la semaine pour finir comme ça... On va analyser.",
+    "La malchance fait partie de ce sport. On reviendra plus forts au prochain GP.",
+    "Je ne veux pas commenter à chaud. On verra les données demain et on comprendra.",
+    "Inacceptable. La voiture avait le potentiel pour marquer des gros points aujourd'hui.",
+    "C'est le sport. Ça fait mal mais on doit relever la tête et repartir de l'avant.",
+    "Frustrant. On n'a rien pu faire. L'équipe ne méritait pas ça après la semaine qu'on a eue.",
+    "Pas de chance aujourd'hui. Mais on ne baisse pas les bras. La réponse viendra.",
+  ],
+  bad: [
+    "Journée difficile. On n'a pas trouvé le bon équilibre. On doit comprendre pourquoi.",
+    "La voiture n'était pas là aujourd'hui. On a tout essayé mais le rythme manquait.",
+    "Honnêtement, on était trop lents. Il faut regarder les données et rebondir.",
+    "Pas le résultat voulu. Mais c'est le sport, ça arrive. La réponse doit venir au prochain GP.",
+    "Week-end compliqué. On n'a pas réussi à se battre où on le voulait. On repart travailler.",
+    "Ce n'est pas notre niveau. On analyse, on comprend et on revient plus forts.",
+    "La course a été longue. On a souffert mais on a appris. C'est ça qui compte.",
+    "On a manqué quelque chose ce week-end. Les données vont nous aider à trouver quoi.",
+  ],
+  winner_rival: [
+    "Belle performance de leur part. Ils étaient imbattables aujourd'hui.",
+    "Chapeau à eux. Ils ont fait une course parfaite. On doit apprendre de ça.",
+    "Aujourd'hui ils méritaient la victoire. On reviendra.",
+    "Ils ont été meilleurs. Il faut l'accepter et travailler pour inverser la tendance.",
+    "Une victoire méritée de leur côté. Mais ça ne va pas durer — on travaille.",
+    "Impressionnant. Leur stratégie était parfaite. On prend note.",
+  ],
+  tp_win: [
+    "Je suis extrêmement fier de tout le monde. De la conception à l'exécution, tout était parfait.",
+    "C'est le résultat d'un travail d'équipe immense. Chaque personne dans le garage mérite cette victoire.",
+    "On a cru en nos pilotes, en notre voiture. Aujourd'hui tout s'est aligné.",
+    "Une victoire construite sur la rigueur et la préparation. Ce groupe est exceptionnel.",
+    "On a exécuté le plan à la perfection. Pilotes, ingénieurs, mécaniciens — tout le monde était au niveau.",
+    "Des semaines de travail récompensées en un week-end. C'est ça la Formule 1.",
+    "Je n'ai pas les mots. Cette équipe mérite tellement cette victoire.",
+  ],
+  tp_podium: [
+    "Un podium bien mérité. L'équipe a su saisir l'opportunité au bon moment.",
+    "Très heureux pour tout le monde. On continue dans cette direction.",
+    "Le podium récompense le travail de la semaine. On garde la tête froide et on continue.",
+    "On peut être fiers. On a fait face aux difficultés et on a ramené un résultat solide.",
+    "C'est le chemin qu'on veut prendre. Ce podium confirme qu'on est sur la bonne voie.",
+    "Bien joué à toute l'équipe. La stratégie a été parfaite et les pilotes ont délivré.",
+  ],
+  tp_bad: [
+    "On n'était pas au niveau attendu aujourd'hui. On va analyser et comprendre.",
+    "Déçu mais pas abattu. Ce sport est ainsi. La réponse viendra sur le prochain circuit.",
+    "Trop de problèmes ce week-end. On doit régler ça avant le prochain GP.",
+    "Ce n'est pas le week-end qu'on méritait. Mais on reste soudés et on repart au travail.",
+    "On a été dépassés aujourd'hui. C'est une leçon qu'on va transformer en force.",
+    "Les résultats ne sont pas là mais le travail continue. On ne lâche pas.",
+    "Journée difficile. Mais je fais confiance à cette équipe pour rebondir.",
+  ],
+};
+
+function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function getInterview(result) {
+  if (!result) return null;
+  if (result.status === 'dnf') return pick(INTERVIEWS.dnf);
+  if (result.position === 1)   return pick(INTERVIEWS.win);
+  if (result.position <= 3)    return pick(INTERVIEWS.podium);
+  if (result.points > 0)       return pick(INTERVIEWS.points);
+  return pick(INTERVIEWS.bad);
+}
+
+function getTpInterview(teamPoints) {
+  if (teamPoints >= 15) return pick(INTERVIEWS.tp_win);
+  if (teamPoints >= 6)  return pick(INTERVIEWS.tp_podium);
+  return pick(INTERVIEWS.tp_bad);
+}
+
+function render(){
+ const {save,gp}=getSummary();
+ if(!gp){ document.getElementById('content').innerHTML='<div class="card empty">Aucun Grand Prix terminé trouvé. Lance une course pour générer le podium.</div><div class="btns"><a class="btn sec" href="index.html">Retour HQ</a></div>'; return; }
+ document.getElementById('gpTitle').textContent=`Grand Prix de ${gp.circuitName}`;
+ document.getElementById('gpSub').textContent=`${gp.weather||'Météo inconnue'} · ${gp.totalLaps||'—'} tours · Saison ${gp.season||save?.season||'—'}`;
+ const p=gp.podium||[];
+ const playerResults = gp.playerResults||[];
+ const playerRows=playerResults.map(r=>`<div class="row"><div class="badge">P${r.position}</div><div><b style="color:${esc(r.teamColor)}">${esc(r.driverName)}</b><div class="sub">${esc(r.teamName)}</div></div><div>${r.points||0} pts</div></div>`).join('') || '<div class="sub">Aucun résultat équipe détecté.</div>';
+ const bestLap=[...(gp.results||[])].filter(r=>Number.isFinite(r.bestLap)).sort((a,b)=>a.bestLap-b.bestLap)[0];
+
+ // Interviews dynamiques
+ const interviewCards = playerResults.map(r => {
+   const quote = getInterview(r);
+   if (!quote) return '';
+   const pos = r.status==='dnf' ? 'Abandon' : `P${r.position}`;
+   const col = r.position===1?'var(--gold)':r.position<=3?'#ccc':r.status==='dnf'?'var(--accent)':'var(--muted)';
+   return `<div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid ${col};border-radius:14px;padding:14px;margin-bottom:10px">
+     <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:${col};margin-bottom:6px">${esc(r.driverName)} · ${pos}</div>
+     <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${quote}"</div>
+   </div>`;
+ }).join('');
+
+ // Interview winner rival si pas notre pilote
+ const ourIds = new Set(playerResults.map(r=>r.driverId));
+ const winner = gp.winner;
+ const winnerIsOurs = winner && playerResults.some(r=>r.driverName===winner.driverName&&r.position===1);
+ const rivalCard = winner && !winnerIsOurs ? `
+   <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:14px;padding:14px;margin-bottom:10px">
+     <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:6px">${esc(winner.driverName)} · Vainqueur</div>
+     <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${pick(INTERVIEWS.win)}"</div>
+   </div>` : '';
+
+ // TP interview
+ const tpCard = `<div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:14px;padding:14px">
+   <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:6px">Team Principal · Débrief</div>
+   <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${getTpInterview(gp.teamPoints||0)}"</div>
+ </div>`;
+
+ document.getElementById('content').innerHTML=`
+  <div class="card"><div class="kicker">Top 3</div><div class="podium">${step(p[1],'p2')}${step(p[0],'p1')}${step(p[2],'p3')}</div></div>
+  <div class="card"><div class="kicker">Bilan rapide</div><div class="grid">
+    <div class="stat"><span>Vainqueur</span><b>${esc(gp.winner?.driverName||'—')}</b></div>
+    <div class="stat"><span>Safety Car</span><b>${gp.safetyCarLaps||0} tour(s)</b></div>
+    <div class="stat"><span>Meilleur tour</span><b>${bestLap?esc(bestLap.driverName)+' · '+fmtTime(bestLap.bestLap):'—'}</b></div>
+  </div></div>
+  <div class="card"><div class="kicker">Votre équipe</div><div class="teamres">${playerRows}</div><div class="grid" style="margin-top:10px"><div class="stat"><span>Points GP</span><b>${gp.teamPoints||0}</b></div><div class="stat"><span>Gains</span><b>+${gp.reward||0}M€</b></div><div class="stat"><span>Tokens</span><b>+${gp.tokens||0}</b></div></div></div>
+  ${interviewCards||rivalCard ? `<div class="card"><div class="kicker">Interviews zone mixte</div>${rivalCard}${interviewCards}</div>` : ''}
+  <div class="card"><div class="kicker">Team Principal</div>${tpCard}</div>
+  <div class="btns"><a class="btn" href="gp-journal.html">Voir le journal du GP</a></div>`;
+}
+render();
+</script>
+
+</body>
+</html>

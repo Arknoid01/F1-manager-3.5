@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>F1 Manager - Pilotes & Contrats</title>
+  <style>@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&display=swap');
+    
+    *{box-sizing:border-box} .nav-link{font-family:var(--fh);font-weight:700;font-size:14px;color:var(--muted);text-decoration:none;padding:7px 12px;border-radius:4px;text-transform:uppercase;letter-spacing:.8px}.nav-link:hover,.nav-link.active{background:var(--surface2);color:var(--text)}.tb-right{margin-left:auto;display:flex;gap:8px}.season-badge,.budget-badge{font-family:var(--fh);font-weight:700;font-size:13px;padding:6px 12px;border-radius:4px;background:var(--surface2);border:1px solid var(--border)}.budget-badge{color:var(--gold)}.ph{height:38px;background:var(--surface2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 14px;font-family:var(--fh);font-weight:800;font-size:16px;text-transform:uppercase;letter-spacing:1px}.dot{width:3px;height:16px;background:var(--accent);border-radius:2px}.intro{padding:14px;color:var(--muted);font-family:var(--fh);font-size:15px;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:12px;padding:12px}.driver-card{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:13px}.driver-card.mine{border-color:var(--gold)}.dc-head{display:flex;justify-content:space-between;gap:8px}.dc-name{font-family:var(--fh);font-size:23px;font-weight:900}.dc-team{font-family:var(--fh);font-size:12px;color:var(--muted);margin-top:2px}.score{font-family:var(--fh);font-size:28px;font-weight:900;color:var(--gold)}.badges{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}.badge{font-family:var(--fh);font-size:11px;font-weight:700;padding:3px 7px;border-radius:3px;background:#101018;border:1px solid var(--border);color:var(--muted)}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:8px 0 10px}.stat{text-align:center;background:#101018;border-radius:4px;padding:5px 3px}.stat b{display:block;font-family:var(--fh);font-size:17px}.stat span{font-family:var(--fh);font-size:10px;color:var(--muted)}.offer{border-top:1px solid var(--border);padding-top:10px;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.field label{display:block;font-family:var(--fh);font-size:11px;color:var(--muted);margin-bottom:3px;text-transform:uppercase}.field input,.field select{width:100%;background:#0d0d15;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px;font-family:var(--fh);font-size:14px}.chance{grid-column:1/-1;font-family:var(--fh);font-size:13px;color:var(--muted);line-height:1.5;background:#101018;border:1px solid var(--border);border-radius:4px;padding:8px}.actions{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap}.btn-red:disabled{opacity:.35;cursor:not-allowed}.btn-green{background:#003c22;color:var(--green);border:1px solid #006b3b}.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:10px 12px;background:var(--surface2);border-bottom:1px solid var(--border)}.toolbar input,.toolbar select{background:#101018;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-family:var(--fh);font-size:14px}.toast{position:fixed;right:20px;bottom:20px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:5px;padding:12px 16px;font-family:var(--fh);font-size:14px;transform:translateX(130%);transition:.25s;z-index:50;max-width:360px}.toast.show{transform:translateX(0)}.toast.error{border-left-color:var(--accent)}.counter{color:var(--orange)}
+  .entity-link{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}.entity-link:hover{color:var(--gold,#ffd700)}
+
+/* Topbar unifiée (style mobile staff) */
+
+.back-home:hover{color:var(--text)!important;border-color:var(--accent)!important}
+
+
+</style>
+<link rel="stylesheet" href="css/immersive-theme.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar">
+  <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></div>
+  <a href="index.html" class="back-home">← Accueil</a>
+  <div class="top-pills">
+    <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-gold" id="budgetBadge">—</div>
+  </div>
+</div>
+<div class="page" id="page">
+  <div class="panel">
+    <div class="ph"><div class="dot"></div> Centre pilotes & contrats</div>
+    <div class="intro">Chaque offre tient compte du salaire, du rôle, de la durée, de la réputation de ton équipe, du classement constructeur et de la personnalité du pilote. Un refus rend le pilote plus difficile à convaincre jusqu'à la saison suivante.</div>
+  </div>
+  <div class="panel">
+    <div class="ph"><div class="dot"></div> Mes pilotes — contrats & gestion</div>
+    <div class="grid" id="myGrid"></div>
+  </div>
+  <div class="panel">
+    <div class="ph"><div class="dot"></div> Marché des pilotes</div>
+    <div id="transferBanner" style="display:none;padding:8px 12px;background:#1a0808;border-bottom:1px solid #5a1a1a;font-family:var(--fh);font-size:13px;color:#ff8888">🚫 <strong>Mercato fermé</strong> — Les transferts sont uniquement autorisés avant la première course de la saison. Termine la saison pour rouvrir.</div><div class="toolbar"><input id="search" placeholder="Rechercher…" oninput="renderMarket()"><select id="filter" onchange="renderMarket()"><option value="all">Tous</option><option value="free">Agents libres</option><option value="young">Jeunes ≤24</option><option value="top">Top score ≥85</option></select></div>
+    <div class="grid" id="marketGrid"></div>
+  </div>
+  <div class="panel">
+    <div class="ph"><div class="dot"></div> Fin de saison</div>
+    <div class="intro" id="seasonPreview">Termine la saison actuelle : les statistiques, classements et courses seront réinitialisés, les contrats seront réduits d'un an, et le mercato IA sera appliqué.</div>
+    <div style="padding:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-red" onclick="confirmEndSeason()">📅 Terminer la saison</button>
+    </div>
+    <div class="intro" id="seasonReport" style="display:none"></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script src="js/data.js"></script><script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script><script src="js/events.js"></script><script src="js/career.js"></script>
+<script src="js/profiles.js"></script>
+<script src="js/immersion.js"></script>
+<script>
+let save=null;
+function restoreDrivers(){
+  if(save.generatedDrivers?.length){save.generatedDrivers.forEach(gd=>{if(!F1Data.drivers.find(d=>d.id===gd.id))F1Data.drivers.push(gd);});}
+  if(save.driverStates){F1Data.drivers.forEach(d=>{const st=save.driverStates[d.id]; if(st) Object.assign(d,st);});}
+  F1Data.drivers.forEach(d=>{if(!d.age)d.age=25;if(!d.potential)d.potential=Math.max(d.pace||70,d.consistency||70)+5;if(!d.trait)d.trait='consistent';if(d.retired===undefined)d.retired=false;});
+}
+function init(){save=Save.load(); if(!save||!save.playerTeamId){document.getElementById('page').innerHTML='<div class="empty">Aucune carrière trouvée<br><br><a class="btn btn-red" href="index.html">Créer une carrière</a></div>';return;} restoreDrivers(); Career.ensureContractSystem(save); if(window.Immersion) Immersion.ensure(save); Save.save(save); updateTop(); renderMy(); renderMarket(); renderSeasonPreview();}
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+function updateTop(){document.getElementById('seasonBadge').textContent=`Saison ${save.season||2025}`;document.getElementById('budgetBadge').textContent=`💰 ${save.budget||0}M €`;}
+function driverTeam(d){return d.teamId?F1Data.teams.find(t=>t.id===d.teamId):null}
+function roleLabel(r){return r==='pilote1'?'Pilote 1':r==='egal'?'Statut égal':'Pilote 2'}
+function moraleBadge(d){const m=save.immersion?.driverMorale?.[d.id]||save.immersion?.driverMorale?.[String(d.id)]; if(!m)return '<span class="badge">🧠 Moral —</span>'; const v=Math.round(m.value||0); const col=v>=70?'var(--green)':v>=45?'var(--gold)':'var(--accent)'; return `<span class="badge" style="color:${col}">🧠 Moral ${v}</span>`;}
+function buildCard(d,isMine){const team=driverTeam(d),score=Career.getDriverScore(d),p=Career.getPotentialLabel(d.potential||80),pers=Career.getPersonalityInfo(d),c=save.contracts[d.id]||{},prefix=isMine?'renew':'sign';const defaultSalary=Math.max(1,Math.ceil((d.salary||1)*(isMine?1.05:1.15)));const playerDrivers=F1Data.drivers.filter(x=>x.teamId===save.playerTeamId&&!x.retired);const replaceOptions=playerDrivers.map(x=>`<option value="${x.id}">Prendre la place de ${x.firstName} ${x.name}</option>`).join('');const mustReplace=playerDrivers.length>=2;
+  const div=document.createElement('div');div.className='driver-card'+(isMine?' mine':'');div.innerHTML=`<div class="dc-head"><div><div class="dc-name">${Profiles.linkDriver(d)}</div><div class="dc-team">${team?.logo?`<img src="${team.logo}" style="width:24px;height:12px;object-fit:contain;vertical-align:middle;margin-right:4px" alt="">`:''} ${team?Profiles.linkTeam(team):'Agent libre'} · ${d.age||'?'} ans · Contrat: ${c.years||0} an(s)</div></div><div class="score">${score}</div></div><div class="badges"><span class="badge">${pers.icon} ${pers.label}</span><span class="badge" style="color:${p.color}">Potentiel ${p.label}</span><span class="badge">💰 ${d.salary||1}M€/an</span>${moraleBadge(d)}${c.refus?`<span class="badge counter">${c.refus} refus</span>`:''}</div><div class="stats"><div class="stat"><b>${d.pace}</b><span>Pace</span></div><div class="stat"><b>${d.consistency}</b><span>Rég.</span></div><div class="stat"><b>${d.wetSkill}</b><span>Pluie</span></div><div class="stat"><b>${d.overtaking}</b><span>Att.</span></div><div class="stat"><b>${d.defending}</b><span>Déf.</span></div></div><div class="chance">${pers.desc}<br><span id="${prefix}-eval-${d.id}">Ajuste l'offre pour voir les chances.</span></div><div class="offer"><div class="field"><label>Salaire / an</label><input id="${prefix}-sal-${d.id}" type="number" min="1" value="${defaultSalary}" oninput="refreshEval('${d.id}','${prefix}')"></div><div class="field"><label>Durée</label><select id="${prefix}-years-${d.id}" onchange="refreshEval('${d.id}','${prefix}')"><option value="1">1 an</option><option value="2" selected>2 ans</option><option value="3">3 ans</option><option value="4">4 ans</option></select></div><div class="field"><label>Rôle</label><select id="${prefix}-role-${d.id}" onchange="refreshEval('${d.id}','${prefix}')"><option value="pilote2">Pilote 2</option><option value="egal">Statut égal</option><option value="pilote1">Pilote 1</option></select></div><div class="field"><label>Prime signature</label><input id="${prefix}-bonus-${d.id}" type="number" min="0" value="${isMine?0:Math.max(1,Math.round((d.salary||1)*0.5))}" oninput="refreshEval('${d.id}','${prefix}')"></div>${!isMine?`<div class="field" style="grid-column:1/-1"><label>${mustReplace?'Siège à remplacer':'Siège cible'}</label><select id="${prefix}-replace-${d.id}">${mustReplace?'':'<option value="">Ajouter sur un siège libre</option>'}${replaceOptions}</select></div>`:''}<div class="actions"><button class="btn btn-green" onclick="sendOffer('${d.id}','${prefix}')">${isMine?'Prolonger':'Faire une offre'}</button><button class="btn btn-sec" onclick="quickOffer('${d.id}','${prefix}','safe')">Offre prudente</button><button class="btn btn-sec" onclick="quickOffer('${d.id}','${prefix}','big')">Offre forte</button>${isMine?`<button class="btn btn-sec" onclick="releaseMyDriver('${d.id}')">Libérer</button>`:''}</div></div>`;setTimeout(()=>refreshEval(d.id,prefix),0);return div;}
+function getOffer(id,prefix){const sal=document.getElementById(`${prefix}-sal-${id}`);const yrs=document.getElementById(`${prefix}-years-${id}`);const rol=document.getElementById(`${prefix}-role-${id}`);const bon=document.getElementById(`${prefix}-bonus-${id}`);if(!sal||!yrs||!rol)return null;return{salary:Math.max(1,Number(sal.value)||1),years:Math.max(1,Number(yrs.value)||2),role:rol.value||'pilote2',bonus:Math.max(0,Number(bon?.value)||0),replaceDriverId:document.getElementById(`${prefix}-replace-${id}`)?.value||''};}
+function refreshEval(id,prefix){const offer=getOffer(id,prefix);if(!offer)return;const ev=Career.evaluateContractOffer(save,id,offer);const el=document.getElementById(`${prefix}-eval-${id}`);if(!el||!ev.ok)return;el.innerHTML=`Chance estimée : <b style="color:${ev.chance>=65?'var(--green)':ev.chance>=40?'var(--gold)':'var(--accent)'}">${ev.chance}%</b> · Rang équipe: P${ev.teamRank}<br>Demande probable : ${ev.demand.salary}M€/an, ${ev.demand.years} an(s), rôle ${roleLabel(ev.demand.role)}.`;}
+function quickOffer(id,prefix,type){if((save.race||0)>0){toast('🚫 Mercato fermé ! Transferts uniquement avant la 1ère course.',true);return;}const d=F1Data.drivers.find(x=>x.id===id);if(!d)return;const mult=type==='big'?1.35:1.12;document.getElementById(`${prefix}-sal-${id}`).value=Math.ceil((d.salary||1)*mult);document.getElementById(`${prefix}-bonus-${id}`).value=type==='big'?Math.round((d.salary||1)*1.1):Math.round((d.salary||1)*0.4);document.getElementById(`${prefix}-role-${id}`).value=type==='big'?'pilote1':'egal';document.getElementById(`${prefix}-years-${id}`).value=type==='big'?'3':'2';refreshEval(id,prefix);}
+function sendOffer(id,prefix){if((save.race||0)>0){toast('🚫 Mercato fermé ! Transferts uniquement avant la 1ère course.',true);return;}const res=Career.makeContractOffer(save,id,getOffer(id,prefix));save=Save.load();restoreDrivers();Career.ensureContractSystem(save);updateTop();renderMy();renderMarket();renderSeasonPreview(); if(res.counter){toast(`↪️ ${res.msg} Contre-offre: ${res.counter.salary}M€/an, ${res.counter.years} an(s).`,true);} else toast((res.accepted?'✅ ':'❌ ')+res.msg,!res.accepted);}
+function renderMy(){const grid=document.getElementById('myGrid');grid.innerHTML='';const mine=F1Data.drivers.filter(d=>d.teamId===save.playerTeamId&&!d.retired);if(!mine.length){grid.innerHTML='<div class="empty">Aucun pilote dans ton équipe.</div>';return;}mine.forEach(d=>grid.appendChild(buildCard(d,true)));}
+function renderMarket(){const grid=document.getElementById('marketGrid');grid.innerHTML='';let arr=F1Data.drivers.filter(d=>!d.retired&&d.teamId!==save.playerTeamId);const q=(document.getElementById('search')?.value||'').toLowerCase();const f=document.getElementById('filter')?.value||'all';if(q)arr=arr.filter(d=>(`${d.firstName} ${d.name}`).toLowerCase().includes(q));if(f==='free')arr=arr.filter(d=>!d.teamId||d.teamId==='free_agent');if(f==='young')arr=arr.filter(d=>(d.age||25)<=24);if(f==='top')arr=arr.filter(d=>Career.getDriverScore(d)>=85);arr.sort((a,b)=>Career.getDriverScore(b)-Career.getDriverScore(a));if(!arr.length){grid.innerHTML='<div class="empty">Aucun pilote trouvé.</div>';return;}arr.forEach(d=>grid.appendChild(buildCard(d,false)));}
+
+function releaseMyDriver(id){if((save.race||0)>0){toast('🚫 Impossible de libérer un pilote en cours de saison.',true);return;}
+  const d=F1Data.drivers.find(x=>x.id===id); if(!d)return;
+  const penalty=Math.round((d.salary||1)*0.5);
+  if(!confirm(`Libérer ${d.firstName||''} ${d.name} ?\nIndemnité: ${penalty}M€.\nLe pilote deviendra agent libre.`))return;
+  const res=Career.releaseDriver(save,id);
+  save=Save.load();restoreDrivers();Career.ensureContractSystem(save);updateTop();renderMy();renderMarket();renderSeasonPreview();
+  toast((res.ok?'✅ ':'❌ ')+res.msg,!res.ok);
+}
+function renderSeasonPreview(){
+  const el=document.getElementById('seasonPreview'); if(!el)return;
+  const mine=F1Data.drivers.filter(d=>d.teamId===save.playerTeamId&&!d.retired);
+  const races=(save.raceResults||[]).length;
+  const remaining=Math.max(0,(F1Data.calendar?.length||0)-races);
+  el.innerHTML=`Saison ${save.season||2025} · ${races} course(s) disputée(s), ${remaining} restante(s).<br>Mes pilotes : ${mine.map(d=>`${Profiles.linkDriver(d)} (${save.contracts?.[d.id]?.years??0} an(s))`).join(', ')||'—'}<br>Budget : ${save.budget||0}M€.`;
+}
+function confirmEndSeason(){
+  if(!confirm(`Terminer la saison ${save.season||2025} ?\nLes statistiques de saison seront remises à zéro.`))return;
+  const report=Career.endOfSeason(save);
+  save=Save.load();restoreDrivers();Career.ensureContractSystem(save);updateTop();renderMy();renderMarket();renderSeasonPreview();
+  const box=document.getElementById('seasonReport');
+  let html=`✅ Bienvenue en saison ${save.season}.`;
+  if(report.retired?.length) html+=`<br>🏁 Retraites : ${report.retired.map(d=>(d.firstName||'')+' '+d.name).join(', ')}`;
+  if(report.released?.length) html+=`<br>🔄 Libérés : ${report.released.map(d=>(d.firstName||'')+' '+d.name).join(', ')}`;
+  if(report.newTalents?.length) html+=`<br>✨ Nouveaux talents : ${report.newTalents.map(d=>(d.firstName||'')+' '+d.name).join(', ')}`;
+  box.innerHTML=html; box.style.display='block'; toast('✅ Saison terminée',false);
+}
+
+function toast(msg,err=false){const t=document.getElementById('toast');t.textContent=msg;t.className='toast'+(err?' error':'');t.classList.add('show');setTimeout(()=>t.classList.remove('show'),4200)}
+init();
+</script>
+
+<script>
+(function(){
+  function syncUnifiedTopbar(){
+    try{
+      const save = ((window.Save && Save.load) ? Save.load() : null) || JSON.parse(localStorage.getItem('f1manager_v1') || localStorage.getItem('f1manager_save') || localStorage.getItem('f1-manager-save') || '{}') || {};
+      const season = document.getElementById('seasonBadge');
+      const budget = document.getElementById('budgetBadge');
+      if(season && (!season.textContent || season.textContent.trim()==='—')) season.textContent = `Saison ${save.season || 2025}`;
+      if(budget && (!budget.textContent || budget.textContent.trim()==='—')) budget.textContent = `💰 ${Math.round((save.budget || 0)*10)/10}M €`;
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',syncUnifiedTopbar); else syncUnifiedTopbar();
+})();
+</script>
+
+</body>
+</html>

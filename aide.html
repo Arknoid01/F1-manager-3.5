@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260509">
+<title>Guide — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:680px;margin:0 auto;padding:0 12px 60px}
+.guide-hero{background:linear-gradient(135deg,#12000e,#07070d);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:10px;padding:18px 16px;margin-bottom:14px}
+.guide-title{font-family:var(--fh);font-size:26px;font-weight:900;letter-spacing:1px}
+.guide-sub{font-size:12px;color:var(--muted);line-height:1.6;margin-top:6px}
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
+.quick-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;text-decoration:none;color:inherit;display:block}
+.quick-card:active{opacity:.7}
+.quick-icon{font-size:20px;margin-bottom:5px}
+.quick-title{font-family:var(--fh);font-weight:900;font-size:14px}
+.quick-text{font-size:11px;color:var(--muted);line-height:1.4;margin-top:3px}
+.section{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.sec-header{padding:12px 14px 10px;border-bottom:1px solid var(--border)}
+.sec-label{font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.sec-title{font-family:var(--fh);font-weight:900;font-size:16px;margin-top:2px}
+.sec-body{padding:12px 14px}
+.step{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.step:last-child{border:none}
+.step-num{font-family:var(--fh);font-weight:900;font-size:22px;color:var(--accent);width:28px;flex-shrink:0;line-height:1}
+.step-title{font-family:var(--fh);font-weight:900;font-size:14px}
+.step-text{font-size:12px;color:var(--muted);line-height:1.55;margin-top:3px}
+.info-list{display:flex;flex-direction:column;gap:7px}
+.info-row{display:flex;gap:10px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px}
+.info-ico{font-size:18px;width:22px;flex-shrink:0;margin-top:1px}
+.info-title{font-family:var(--fh);font-weight:900;font-size:13px}
+.info-text{font-size:12px;color:var(--muted);line-height:1.5;margin-top:2px}
+.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.stat-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px}
+.stat-name{font-family:var(--fh);font-weight:900;font-size:13px}
+.stat-desc{font-size:11px;color:var(--muted);line-height:1.4;margin-top:3px}
+.tip{background:#111600;border:1px solid #2d3b08;border-left:3px solid var(--green);border-radius:7px;padding:10px 12px;font-size:12px;line-height:1.55;margin-top:8px}
+.warn{background:#180b0b;border-color:#3b1b1b;border-left-color:#ff6b35}
+.tip b{color:var(--text)}
+.link-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+.link-grid a{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:10px 12px;text-decoration:none;font-family:var(--fh);font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:7px}
+.link-grid a:active{opacity:.7}
+.badge{display:inline-block;font-family:var(--fh);font-size:10px;padding:1px 6px;border-radius:4px;vertical-align:middle;margin-left:4px}
+.badge-red{background:rgba(232,0,61,.15);color:var(--accent);border:1px solid rgba(232,0,61,.3)}
+.badge-gold{background:rgba(245,200,66,.15);color:var(--gold);border:1px solid rgba(245,200,66,.3)}
+@media(max-width:500px){.quick-grid,.stat-grid,.link-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#fff !important">Manager</span></span>
+  <a href="index.html" class="nav-back">← Accueil</a>
+</div>
+<div class="wrap">
+
+<div class="guide-hero">
+  <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:6px">Guide du Team Principal</div>
+  <div class="guide-title">F1 Manager — Comment jouer</div>
+  <div class="guide-sub">Tout ce qu il faut savoir pour gerer ton equipe, comprendre les mecaniques et progresser saison apres saison.</div>
+</div>
+
+<div class="quick-grid">
+  <a class="quick-card" href="#boucle"><div class="quick-icon">🔄</div><div class="quick-title">Boucle de jeu</div><div class="quick-text">Le flux d un week-end a l autre.</div></a>
+  <a class="quick-card" href="#quali"><div class="quick-icon">⚡</div><div class="quick-title">Qualifications</div><div class="quick-text">Q1, Q2, Q3 et gestion des runs.</div></a>
+  <a class="quick-card" href="#course"><div class="quick-icon">🏎️</div><div class="quick-title">Course</div><div class="quick-text">Strategie, pneus, meteo, DNF.</div></a>
+  <a class="quick-card" href="#social"><div class="quick-icon">💬</div><div class="quick-title">Social</div><div class="quick-text">Pilotes, staff, moral, loyaute.</div></a>
+  <a class="quick-card" href="#pilotes"><div class="quick-icon">👤</div><div class="quick-title">Pilotes</div><div class="quick-text">Stats, progression, academie.</div></a>
+  <a class="quick-card" href="#voiture"><div class="quick-icon">🔧</div><div class="quick-title">Voiture & R&D</div><div class="quick-text">Developpement, staff, budget.</div></a>
+  <a class="quick-card" href="#direction"><div class="quick-icon">🏢</div><div class="quick-title">Direction</div><div class="quick-text">Objectifs, sponsors, finances.</div></a>
+  <a class="quick-card" href="#conseils"><div class="quick-icon">💡</div><div class="quick-title">Conseils</div><div class="quick-text">Astuces pour progresser vite.</div></a>
+</div>
+
+<div class="section" id="boucle">
+  <div class="sec-header"><div class="sec-label">Comprendre</div><div class="sec-title">🔄 La boucle de jeu</div></div>
+  <div class="sec-body">
+    <div class="step"><div class="step-num">1</div><div><div class="step-title">Briefing EL — Vendredi</div><div class="step-text">Bilan des essais libres, etat de la piste, meteo et strategie de qualifications. Le meilleur tour simule et la degradation pneus t orientent pour la suite.</div></div></div>
+    <div class="step"><div class="step-num">2</div><div><div class="step-title">Qualifications — Samedi</div><div class="step-text">Session live Q1/Q2/Q3. Tu choisis Push ou Normal pour chaque pilote et tu lances les runs quand tu veux. Chaque run consomme 3 tours du chrono. Les rivaux s ameliorent aussi entre tes runs.</div></div></div>
+    <div class="step"><div class="step-num">3</div><div><div class="step-title">Briefing pre-course — Dimanche matin</div><div class="step-text">Choisis la strategie pneus de chaque pilote : pneu de depart, tour d arret, pneu de relance. Les strategies recommandees sont un guide, pas une obligation.</div></div></div>
+    <div class="step"><div class="step-num">4</div><div><div class="step-title">Grand Prix — Dimanche</div><div class="step-text">La course se simule en temps reel. Ordres d equipe, arrets, meteo dynamique. Les resultats impactent le budget, les points et le moral.</div></div></div>
+    <div class="step"><div class="step-num">5</div><div><div class="step-title">Entre deux GP</div><div class="step-text">Social, Entrainement, R&D, Contrats, Direction. Ces actions influencent directement les prochaines courses. Ne les negliger pas.</div></div></div>
+    <div class="tip">La page <b>Immersion</b> regroupe Paddock, Historique, Records et Academie Junior. C est la que tu vois l ame de ton equipe.</div>
+  </div>
+</div>
+
+<div class="section" id="quali">
+  <div class="sec-header"><div class="sec-label">Samedi</div><div class="sec-title">⚡ Les qualifications</div></div>
+  <div class="sec-body">
+    <div class="info-list">
+      <div class="info-row"><div class="info-ico">🔵</div><div><div class="info-title">Q1 — 18 minutes <span class="badge badge-red">20 pilotes → 5 elimes</span></div><div class="info-text">Tout le monde prend la piste. Les 5 derniers sont elimines et partent de P16 a P20. Passe en Q2 est l objectif minimum.</div></div></div>
+      <div class="info-row"><div class="info-ico">🟠</div><div><div class="info-title">Q2 — 15 minutes <span class="badge badge-red">15 pilotes → 5 elimes</span></div><div class="info-text">Les 15 pilotes qualifies s affrontent. Les 5 derniers partent de P11 a P15. Passer en Q3 garantit une bonne position.</div></div></div>
+      <div class="info-row"><div class="info-ico">🟡</div><div><div class="info-title">Q3 — 12 minutes <span class="badge badge-gold">10 pilotes → Pole Position</span></div><div class="info-text">La bataille pour la pole. Choisis bien le moment de sortir pour eviter le trafic. Le deuxieme run est souvent le meilleur.</div></div></div>
+      <div class="info-row"><div class="info-ico">⚡</div><div><div class="info-title">Mode Push vs Normal</div><div class="info-text">Push gagne ~0.3s mais risque une erreur selon la regularite du pilote. Normal est stable et repetable. En Q3, Normal suffit souvent si le temps est deja bon.</div></div></div>
+      <div class="info-row"><div class="info-ico">⏱️</div><div><div class="info-title">Consommation du chrono</div><div class="info-text">Chaque run consomme 3 tours : sortie + tour rapide + rentree. Gere tes runs pour ne pas manquer de temps en fin de session.</div></div></div>
+    </div>
+    <div class="tip">Les rivaux s ameliorent entre tes runs. Si tu es P10 apres ton premier run en Q2, lance un deuxieme avant la fin meme si tu sembles en securite.</div>
+  </div>
+</div>
+
+<div class="section" id="course">
+  <div class="sec-header"><div class="sec-label">Dimanche</div><div class="sec-title">🏎️ La course</div></div>
+  <div class="sec-body">
+    <div class="info-list">
+      <div class="info-row"><div class="info-ico">🛞</div><div><div class="info-title">Strategie pneus</div><div class="info-text">Soft — le plus rapide mais brule vite. Medium — compromis ideal pour la plupart des arrets. Hard — dure longtemps, lent a chauffer. L ingeneur recommande des fenetres d arret selon le circuit.</div></div></div>
+      <div class="info-row"><div class="info-ico">🌧️</div><div><div class="info-title">Meteo dynamique</div><div class="info-text">La pluie peut arriver en milieu de course. Surveille le fil d evenements. Passer aux Intermediaires au bon moment peut faire gagner 5 positions d un coup.</div></div></div>
+      <div class="info-row"><div class="info-ico">🚗</div><div><div class="info-title">Safety Car</div><div class="info-text">Neutralise la course. Si tes pilotes n ont pas encore pitte, c est souvent le meilleur moment — tu perds peu de temps et tu ressors avec des pneus frais.</div></div></div>
+      <div class="info-row"><div class="info-ico">📻</div><div><div class="info-title">Ordres d equipe</div><div class="info-text">Attaque, economie pneus ou rythme normal. Impacte les depassements, la degradation et les positions finales.</div></div></div>
+      <div class="info-row"><div class="info-ico">💥</div><div><div class="info-title">DNF et fiabilite</div><div class="info-text">La fiabilite reduit les risques d abandon. Investis en R&D fiabilite si tu encaisses trop de DNF mecaniques.</div></div></div>
+    </div>
+    <div class="tip warn">Changer de pneus sous Safety Car est presque toujours le bon choix si tes pilotes ont plus de 15 tours sur leurs pneus actuels.</div>
+  </div>
+</div>
+
+<div class="section" id="social">
+  <div class="sec-header"><div class="sec-label">Entre les GP</div><div class="sec-title">💬 Le systeme Social</div></div>
+  <div class="sec-body">
+    <p style="font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:10px">Apres chaque course, des discussions arrivent dans Social. Tu geres les relations avec tes pilotes et le staff — sans effets affiches. Tes choix ont des consequences reelles mais cachees.</p>
+    <div class="info-list">
+      <div class="info-row"><div class="info-ico">🏁</div><div><div class="info-title">Phase post-course</div><div class="info-text">Un message par pilote selon ce qui s est passe : abandon, podium, bonne course, moral bas. Un pilote apres un DNF a besoin d etre gere avec soin.</div></div></div>
+      <div class="info-row"><div class="info-ico">🔧</div><div><div class="info-title">Briefing technique</div><div class="info-text">L ingeneur soumet des decisions : fiabilite, setup, R&D, strategie pneus prochain GP. Ces choix influencent directement le week-end suivant.</div></div></div>
+      <div class="info-row"><div class="info-ico">🎯</div><div><div class="info-title">Pre-course</div><div class="info-text">Un echange avec un pilote avant le prochain GP. Des arcs narratifs evoluent sur la saison : debut, phase critique, derniers GP.</div></div></div>
+      <div class="info-row"><div class="info-ico">📊</div><div><div class="info-title">Moral, Confiance, Loyaute</div><div class="info-text"><b>Moral</b> impacte les performances. <b>Confiance</b> influence la prise de risque. <b>Loyaute</b> — si elle chute trop, le pilote peut partir en intersaison.</div></div></div>
+    </div>
+    <div class="tip">Les effets ne sont pas affiches sur les boutons. Reponds naturellement — seul le resultat en course te dira si tu as bien gere tes pilotes.</div>
+  </div>
+</div>
+
+<div class="section" id="pilotes">
+  <div class="sec-header"><div class="sec-label">Gestion</div><div class="sec-title">👤 Les pilotes</div></div>
+  <div class="sec-body">
+    <div class="stat-grid" style="margin-bottom:10px">
+      <div class="stat-box"><div class="stat-name">Pace</div><div class="stat-desc">Vitesse pure en qualif et course. La stat la plus importante.</div></div>
+      <div class="stat-box"><div class="stat-name">Regularite</div><div class="stat-desc">Reproduire les chronos. Reduit les erreurs.</div></div>
+      <div class="stat-box"><div class="stat-name">Mouille</div><div class="stat-desc">Performance sous la pluie. Crucial sur certains circuits.</div></div>
+      <div class="stat-box"><div class="stat-name">Depassement</div><div class="stat-desc">Capacite a doubler. Aide a remonter depuis le fond.</div></div>
+      <div class="stat-box"><div class="stat-name">Defense</div><div class="stat-desc">Resistance aux doublements. Utile en fin de course.</div></div>
+      <div class="stat-box"><div class="stat-name">Potentiel</div><div class="stat-desc">Plafond de progression. Un jeune a haut potentiel peut depasser un veteran.</div></div>
+    </div>
+    <div class="info-list">
+      <div class="info-row"><div class="info-ico">📈</div><div><div class="info-title">Progression automatique</div><div class="info-text">Les pilotes progressent apres chaque GP selon leur position, age et potentiel. Les jeunes progressent plus vite. Les pilotes 34+ ans peuvent legerement regresser.</div></div></div>
+      <div class="info-row"><div class="info-ico">🏋️</div><div><div class="info-title">Entrainement</div><div class="info-text">2 sessions par GP. Simulateur (1 token R&D) cible une stat specifique. Physique (0.5M) ameliore Regularite et Defense. Limite par le potentiel du pilote.</div></div></div>
+      <div class="info-row"><div class="info-ico">🌱</div><div><div class="info-title">Academie Junior</div><div class="info-text">Forme des jeunes sur 2-3 saisons. Quand un junior est pret, tu peux le faire monter en remplacant un pilote. Les juniors gardes leurs stats de formation.</div></div></div>
+      <div class="info-row"><div class="info-ico">📝</div><div><div class="info-title">Contrats</div><div class="info-text">Un pilote avec un contrat expirant peut partir. Renouvelle tot. Un pilote avec loyaute basse risque de partir meme sous contrat.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="voiture">
+  <div class="sec-header"><div class="sec-label">Developpement</div><div class="sec-title">🔧 Voiture & R&D</div></div>
+  <div class="sec-body">
+    <div class="stat-grid" style="margin-bottom:10px">
+      <div class="stat-box"><div class="stat-name">Aerodynamique</div><div class="stat-desc">Performance en virage, appui, usure pneus.</div></div>
+      <div class="stat-box"><div class="stat-name">Chassis</div><div class="stat-desc">Equilibre, polyvalence, tous types de circuits.</div></div>
+      <div class="stat-box"><div class="stat-name">Moteur</div><div class="stat-desc">Vitesse de pointe, circuits rapides, depassements.</div></div>
+      <div class="stat-box"><div class="stat-name">Fiabilite</div><div class="stat-desc">Reduit DNF, usure moteur et penalites de grille.</div></div>
+      <div class="stat-box"><div class="stat-name">Pit Stop</div><div class="stat-desc">Reduit la perte de temps aux arrets.</div></div>
+      <div class="stat-box"><div class="stat-name">Tokens R&D</div><div class="stat-desc">Gagnes apres chaque GP. Utilisables en entrainement et R&D.</div></div>
+    </div>
+    <div class="info-list">
+      <div class="info-row"><div class="info-ico">🧪</div><div><div class="info-title">R&D</div><div class="info-text">Investis dans les 5 domaines pour ameliorer ta voiture durablement. Les gains s accumulent saison apres saison. Priorise la fiabilite si tu encaisses trop de DNF.</div></div></div>
+      <div class="info-row"><div class="info-ico">👨‍🔧</div><div><div class="info-title">Staff</div><div class="info-text">Embauche des specialistes pour booster des domaines precis. Le staff coute un salaire mensuel. Gere bien ton budget avant d embaucher.</div></div></div>
+    </div>
+    <div class="tip warn">Un staff trop important peut mettre ton equipe en deficit des mi-saison. Verifie tes finances avant chaque embauche.</div>
+  </div>
+</div>
+
+<div class="section" id="direction">
+  <div class="sec-header"><div class="sec-label">Gestion</div><div class="sec-title">🏢 Direction, sponsors & finances</div></div>
+  <div class="sec-body">
+    <div class="info-list">
+      <div class="info-row"><div class="info-ico">🎯</div><div><div class="info-title">Objectifs saison</div><div class="info-text">La direction fixe des objectifs selon la taille de ton equipe. Les atteindre donne des bonus de budget et de reputation. Les rater augmente la pression.</div></div></div>
+      <div class="info-row"><div class="info-ico">📉</div><div><div class="info-title">Pression direction</div><div class="info-text">Monte si tu rates les objectifs ou si le budget chute. A 100% le poste de Team Principal est en danger.</div></div></div>
+      <div class="info-row"><div class="info-ico">🤝</div><div><div class="info-title">Sponsors</div><div class="info-text">Revenue reguliers avec des objectifs specifiques. Les satisfaire ameliore leur humeur et peut debloquer des bonus.</div></div></div>
+      <div class="info-row"><div class="info-ico">💰</div><div><div class="info-title">Budget</div><div class="info-text">Chaque GP genere des revenus et des couts. Garde toujours une reserve de 20M minimum. Un deficit en fin de saison est lourdement sanctionne.</div></div></div>
+      <div class="info-row"><div class="info-ico">⭐</div><div><div class="info-title">Reputation</div><div class="info-text">Monte avec les bons resultats. Influence les contrats, les sponsors et l attractivite pour les pilotes libres.</div></div></div>
+    </div>
+  </div>
+</div>
+
+<div class="section" id="conseils">
+  <div class="sec-header"><div class="sec-label">Strategie</div><div class="sec-title">💡 Conseils pour progresser</div></div>
+  <div class="sec-body">
+    <div class="tip">🏎️ <b>Petite equipe</b> — Priorise la fiabilite. Un DNF coute plus que 5 courses moyennes.</div>
+    <div class="tip">⚡ <b>Qualifications</b> — Lance 2 runs des le debut en Q1. Ne jamais attendre la fin.</div>
+    <div class="tip">💬 <b>Social</b> — Traite toutes les discussions apres chaque GP. Moral bas sous 40 = mauvaise performance garantie.</div>
+    <div class="tip">🌱 <b>Academie</b> — Promeus un junior uniquement si ta voiture peut le mettre dans les points.</div>
+    <div class="tip">🛞 <b>Pneus</b> — Sur circuits a haute degradation, 2 arrets peuvent etre plus rapides qu un seul. Mais 2 arrets = 2 risques de trafic.</div>
+    <div class="tip warn">⚠️ <b>Budget</b> — Ne jamais finir la saison en deficit. La direction sanctionne meme si tes resultats sont bons.</div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-header"><div class="sec-label">Navigation</div><div class="sec-title">🗺️ Pages du jeu</div></div>
+  <div class="sec-body">
+    <div class="link-grid">
+      <a href="index.html">🏠 Accueil</a>
+      <a href="weekend.html">🏎️ Week-end GP</a>
+      <a href="quali.html">⚡ Qualifications</a>
+      <a href="race.html">🏁 Course</a>
+      <a href="social.html">💬 Social</a>
+      <a href="training.html">🏋️ Entrainement</a>
+      <a href="rd.html">🧪 R&D</a>
+      <a href="staff.html">👨‍🔧 Staff</a>
+      <a href="contracts.html">📝 Contrats</a>
+      <a href="board.html">🏢 Direction</a>
+      <a href="sponsors.html">🤝 Sponsors</a>
+      <a href="standings.html">📊 Classements</a>
+      <a href="immersion.html">🌱 Immersion</a>
+      <a href="news.html">📰 News</a>
+    </div>
+  </div>
+</div>
+
+</div>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+</body>
+</html>

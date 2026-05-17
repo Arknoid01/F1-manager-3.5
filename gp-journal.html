@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260508f">
+
+<title>Journal du GP — F1 Manager</title>
+<style>*{box-sizing:border-box}.wrap{max-width:920px;margin:0 auto}.kicker{font-family:var(--fh);letter-spacing:2px;color:var(--red);font-size:11px;text-transform:uppercase}.title{font-family:var(--fh);font-size:34px;margin:4px 0}.sub{color:var(--muted);font-size:13px}.card{background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid var(--line);border-radius:20px;padding:18px;margin-bottom:14px;box-shadow:0 18px 40px rgba(0,0,0,.25)}.timeline{position:relative;padding-left:18px}.timeline:before{content:'';position:absolute;left:5px;top:4px;bottom:4px;width:2px;background:rgba(255,255,255,.12)}.entry{position:relative;margin:0 0 14px;padding:12px 12px 12px 16px;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px}.entry:before{content:'';position:absolute;left:-18px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--gold);box-shadow:0 0 18px rgba(245,200,66,.4)}.entry b{font-family:var(--fh);font-size:12px;letter-spacing:1px}.entry p{margin:5px 0 0;color:#dfe3ee;font-size:14px;line-height:1.45}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:14px;padding:12px}.stat span{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:1px}.stat b{font-family:var(--fh);font-size:18px}.btn.sec{background:#2a2e3f}@media(max-width:700px){.grid{grid-template-columns:1fr}}
+</style>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+  <link rel="stylesheet" href="css/intro-meeting.css">
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">Journal du week-end</div>
+  <h1 class="title" id="gpTitle">Grand Prix</h1>
+  <div class="sub" id="gpSub">Résumé narratif basé sur les données de course.</div>
+  <div id="content"></div>
+</div>
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/immersion.js"></script>
+<script>
+function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
+function e(t,msg){return `<div class="entry"><b>${esc(t)}</b><p>${esc(msg)}</p></div>`;}
+// ── AMBIANCES CIRCUIT ─────────────────────────────────────
+const CIRCUIT_VIBES = {
+  monaco:      { atmo:"Monaco, c'est la course où on ne rate rien. Les roues touchent presque les barrières.", challenge:"Le moindre accrochage dans les rails peut ruiner une course entière. La patience est une arme." },
+  silverstone: { atmo:"Les tribunes sont blindées de drapeaux anglais. L'ambiance à Silverstone est unique en F1.", challenge:"Les virages rapides punissent les setups mal équilibrés. Le vent peut tout changer en qualif." },
+  monza:       { atmo:"Temple de la vitesse. Les tifosi envahissent les tribunes dès le jeudi matin.", challenge:"La faible charge aérodynamique met le moteur à nu. La puissance brute prime ici." },
+  spa:         { atmo:"Spa-Francorchamps. Le circuit où la météo peut tout changer en trois virages.", challenge:"Eau Rouge à plein gaz ou pas ? La réponse dépend des pneus, du vent et du courage." },
+  suzuka:      { atmo:"Suzuka est le circuit préféré des pilotes. Technique, exigeant, juste.", challenge:"La séquence S-Curves met à l'épreuve l'équilibre de la voiture à haute vitesse." },
+  barcelona:   { atmo:"Barcelone, le circuit de test par excellence. Tout le monde connaît chaque virage par cœur.", challenge:"La dégradation pneus est sévère — la gestion thermique fait toute la différence." },
+  baku:        { atmo:"Les rues de Bakou : murs partout, lignes droites interminables, chaos garanti.", challenge:"La longue ligne droite favorise les overtakes — mais un mur peut effacer toute une course." },
+  singapore:   { atmo:"Course de nuit sous les lumières de Marina Bay. La chaleur épuise pilotes et mécaniciens.", challenge:"61 tours entre des murs. La concentration doit être maximale jusqu'au drapeau à damier." },
+  abu_dhabi:   { atmo:"Yas Marina pour clore la saison. Le titre peut se jouer ici, dans la dernière lueur du soleil.", challenge:"Le circuit révisé favorise les dépassements — mais la gestion thermique reste délicate." },
+};
+
+function circuitVibe(circuitId, circuitName) {
+  const v = CIRCUIT_VIBES[circuitId] || null;
+  if (!v) return `${circuitName} accueille le paddock pour un week-end qui s'annonce dense. L'objectif : maximiser chaque session.`;
+  return `${v.atmo} ${v.challenge}`;
+}
+
+function tpQuote(gp, best, teamPoints) {
+  const name = best?.driverName || 'notre pilote';
+  const pts  = teamPoints || 0;
+  if(best?.position === 1)  return `"On a fait une course parfaite. ${name} a géré chaque situation avec sang-froid. C'est ça le travail d'équipe." — Team Principal`;
+  if(best?.position <= 3)   return `"Le podium, c'est mérité. ${name} n'a rien lâché. On prend les points et on continue à pousser." — Team Principal`;
+  if(pts >= 10)             return `"Des points importants. La voiture avait le rythme — on a bien exécuté la stratégie." — Team Principal`;
+  if(pts > 0)               return `"On marque, c'est l'essentiel. Il reste du boulot, mais l'équipe croit au projet." — Team Principal`;
+  return `"Un week-end difficile. On doit comprendre ce qui s'est passé et revenir plus forts au prochain GP." — Team Principal`;
+}
+
+function keyMoment(gp, results) {
+  const best = (gp.playerResults||[]).slice().sort((a,b)=>a.position-b.position)[0];
+  const dnf  = results.filter(r=>r.status==='dnf');
+  const sc   = gp.safetyCarLaps || 0;
+  const wet  = /pluie|humide/i.test(gp.weather||'');
+  if(sc > 0 && best?.position <= 5) return `La Safety Car a redistribué les cartes — et l'équipe en a profité au bon moment.`;
+  if(dnf.length >= 3)               return `${dnf.length} abandons ont semé le chaos dans le peloton. Le classement s'est construit sur les incidents.`;
+  if(wet)                           return `La pluie a transformé la course en loterie. Les choix pneus au bon moment ont fait la différence.`;
+  if(best?.position === 1)          return `Une victoire construite dès le départ. La stratégie était parfaite, l'exécution aussi.`;
+  return `Une course propre, sans coup de théâtre. La régularité a payé sur la durée.`;
+}
+
+function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
+
+function render(){
+  const save = Save.load();
+  const gp   = save?.lastGpSummary;
+  if(!gp){
+    document.getElementById('content').innerHTML='<div class="card empty">Aucun journal disponible pour le moment.</div><div class="btns"><a class="btn sec" href="index.html">Retour HQ</a></div>';
+    return;
+  }
+  document.getElementById('gpTitle').textContent = `Grand Prix de ${gp.circuitName}`;
+  document.getElementById('gpSub').textContent   = `${gp.weather||'Météo inconnue'} · ${gp.totalLaps||'—'} tours · ${new Date(gp.date).toLocaleDateString('fr-FR')}`;
+
+  const results  = gp.results||[];
+  const winner   = gp.winner;
+  const podium   = (gp.podium||[]).map(r=>`P${r.position} ${r.driverName}`).join(' · ');
+  const player   = gp.playerResults||[];
+  const best     = player.slice().sort((a,b)=>a.position-b.position)[0];
+  const dnf      = results.filter(r=>r.status==='dnf');
+  const pitCount = results.reduce((s,r)=>s+(r.pitStops?.length||0),0);
+  const bestLap  = results.filter(r=>Number.isFinite(r.bestLap)).sort((a,b)=>a.bestLap-b.bestLap)[0];
+  const cid      = gp.circuitId || '';
+  const lines    = [];
+
+  lines.push(e('Arrivée au circuit', circuitVibe(cid, gp.circuitName)));
+  lines.push(e('Départ', pick([
+    `${winner?.driverName||'Le leader'} bondit en tête. Le peloton s'étire sur ${gp.totalLaps||'plusieurs'} tours.`,
+    `Départ explosif. ${winner?.driverName||'Le leader'} prend les commandes, le reste du peloton se repositionne.`,
+    `${winner?.driverName||'Le leader'} gère parfaitement l'envol. Les premières secondes dessinent déjà la hiérarchie.`,
+    `Premier virage sans incident majeur. ${winner?.driverName||'Le leader'} s'échappe, le peloton se trie derrière.`,
+    `${winner?.driverName||'Le leader'} parfait au départ. La course commence exactement comme prévu pour le leader.`,
+    `Bagarre immédiate derrière ${winner?.driverName||'le leader'}. Les premières positions se jouent dans les premiers virages.`,
+  ])));
+  lines.push(e('Moment clé', keyMoment(gp, results)));
+  if(gp.safetyCarLaps > 0) lines.push(e('Neutralisation', pick([
+    `La Safety Car intervient pendant ${gp.safetyCarLaps} tour(s). Le muret doit réagir vite.`,
+    `Neutralisation sur ${gp.safetyCarLaps} tour(s) — une opportunité stratégique que peu ont su saisir.`,
+    `${gp.safetyCarLaps} tour(s) derrière la Safety Car. Le timing des pit stops est devenu crucial.`,
+    `Safety Car ! ${gp.safetyCarLaps} tour(s) de neutralisation qui rebattent les cartes. Qui en profite ?`,
+    `Le peloton se regroupe derrière la Safety Car. ${gp.safetyCarLaps} tour(s) qui changent tout.`,
+    `Neutralisation inattendue. ${gp.safetyCarLaps} tour(s) qui offrent une fenêtre stratégique en or.`,
+  ])));
+  if(pitCount > 0) lines.push(e('Stratégie', pick([
+    `${pitCount} arrêt(s) dans le peloton. Les fenêtres de pit ont pesé sur le résultat final.`,
+    `${pitCount} pit stops enregistrés. Certains ont joué l'undercut, d'autres ont tenu jusqu'au bout.`,
+    `La stratégie a parlé fort aujourd'hui — ${pitCount} arrêts recensés, chacun avec ses conséquences.`,
+    `${pitCount} pit stops dans la course. La gestion des pneus a été le facteur décisif.`,
+    `Les stands ont joué un rôle clé. ${pitCount} arrêts qui ont redessiné le classement au fil des tours.`,
+    `Course à stratégie. ${pitCount} arrêts enregistrés — certains brillants, d'autres qui ont coûté des positions.`,
+  ])));
+  if(dnf.length) lines.push(e('Incidents', pick([
+    `${dnf.length} abandon(s) : ${dnf.slice(0,4).map(r=>r.driverName).join(', ')}${dnf.length>4?'…':''}. La course ne fait pas de cadeau.`,
+    `${dnf.slice(0,3).map(r=>r.driverName).join(', ')} parmi les abandons. ${dnf.length} voiture(s) ne verront pas le drapeau à damier.`,
+    `${dnf.length} voiture(s) au tapis. La course a été cruelle pour certaines équipes aujourd'hui.`,
+    `Journée noire pour ${dnf.slice(0,2).map(r=>r.driverName).join(' et ')}. Les abandons rebattent les cartes du championnat.`,
+  ])));
+  if(best) {
+    const teamLine = best.position <= 3 ? pick([
+      `${best.driverName} monte sur le podium — P${best.position} ! Le garage explose de joie. ${gp.teamPoints||0} points au compteur.`,
+      `P${best.position} pour ${best.driverName} ! Un résultat qui pèse lourd dans le championnat. Total : ${gp.teamPoints||0} pts.`,
+      `${best.driverName} sur le podium ! P${best.position} et ${gp.teamPoints||0} points précieux pour le championnat.`,
+      `Incroyable travail de ${best.driverName}. P${best.position} et un podium qui récompense toute l'équipe.`,
+    ]) : best.points > 0 ? pick([
+      `${best.driverName} termine P${best.position} — dans les points. ${gp.teamPoints||0} unités récupérées.`,
+      `P${best.position} pour ${best.driverName}. Pas spectaculaire, mais ces ${gp.teamPoints||0} points comptent en fin de saison.`,
+      `${best.driverName} arrache P${best.position}. ${gp.teamPoints||0} points qui peuvent changer la saison.`,
+      `Course solide de ${best.driverName}. P${best.position} et ${gp.teamPoints||0} points bien mérités.`,
+    ]) : pick([
+      `${best.driverName} termine P${best.position} hors des points. Le week-end n'a pas souri à l'équipe.`,
+      `P${best.position} — une course difficile. L'analyse permettra de rebondir au prochain GP.`,
+      `Pas de points aujourd'hui pour ${best.driverName}. P${best.position} et une équipe qui repart travailler.`,
+      `Week-end difficile. ${best.driverName} termine P${best.position}. On repart avec les leçons du circuit.`,
+    ]);
+    lines.push(e('Votre équipe', teamLine));
+  }
+  if(bestLap) lines.push(e('Rythme pur', `${bestLap.driverName} signe le meilleur tour de course. La référence de la journée.`));
+  lines.push(e('Podium', `${podium||'Podium non disponible'}. Victoire de ${winner?.driverName||'—'} pour ${winner?.teamName||'—'}.`));
+  lines.push(e('Team Principal', tpQuote(gp, best, gp.teamPoints)));
+  lines.push(e('Bilan management', `Gains : +${gp.reward||0}M€ · Frais GP : -${gp.operatingCost||0}M€ · Développement : +${gp.tokens||0} token(s).`));
+
+  const rawEvents = (gp.events||[]).filter(x=>x.message).slice(-8).map(x=>e(`Tour ${x.lap||'—'}`, x.message)).join('');
+  document.getElementById('content').innerHTML = `
+    <div class="card"><div class="kicker">Journal du Grand Prix</div><div class="timeline">${lines.join('')}</div></div>
+    ${rawEvents?`<div class="card"><div class="kicker">Moments enregistrés en course</div><div class="timeline">${rawEvents}</div></div>`:''}
+    <div class="card"><div class="kicker">Conséquences</div>
+      <div class="grid">
+        <div class="stat"><span>Points équipe</span><b>${gp.teamPoints||0}</b></div>
+        <div class="stat"><span>Vainqueur</span><b>${esc(winner?.driverName||'—')}</b></div>
+        <div class="stat"><span>Meilleur tour</span><b>${esc(bestLap?.driverName||'—')}</b></div>
+        <div class="stat"><span>Abandons</span><b>${dnf.length}</b></div>
+      </div>
+    </div>
+    <div class="btns"><a class="btn" href="immersion.html">📰 Aller au paddock →</a></div>`;
+}
+render();
+</script>
+
+  <script src="js/intro-meeting.js"></script>
+</body>
+</html>

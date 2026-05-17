@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>F1 Manager — R&D</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>.pill-blue{color:var(--blue);border-color:#1a2a4a;background:#0a1220}
+
+/* HERO BUDGET */
+.budget-hero{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.bh-card{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px}
+.bh-lbl{font-family:var(--fh);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.bh-val{font-family:var(--fh);font-weight:900;font-size:22px;line-height:1}
+.bh-sub{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:3px}
+
+/* CURSEUR ALLOCATION */
+.alloc-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px}
+.alloc-title{font-family:var(--fh);font-weight:700;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.alloc-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.alloc-lbl{font-family:var(--fh);font-size:12px;width:80px;flex-shrink:0}
+.alloc-lbl.current{color:var(--blue)}
+.alloc-lbl.future{color:var(--purple)}
+.slider-wrap{flex:1;position:relative;height:6px;background:var(--border);border-radius:3px}
+.slider-fill-l{position:absolute;left:0;top:0;height:100%;background:var(--blue);border-radius:3px;transition:width .2s}
+.slider-fill-r{position:absolute;right:0;top:0;height:100%;background:var(--purple);border-radius:3px;transition:width .2s}
+input[type=range].alloc-slider{width:100%;margin:0;-webkit-appearance:none;background:transparent;cursor:pointer}
+input[type=range].alloc-slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--text);border:2px solid var(--border);cursor:pointer}
+.alloc-pct{font-family:var(--fh);font-weight:900;font-size:14px;width:35px;text-align:right}
+.alloc-impact{background:var(--surface2);border-radius:5px;padding:8px 10px;font-family:var(--fh);font-size:11px;display:flex;gap:16px;flex-wrap:wrap}
+
+/* TOKEN FREEZE */
+.freeze-banner{background:#1a0a00;border:1px solid #5a2a00;border-left:3px solid var(--orange);border-radius:6px;padding:10px 14px;font-family:var(--fh);font-size:12px;display:flex;align-items:center;gap:10px}
+.freeze-banner.frozen{background:#001a0a;border-color:#005a20;border-left-color:var(--green)}
+
+/* SECTION LABEL */
+
+/* TABS */
+
+/* DOMAINE PANEL */
+.domain-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:10px}
+.domain-header{padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border)}
+.domain-icon{font-size:24px}
+.domain-info{flex:1}
+.domain-name{font-family:var(--fh);font-weight:900;font-size:18px}
+.domain-stat{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:2px}
+.domain-level{text-align:right}
+.domain-val{font-family:var(--fh);font-weight:900;font-size:28px}
+.domain-rival{font-family:var(--fh);font-size:10px;margin-top:2px}
+
+/* STAT BAR */
+.stat-bar-wrap{height:4px;background:var(--border);border-radius:2px;margin:6px 0 0;overflow:hidden}
+.stat-bar-fill{height:100%;border-radius:2px;transition:width .5s}
+
+/* UPGRADE CARD */
+.upgrade-list{display:flex;flex-direction:column;gap:0}
+.upgrade-card{padding:12px 14px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:flex-start;transition:background .1s}
+.upgrade-card:last-child{border-bottom:0}
+.upgrade-card.done{background:#001a0a}
+.upgrade-card.pending{background:#1a1400}
+.upgrade-card.locked{opacity:.5}
+.upgrade-card.next-year{background:#0d0a1a;border-left:3px solid var(--purple)}
+.uc-badge{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;margin-top:2px}
+.uc-badge.done{background:#003a18;color:var(--green)}
+.uc-badge.pending{background:#2a2000;color:var(--gold)}
+.uc-badge.available{background:#1a1a2a;color:var(--text)}
+.uc-badge.locked{background:#1a1a1a;color:var(--muted)}
+.uc-badge.next-year{background:#1a0a2a;color:var(--purple)}
+.uc-info{flex:1}
+.uc-name{font-family:var(--fh);font-weight:700;font-size:14px;margin-bottom:2px}
+.uc-desc{font-family:var(--fb);font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:6px}
+.uc-costs{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+.uc-cost{font-family:var(--fh);font-size:11px;padding:2px 8px;border-radius:3px}
+.uc-cost.budget{background:#161200;color:var(--gold);border:1px solid #3a3400}
+.uc-cost.tokens{background:#0a1220;color:var(--blue);border:1px solid #1a2a4a}
+.uc-cost.delivery{background:#1a0a00;color:var(--orange);border:1px solid #3a1a00}
+.uc-cost.gain{background:#001a0a;color:var(--green);border:1px solid #003a18}
+.uc-delivery{font-family:var(--fh);font-size:10px;color:var(--orange)}
+.uc-btn{font-family:var(--fh);font-weight:700;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:5px 12px;border:none;border-radius:4px;cursor:pointer;white-space:nowrap}
+.uc-btn.buy{background:var(--accent);color:#fff}
+.uc-btn.buy:hover{background:#ff1a52}
+.uc-btn.buy:disabled{background:#3a1a22;color:#664;cursor:not-allowed}
+.uc-btn.ny{background:#1a0a2a;color:var(--purple);border:1px solid #3a1a5a}
+.uc-btn.ny:hover{background:#2a1a3a}
+.uc-btn.cancel{background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+
+/* PENDING QUEUE */
+.queue-panel{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.queue-row{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border);font-family:var(--fh);font-size:13px}
+.queue-row:last-child{border-bottom:0}
+.queue-icon{font-size:18px;width:28px;text-align:center}
+.queue-info{flex:1}
+.queue-name{font-weight:700}
+.queue-eta{font-size:11px;color:var(--orange);margin-top:2px}
+.queue-cancel{font-family:var(--fh);font-size:10px;padding:3px 8px;background:none;border:1px solid var(--border);color:var(--muted);border-radius:3px;cursor:pointer}
+
+/* RIVALS */
+.rivals-grid{display:flex;flex-direction:column;gap:4px;padding:10px 14px}
+.rival-row{display:flex;align-items:center;gap:8px;font-family:var(--fh);font-size:12px}
+.rival-name{width:90px;flex-shrink:0;color:var(--muted)}
+.rival-bar-wrap{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.rival-bar{height:100%;border-radius:3px}
+.rival-val{width:30px;text-align:right;font-weight:700}
+.rival-gap{width:35px;font-size:10px;text-align:right}
+
+/* PROJECTION */
+.projection-box{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px 14px;margin:10px 14px}
+.proj-title{font-family:var(--fh);font-weight:700;font-size:12px;color:var(--purple);margin-bottom:6px}
+.proj-row{display:flex;justify-content:space-between;font-family:var(--fh);font-size:12px;padding:3px 0;border-bottom:1px solid var(--border)}
+.proj-row:last-child{border-bottom:0}
+
+/* BTN */
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 18px;font-family:var(--fh);font-size:13px;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.error{border-left-color:var(--accent)}
+
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+
+    /* Correctif mobile : les onglets rouges passent sur plusieurs lignes au lieu de déborder */
+    @media (max-width:640px){
+      
+      
+      
+      .tab-btn:nth-child(3):last-child{
+        flex-basis:100%;
+      }
+    }
+</style>
+<link rel="stylesheet" href="css/immersive-theme.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">F1<span>Manager</span></div>
+  <a href="index.html" style="font-family:var(--fh);font-size:12px;color:var(--muted);text-decoration:none;padding:4px 8px;border:1px solid var(--border);border-radius:4px">← Accueil</a>
+  <div class="top-pills">
+    <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-gold" id="budgetBadge">—</div>
+    <div class="pill pill-blue" id="tokenBadge">🔬 —</div>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- BUDGET R&D -->
+  <div class="budget-hero" id="budgetHero"></div>
+
+  <!-- AVERTISSEMENT FIN DE SAISON -->
+  <div class="freeze-banner" id="freezeBanner">
+    <span style="font-size:18px" id="freezeIcon">⚠️</span>
+    <div id="freezeText"></div>
+  </div>
+
+  <!-- ALLOCATION RESSOURCES -->
+  <div class="alloc-panel">
+    <div class="alloc-title">Allocation des ressources R&D</div>
+    <div class="alloc-row">
+      <span class="alloc-lbl current">🔵 Saison actuelle</span>
+      <div class="slider-wrap">
+        <div class="slider-fill-l" id="sliderFillL" style="width:70%"></div>
+        <div class="slider-fill-r" id="sliderFillR" style="width:30%"></div>
+        <input type="range" class="alloc-slider" id="allocSlider" min="0" max="100" value="70" oninput="updateAlloc(this.value)">
+      </div>
+      <span class="alloc-pct" id="allocPctCurrent" style="color:var(--blue)">70%</span>
+    </div>
+    <div class="alloc-row">
+      <span class="alloc-lbl future">🟣 Saison suivante</span>
+      <div style="flex:1"></div>
+      <span class="alloc-pct" id="allocPctFuture" style="color:var(--purple)">30%</span>
+    </div>
+    <div class="alloc-impact" id="allocImpact"></div>
+  </div>
+
+  <!-- TABS DOMAINES -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden">
+    <div class="tab-bar" id="domainTabs"></div>
+    <div id="domainContent"></div>
+  </div>
+
+  <!-- FILE D'ATTENTE -->
+  <div class="sec-lbl">🚚 Upgrades en livraison</div>
+  <div class="queue-panel" id="queuePanel"></div>
+
+  <!-- PROJECTION SAISON SUIVANTE -->
+  <div class="sec-lbl">📈 Projection voiture <span id="nextYear">2026</span></div>
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden" id="projectionPanel"></div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/events.js"></script>
+<script src="js/career.js"></script>
+
+<script>
+
+let save = null;
+let currentDomain = 'aero';
+let allocValue = 70; // % sur la voiture actuelle
+
+// ══════════════════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════════════════
+function init() {
+  save = Save.load();
+  if (!save || !save.playerTeamId) {
+    document.querySelector('.page').innerHTML = `<div style="padding:30px;text-align:center;font-family:var(--fh);color:var(--muted)">Aucune carrière. <a href="index.html" style="color:var(--accent)">Retour</a></div>`;
+    return;
+  }
+
+  // Initialiser le budget R&D si pas encore fait
+  if (!save.budget) {
+    const team = F1Data.teams.find(t => t.id === save.playerTeamId);
+    save.budget = Math.round((team?.budget || 200) * F1Data.budgetRatio);
+    save.budgetTotal = save.budget;
+    Save.save(save);
+  }
+
+  // Restaurer l'allocation sauvegardée + rafraîchir la barre visuelle
+  allocValue = save.rdAlloc ?? 70;
+  syncAllocUI();
+
+  // Initialiser carDev complet
+  save.carDev = save.carDev || {};
+  Object.keys(F1Data.rdTree).forEach(domain => {
+    if (!save.carDev[domain]) {
+      const team = F1Data.teams.find(t => t.id === save.playerTeamId);
+      save.carDev[domain] = { level: team?.[domain] || 70, upgrades: 0, done: [], pending: [] };
+    }
+    save.carDev[domain].done    = save.carDev[domain].done    || [];
+    save.carDev[domain].pending = save.carDev[domain].pending || [];
+  });
+
+  // Initialiser next year dev
+  save.nextYearDev = save.nextYearDev || {};
+
+  // Processer les livraisons
+  processDeliveries();
+
+  // Badges topbar
+  document.getElementById('seasonBadge').textContent = `Saison ${save.season || 2025}`;
+  document.getElementById('budgetBadge').textContent = `💰 ${Math.round((save.budget||0)*10)/10} M €`;
+  document.getElementById('tokenBadge').textContent  = `🔬 ${save.tokens} tokens`;
+  document.getElementById('tokenBadge').textContent  = `🔬 ${save.tokens || 0} tokens`;
+
+  renderAll();
+}
+
+// ══════════════════════════════════════════════════════════
+//  LIVRAISONS
+// ══════════════════════════════════════════════════════════
+function processDeliveries() {
+  const currentRace = save.race || 0;
+  let changed = false;
+
+  Object.keys(F1Data.rdTree).forEach(domain => {
+    const dev = save.carDev[domain];
+    if (!dev?.pending?.length) return;
+
+    const delivered = [];
+    dev.pending = dev.pending.filter(p => {
+      if (currentRace >= p.deliverAtRace) {
+        // Appliquer le gain
+        dev.level = Math.min(100, (dev.level || 70) + p.gain);
+        dev.done.push(p.upgradeId);
+        delivered.push(p);
+        changed = true;
+
+        // Log news
+        if (typeof CareerEvents !== 'undefined') {
+          CareerEvents.log(save, {
+            phase: 'race', icon: '🔧', category: 'technical',
+            title: `Upgrade livré : ${p.name}`,
+            text: `${F1Data.rdTree[domain].label} +${p.gain} pts. Niveau : ${dev.level}.`,
+          });
+        }
+        return false;
+      }
+      return true;
+    });
+  });
+
+  if (changed) Save.save(save);
+}
+
+// ══════════════════════════════════════════════════════════
+//  RENDU GLOBAL
+// ══════════════════════════════════════════════════════════
+function renderAll() {
+  save = Save.load(); // Toujours recharger depuis localStorage
+  // Restaurer les stats équipes IA dès le début
+  if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+  // Réinitialiser carDev sans appeler renderAll (évite boucle infinie)
+  save.carDev = save.carDev || {};
+  Object.keys(F1Data.rdTree||{}).forEach(domain => {
+    if (!save.carDev[domain]) save.carDev[domain] = { level: 70, upgrades: 0, done: [], pending: [] };
+    save.carDev[domain].done    = save.carDev[domain].done    || [];
+    save.carDev[domain].pending = save.carDev[domain].pending || [];
+  });
+  renderBudget();
+  renderFreeze();
+  renderAllocImpact();
+  renderDomainTabs();
+  renderDomain(currentDomain);
+  renderQueue();
+  renderProjection();
+}
+
+// ── BUDGET HERO ────────────────────────────────────────────
+function renderBudget() {
+  const budget    = save.budget || 0;
+  const budgetTotal     = save.budgetTotal || budget;
+  const rdSpent     = budgetTotal - budget;
+  const tokens      = save.tokens || 0;
+  const currentRace = save.race || 0;
+  const totalRaces  = F1Data.circuits.length;
+  const specs       = getSpecialization(save);
+  const opMult      = save._opCostMultiplier || 1.0;
+  const seasonsPlayed = save.completedSeasons?.length || 0;
+  // Héritage total de la saison précédente
+  const DOMAINS = ['aero','chassis','engine','reliability'];
+  const totalHeritage = DOMAINS.reduce((s,d)=>s+(save.carDev?.[d]?._heritage||0),0);
+  // Stagnation en cours ?
+  const stag = save._lastStagnationDomain;
+
+  document.getElementById('budgetHero').innerHTML = `
+    <div class="bh-card">
+      <div class="bh-lbl">Budget disponible</div>
+      <div class="bh-val" style="color:var(--gold)">${budget} M€</div>
+      <div class="bh-sub">${rdSpent} M€ dépensé / ${budgetTotal} M€ total</div>
+      <div style="height:3px;background:var(--border);border-radius:2px;margin-top:6px;overflow:hidden">
+        <div style="height:100%;border-radius:2px;background:var(--gold);width:${Math.round((budget/Math.max(1,budgetTotal))*100)}%"></div>
+      </div>
+    </div>
+    <div class="bh-card">
+      <div class="bh-lbl">Tokens R&D</div>
+      <div class="bh-val" style="color:var(--blue)">${tokens} 🔬</div>
+      <div class="bh-sub">Course ${currentRace}/${totalRaces} · max 3/GP</div>
+    </div>
+    <div class="bh-card">
+      <div class="bh-lbl">Héritage technique</div>
+      <div class="bh-val" style="color:var(--green)">${totalHeritage > 0 ? '+'+totalHeritage.toFixed(1)+' pts' : '—'}</div>
+      <div class="bh-sub">Conservé de la saison précédente (${Math.round((Math.max(0.15,0.35-(seasonsPlayed-1)*0.03))*100)}%)</div>
+    </div>
+    <div class="bh-card">
+      <div class="bh-lbl">Coûts opérationnels</div>
+      <div class="bh-val" style="color:${opMult>1.15?'var(--accent)':'var(--text)'}">×${opMult.toFixed(2)}</div>
+      <div class="bh-sub">${seasonsPlayed} saison${seasonsPlayed>1?'s':''} jouée${seasonsPlayed>1?'s':''} · +4%/an</div>
+    </div>
+    ${stag ? `
+    <div class="bh-card" style="grid-column:span 2;border-color:#3a0000;background:#1a0000">
+      <div class="bh-lbl" style="color:var(--accent)">⚠️ Stagnation en cours</div>
+      <div style="font-family:var(--fh);font-size:13px;color:var(--muted);margin-top:4px">${stag.toUpperCase()} gelé cette saison</div>
+    </div>` : `
+    <div class="bh-card" style="grid-column:span 2">
+      <div class="bh-lbl">Spécialisations actives</div>
+      ${specs.length
+        ? specs.map(s=>`<span style="font-family:var(--fh);font-size:12px;color:var(--green);margin-right:10px">${s.icon} ${s.domain} ≥${s.level} — bonus piste +${s.bonus}s</span>`).join('')
+        : `<div style="font-family:var(--fh);font-size:12px;color:var(--muted)">Aucune — atteins 88-90 dans un domaine pour débloquer un bonus circuit</div>`
+      }
+    </div>`}
+  `;
+}
+
+function countPending() {
+  let n = 0;
+  Object.keys(F1Data.rdTree).forEach(d => { n += (save.carDev[d]?.pending?.length || 0); });
+  return n;
+}
+
+// ── AVERTISSEMENT FIN DE SAISON ────────────────────────────
+function renderFreeze() {
+  const race       = save.race || 0;
+  const lateAt     = F1Data.LATE_SEASON_RACE || 15;
+  const totalRaces = F1Data.circuits.length;
+  const banner     = document.getElementById('freezeBanner');
+  const text       = document.getElementById('freezeText');
+  const isLate     = race >= lateAt;
+
+  // Vérifier si un règlement arrive la saison prochaine
+  const nextSeason = (save.season||2025) + 1;
+  const nextReg    = (F1Data.regulationCycles||[]).find(r=>r.season===nextSeason);
+
+  banner.className = `freeze-banner${isLate ? '' : ''}`;
+  banner.style.display = 'block';
+
+  if (nextReg) {
+    document.getElementById('freezeIcon').textContent = '📋';
+    banner.style.borderLeftColor = 'var(--purple)';
+    banner.style.background      = '#0d0a1a';
+    text.innerHTML = `<strong style="color:var(--purple)">⚙️ ${nextReg.name} en ${nextReg.season} !</strong> — Les performances seront réinitialisées (×${nextReg.resetFactor}). Investis dans la voiture suivante 🟣 pour partir avec un avantage !`;
+  } else if (isLate) {
+    document.getElementById('freezeIcon').textContent = '📉';
+    banner.style.borderLeftColor = 'var(--orange)';
+    text.innerHTML = `<strong style="color:var(--orange)">Fin de saison — Rendement réduit</strong> — Course ${race}/${totalRaces}. Les upgrades voiture actuelle ont un gain réduit de <strong>30%</strong>. Investis dans la saison suivante 🟣 pour maximiser l'impact !`;
+  } else {
+    document.getElementById('freezeIcon').textContent = '✅';
+    banner.style.borderLeftColor = 'var(--green)';
+    text.innerHTML = `<strong style="color:var(--green)">Pleine saison</strong> — Course ${race}/${totalRaces}. Upgrades à plein rendement. À partir de la course ${lateAt}, le gain sera réduit de 30%.`;
+  }
+}
+
+// ── ALLOCATION ─────────────────────────────────────────────
+function syncAllocUI() {
+  allocValue = Math.max(0, Math.min(100, parseInt(allocValue, 10) || 70));
+  const slider = document.getElementById('allocSlider');
+  if (slider) slider.value = allocValue;
+  document.getElementById('allocPctCurrent').textContent = allocValue + '%';
+  document.getElementById('allocPctFuture').textContent  = (100 - allocValue) + '%';
+  document.getElementById('sliderFillL').style.width = allocValue + '%';
+  document.getElementById('sliderFillR').style.width = (100 - allocValue) + '%';
+}
+
+function updateAlloc(val) {
+  allocValue = parseInt(val, 10);
+  syncAllocUI();
+  save.rdAlloc = allocValue;
+  Save.save(save);
+  renderAllocImpact();
+  renderProjection();
+}
+
+function renderAllocImpact() {
+  const pctFuture  = (100 - allocValue) / 100;
+  const budget   = save.budget || 0;
+  const futureInv  = Math.round(budget * pctFuture);
+  const currBonus  = allocValue >= 80 ? '+0.8%' : allocValue >= 60 ? '+0.4%' : '±0%';
+  const nextBonus  = pctFuture >= 0.4 ? `+${Math.round(pctFuture * 12)} pts base` : pctFuture >= 0.2 ? `+${Math.round(pctFuture * 12)} pts base` : '+2 pts base';
+
+  document.getElementById('allocImpact').innerHTML = `
+    <span style="color:var(--blue)">🔵 Voiture actuelle : upgrades ${currBonus} efficacité</span>
+    <span style="color:var(--purple)">🟣 Voiture suivante : ~${nextBonus} (${futureInv} M€ investi)</span>
+  `;
+}
+
+// ── TABS DOMAINES ───────────────────────────────────────────
+function renderDomainTabs() {
+  const tabs = document.getElementById('domainTabs');
+  tabs.innerHTML = Object.entries(F1Data.rdTree).map(([key, domain]) => `
+    <button class="tab-btn${key === currentDomain ? ' active' : ''}" onclick="switchDomain('${key}')">
+      ${domain.icon} ${domain.label}
+    </button>
+  `).join('');
+}
+
+function switchDomain(key) {
+  currentDomain = key;
+  renderDomainTabs();
+  renderDomain(key);
+}
+
+// ── DOMAINE ─────────────────────────────────────────────────
+function renderDomain(key) {
+  const domain = F1Data.rdTree[key];
+  const dev    = save.carDev[key] || { level: 70, done: [], pending: [] };
+  const team   = F1Data.teams.find(t => t.id === save.playerTeamId);
+  const race   = save.race || 0;
+  const frozen = race >= F1Data.TOKEN_FREEZE_RACE;
+
+  // Restaurer les stats progressées avant comparaison
+  if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+
+  const fmtStat = v => {
+    const n = parseFloat(v);
+    if (isNaN(n)) return '—';
+    // Toujours afficher au moins 1 décimale pour montrer la progression
+    if (Number.isInteger(n)) return n + '.0';
+    return n.toFixed(2);
+  };
+
+  // Trouver le meilleur rival pour comparaison
+  const rivals = F1Data.teams
+    .filter(t => t.id !== save.playerTeamId)
+    .map(t => ({ name: t.shortName, val: parseFloat((t[domain.stat] || 70).toFixed(2)), color: t.color }))
+    .sort((a, b) => b.val - a.val);
+  const bestRival = rivals[0];
+  const staffB    = Number(save.staffBonuses?.[key] || 0);
+  const finalLvl  = parseFloat(Math.max(1, Math.min(100, ((dev.level || 70) + staffB))).toFixed(2));
+  const gap       = parseFloat((finalLvl - (bestRival?.val || 70)).toFixed(2));
+
+  const content = document.getElementById('domainContent');
+  content.innerHTML = `
+    <!-- Header domaine -->
+    <div class="domain-header">
+      <div class="domain-icon">${domain.icon}</div>
+      <div class="domain-info">
+        <div class="domain-name">${domain.label}</div>
+        <div class="domain-stat">${domain.upgrades.filter(u => dev.done.includes(u.id)).length}/${domain.upgrades.length} upgrades · ${dev.pending?.length || 0} en livraison${dev._heritage>0?' · <span style=\"color:var(--green)\">+'+dev._heritage.toFixed(1)+' héritage</span>':''}</div>
+        <div class="stat-bar-wrap">
+          <div class="stat-bar-fill" style="width:${finalLvl}%;background:${domain.color}"></div>
+        </div>
+      </div>
+      <div class="domain-level">
+        <div class="domain-val" style="color:${domain.color}">${fmtStat(finalLvl)}</div>
+        <div style="font-family:var(--fh);font-size:10px;color:var(--muted)">${staffB?`R&D ${dev.level || 70} · Staff +${staffB}`:'Valeur finale'}</div>
+        <div class="domain-rival" style="color:${gap >= 0 ? 'var(--green)' : 'var(--accent)'}">
+          ${gap >= 0 ? '+' : ''}${gap} vs meilleur
+        </div>
+      </div>
+    </div>
+
+    <!-- Comparaison rivaux -->
+    <div class="rivals-grid">
+      <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Comparaison rivaux</div>
+      ${[{name:'Vous', val:finalLvl, color:domain.color, isMe:true}, ...rivals.slice(0,5)].map(r => `
+        <div class="rival-row">
+          <div class="rival-name" style="color:${r.isMe?domain.color:'var(--muted)'}${r.isMe?';font-weight:700':''}">${r.name}${r.isMe?' ★':''}</div>
+          <div class="rival-bar-wrap"><div class="rival-bar" style="width:${r.val}%;background:${r.color||'#888'}"></div></div>
+          <div class="rival-val" style="color:${r.isMe?domain.color:'var(--text)'}">${fmtStat(r.val)}</div>
+          <div class="rival-gap" style="color:${r.isMe?'transparent':r.val>finalLvl?'var(--accent)':'var(--green)'}">
+            ${r.isMe?'':((r.val-finalLvl)>0?'+':'')+parseFloat((r.val-finalLvl).toFixed(2))}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <!-- Upgrades voiture actuelle -->
+    <div style="padding:8px 14px;font-family:var(--fh);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      🔵 Upgrades saison actuelle ${frozen && key !== 'reliability' ? '— <span style="color:var(--orange)">GELÉ</span>' : ''}
+    </div>
+    <div class="upgrade-list">
+      ${domain.upgrades.map(upg => buildUpgradeCard(upg, dev, frozen && key !== 'reliability', false)).join('')}
+    </div>
+
+    <!-- Upgrade voiture suivante -->
+    <div style="padding:8px 14px;font-family:var(--fh);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      🟣 Voiture ${(save.season||2025)+1} — Investissement long terme
+    </div>
+    <div class="upgrade-list">
+      ${buildUpgradeCard(domain.nextYear, dev, false, true)}
+    </div>
+
+    <!-- Upgrade low-cost (filet de sécurité) -->
+    ${save._safetyUpgradeAvailable || (save.budget||0) < 20 ? buildLowCostSection(key, dev) : ''}
+
+    <!-- Concept risqué -->
+    ${buildRiskyConceptCard(key, domain, dev)}
+  `;
+}
+
+
+function buildLowCostSection(domainKey, dev) {
+  const upgrades = typeof Career !== 'undefined' ? Career.getLowCostUpgrades() : [];
+  const upg = upgrades.find(u => u.domain === domainKey);
+  if (!upg) return '';
+  const alreadyDone = (dev.done||[]).includes(upg.id);
+  const canAfford = (save.budget||0) >= upg.cost;
+  return `
+    <div style="padding:8px 14px;font-family:var(--fh);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      🟢 Optimisation de base — toujours disponible
+    </div>
+    <div class="upgrade-list">
+      <div class="upgrade-card ${alreadyDone?'done':'available'}">
+        <div class="uc-badge ${alreadyDone?'done':'available'}">${alreadyDone?'✅':'🟢'}</div>
+        <div class="uc-info">
+          <div class="uc-name">${upg.name}</div>
+          <div class="uc-desc">${upg.desc}</div>
+          <div class="uc-costs">
+            <span class="uc-cost budget">💰 ${upg.cost}M€</span>
+            <span class="uc-cost" style="background:#002a00;color:var(--green);border:1px solid #005a00">🎁 0 token</span>
+            <span class="uc-cost delivery">🚚 +${upg.deliveryGps} GP</span>
+            <span class="uc-cost gain">+${upg.gain} pt</span>
+          </div>
+          <div style="margin-top:6px">
+            ${alreadyDone
+              ? '<span style="font-family:var(--fh);font-size:11px;color:var(--green)">✅ Fait cette saison</span>'
+              : `<button class="uc-btn buy" onclick="buyLowCost('${domainKey}')" ${!canAfford?'disabled':''}>
+                   🟢 Optimiser
+                 </button>
+                 ${!canAfford?'<span style=\"font-family:var(--fh);font-size:10px;color:var(--accent)\">⚠️ Budget insuffisant</span>':''}`
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function buyLowCost(domainKey) {
+  save = Save.load();
+  const upg = typeof Career !== 'undefined' ? Career.getLowCostUpgrades().find(u=>u.domain===domainKey) : null;
+  if (!upg) return;
+  if ((save.budget||0) < upg.cost) { toast('❌ Budget insuffisant !', true); return; }
+  const dev = save.carDev[domainKey];
+  if ((dev.done||[]).includes(upg.id)) { toast('Déjà fait cette saison !', true); return; }
+  save.budget = Math.round(((save.budget||0) - upg.cost) * 10) / 10;
+  dev.pending = dev.pending || [];
+  dev.pending.push({ upgradeId: upg.id, name: upg.name, gain: upg.gain, deliverAtRace: (save.race||0) + upg.deliveryGps });
+  document.getElementById('budgetBadge').textContent = `💰 ${Math.round((save.budget||0)*10)/10} M €`;
+  toast(`🟢 Optimisation ${domainKey} commandée — livraison dans ${upg.deliveryGps} GP (+${upg.gain} pt)`);
+  Save.save(save);
+  renderAll();
+}
+
+function buildUpgradeCard(upg, dev, _frozen, isNextYear) {
+  const race     = save.race || 0;
+  const isLate   = race >= (F1Data.LATE_SEASON_RACE || 15);
+  const gainMult = isLate && !isNextYear ? (F1Data.LATE_SEASON_PENALTY || 0.70) : 1.0;
+  const realGain = isNextYear ? upg.gain * (F1Data.nextYearBonusMultiplier||1.8)
+                              : Math.round(upg.gain * gainMult);
+
+  const donArr    = dev?.done || [];
+  const pendArr   = dev?.pending || [];
+  const done      = isNextYear ? !!save.nextYearDev?.[upg.id] : donArr.includes(upg.id);
+  const pending   = !isNextYear && pendArr.some(p => p.upgradeId === upg.id);
+  const locked    = !isNextYear && upg.requires && !donArr.includes(upg.requires);
+  // Plafond 85 : coût doublé au-delà (budget ET tokens)
+  const currentLevel = save.carDev?.[currentDomain]?.level || 70;
+  const aboveCap = currentLevel >= 85;
+  const effectiveCost   = aboveCap && !isNextYear ? upg.cost   * 2 : upg.cost;
+  const effectiveTokens = aboveCap && !isNextYear ? upg.tokens * 2 : upg.tokens;
+  const canAfford = Math.round((save.budget || 0) * 10) / 10 >= effectiveCost;
+  const hasTokens = (save.tokens  || 0) >= effectiveTokens;
+
+  let status = 'available';
+  if (done)    status = 'done';
+  if (pending) status = 'pending';
+  if (locked)  status = 'locked';
+
+  const badgeIcon = done ? '✅' : pending ? '⏳' : locked ? '🔒' : isNextYear ? '🟣' : '🔵';
+  const canBuy    = !done && !pending && !locked && canAfford && hasTokens;
+
+  const lateNote = isLate && !isNextYear && !done && !pending
+    ? `<span style="color:var(--orange);font-size:10px">📉 Rendement -30% (fin de saison)</span>`
+    : '';
+
+  const btnHtml = done    ? `<span style="font-family:var(--fh);font-size:11px;color:var(--green)">✅ Terminé</span>`
+    : pending   ? `<span style="font-family:var(--fh);font-size:11px;color:var(--gold)">⏳ En livraison</span>
+                   <button class="uc-btn cancel" onclick="cancelUpgrade('${currentDomain}','${upg.id}')">Annuler (50%)</button>`
+    : locked    ? `<span style="font-family:var(--fh);font-size:11px;color:var(--muted)">🔒 Débloque d'abord le niveau ${upg.level-1}</span>`
+    : `<button class="uc-btn ${isNextYear?'ny':'buy'}" onclick="buyUpgrade('${currentDomain}','${upg.id}',${isNextYear})"
+         ${!canBuy?'disabled':''}>
+         ${isNextYear ? '🟣 Investir' : '🔵 Commander'}
+       </button>
+       ${!canAfford ? `<span style="font-family:var(--fh);font-size:10px;color:var(--accent)">⚠️ Budget insuffisant</span>` : ''}
+       ${!hasTokens ? `<span style="font-family:var(--fh);font-size:10px;color:var(--accent)">⚠️ Tokens insuffisants</span>` : ''}`;
+
+  return `
+    <div class="upgrade-card ${status}${isNextYear?' next-year':''}">
+      <div class="uc-badge ${status}">${badgeIcon}</div>
+      <div class="uc-info">
+        <div class="uc-name">${upg.name}${isNextYear?` <span style="font-size:10px;color:var(--purple)">(${(save.season||2025)+1})</span>`:''}</div>
+        <div class="uc-desc">${upg.desc}</div>
+        <div class="uc-costs">
+          <span class="uc-cost budget">💰 ${effectiveCost}M€${aboveCap&&!isNextYear?' <span style=\"color:var(--orange);font-size:9px\">×2 (≥85)</span>':''}</span>
+          <span class="uc-cost tokens">🔬 ${effectiveTokens} token${effectiveTokens>1?'s':''}${aboveCap&&!isNextYear?' <span style=\"color:var(--orange);font-size:9px\">×2</span>':''}</span>
+          ${!isNextYear?`<span class="uc-cost delivery">🚚 +${upg.deliveryGps} GP</span>`:''}
+          <span class="uc-cost gain">+${realGain}${isNextYear?' (saison suivante)':''}</span>
+        </div>
+        ${lateNote}
+        <div style="margin-top:6px">${btnHtml}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ── ACHETER UN UPGRADE ──────────────────────────────────────
+// ── CONCEPT RISQUÉ ──────────────────────────────────────────
+function buildRiskyConceptCard(key, domain, dev) {
+  const cfg       = F1Data.riskyConceptCost || { budget:20, tokens:3 };
+  const outcomes  = F1Data.riskyConceptOutcomes || { success:{gain:10,probability:0.45}, partial:{gain:4,probability:0.35}, failure:{gain:-3,probability:0.20} };
+  const alreadyDone = save.riskyConceptDone?.[key];
+  const canAfford   = (save.budget||0) >= cfg.budget;
+  const hasTokens   = (save.tokens||0) >= cfg.tokens;
+
+  return `
+    <div style="padding:8px 14px;font-family:var(--fh);font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+      ⚡ Concept risqué — Pari R&D
+    </div>
+    <div class="upgrade-card" style="border-left:3px solid var(--orange);background:${alreadyDone?'#001a0a':'#0d0800'}">
+      <div class="uc-badge" style="background:#2a1000;color:var(--orange)">${alreadyDone?'✅':'⚡'}</div>
+      <div class="uc-info">
+        <div class="uc-name">Concept radical ${domain.label}</div>
+        <div class="uc-desc">Pari sur une direction de développement non conventionnelle. Résultat incertain mais potentiellement transformateur.</div>
+        <div class="uc-costs">
+          <span class="uc-cost budget">💰 ${cfg.budget}M€</span>
+          <span class="uc-cost tokens">🔬 ${cfg.tokens} tokens</span>
+          <span class="uc-cost" style="background:#1a0800;color:var(--orange);border:1px solid #3a1800">
+            ${Math.round(outcomes.success.probability*100)}% +${outcomes.success.gain} / ${Math.round(outcomes.partial.probability*100)}% +${outcomes.partial.gain} / ${Math.round(outcomes.failure.probability*100)}% ${outcomes.failure.gain}
+          </span>
+        </div>
+        ${alreadyDone
+          ? `<span style="font-family:var(--fh);font-size:11px;color:var(--green)">✅ Déjà tenté cette saison</span>`
+          : `<button class="uc-btn" style="background:#1a0800;color:var(--orange);border:1px solid #3a1800"
+               onclick="launchRiskyConcept('${key}')" ${(!canAfford||!hasTokens)?'disabled':''}>
+               ⚡ Tenter le pari
+             </button>
+             ${!canAfford?'<span style="font-family:var(--fh);font-size:10px;color:var(--accent)">⚠️ Budget insuffisant</span>':''}
+             ${!hasTokens?'<span style="font-family:var(--fh);font-size:10px;color:var(--accent)">⚠️ Tokens insuffisants</span>':''}`
+        }
+      </div>
+    </div>
+  `;
+}
+
+function launchRiskyConcept(domainKey) {
+  save = Save.load(); // Recharger le save pour éviter les données périmées
+  const cfg      = F1Data.riskyConceptCost || { budget:20, tokens:3 };
+  const outcomes = F1Data.riskyConceptOutcomes;
+  const domain   = F1Data.rdTree[domainKey];
+  const dev      = save.carDev[domainKey];
+
+  if (!confirm(`⚡ Tenter un concept radical en ${domain.label} ?\n\n45% de chance : +10 pts\n35% de chance : +4 pts\n20% de chance : -3 pts\n\nCoût : ${cfg.budget}M€ + ${cfg.tokens} tokens`)) return;
+
+  if ((save.budget||0) < cfg.budget) { toast('❌ Budget insuffisant !', true); return; }
+  if ((save.tokens||0) < cfg.tokens)   { toast('❌ Tokens insuffisants !', true); return; }
+
+  save.budget = Math.round(((save.budget||0) - cfg.budget) * 10) / 10;
+  save.tokens   = Math.max(0, (save.tokens||0) - cfg.tokens);
+
+  // Tirer le résultat
+  const roll = Math.random();
+  let gain, result;
+  if (roll < outcomes.success.probability) {
+    gain = outcomes.success.gain;
+    result = '🎉 Succès !';
+    save.tokens = (save.tokens||0) + 1; // remboursement partiel si succès
+  } else if (roll < outcomes.success.probability + outcomes.partial.probability) {
+    gain = outcomes.partial.gain;
+    result = '✅ Succès partiel';
+  } else {
+    gain = outcomes.failure.gain;
+    result = '❌ Échec';
+  }
+
+  dev.level = Math.max(45, Math.min(100, (dev.level||70) + gain));
+  save.riskyConceptDone        = save.riskyConceptDone || {};
+  save.riskyConceptDone[domainKey] = true;
+
+  // Log news
+  if (save.news) save.news.push({
+    icon: gain > 0 ? '⚡' : '💥', category:'technical',
+    title: `Concept risqué ${domain.label} : ${result}`,
+    text: `${gain > 0 ? '+' : ''}${gain} pts en ${domain.label}. Nouveau niveau : ${dev.level}.`,
+  });
+
+  document.getElementById('tokenBadge').textContent = `🔬 ${save.tokens} tokens`;
+  Save.save(save);
+  toast(`${result} ${gain > 0 ? '+' : ''}${gain} pts en ${domain.label} !`, gain < 0);
+  renderAll();
+}
+
+// ── SPÉCIALISATION ───────────────────────────────────────────
+function getSpecialization(save) {
+  const specs = [];
+  const sb    = save.staffBonuses || {};
+  Object.entries(F1Data.rdTree).forEach(([key, domain]) => {
+    const dev       = save.carDev?.[key] || { level:70 };
+    const spec      = F1Data.specializations?.[key];
+    const threshold = spec?.threshold || 90;
+    if ((dev.level||70) >= threshold) {
+      specs.push({ domain: domain.label, icon: domain.icon, level: dev.level, bonus: spec?.bonus || 0.5 });
+    }
+  });
+  return specs;
+}
+
+function buyUpgrade(domainKey, upgradeId, isNextYear) {
+  // Toujours recharger la save fraîche avant d'acheter
+  save = Save.load();
+  if (!save.budget) {
+    const team = F1Data.teams.find(t => t.id === save.playerTeamId);
+    save.budget = Math.round((team?.budget || 200) * (F1Data.budgetRatio||0.4));
+    save.budgetTotal = save.budget;
+  }
+
+  const domain = F1Data.rdTree[domainKey];
+  const upg    = isNextYear
+    ? domain.nextYear
+    : domain.upgrades.find(u => u.id === upgradeId);
+  if (!upg) return;
+
+  const dev = save.carDev[domainKey];
+
+  // Vérifications
+  // Plafond 85 : coût doublé
+  const buyLevel = save.carDev?.[domainKey]?.level || 70;
+  const buyAboveCap = buyLevel >= 85 && !isNextYear;
+  const buyCost   = buyAboveCap ? upg.cost   * 2 : upg.cost;
+  const buyTokens = buyAboveCap ? upg.tokens * 2 : upg.tokens;
+  if (Math.round((save.budget||0) * 10) / 10 < buyCost) { toast('❌ Budget R&D insuffisant !' + (buyAboveCap?' (coût ×2 car ≥85 pts)':''), true); return; }
+  if ((save.tokens||0) < buyTokens) { toast('❌ Pas assez de tokens !'  + (buyAboveCap?' (coût ×2 car ≥85 pts)':''), true); return; }
+  if (!isNextYear && (dev.done||[]).includes(upgradeId)) { toast('Déjà acheté !', true); return; }
+  if (!isNextYear && (dev.pending||[]).some(p => p.upgradeId === upgradeId)) { toast('Déjà commandé !', true); return; }
+
+  // Déduire coûts
+  save.budget = Math.round(((save.budget||0) - buyCost) * 10) / 10;
+  save.tokens   = Math.max(0, (save.tokens||0) - buyTokens);
+
+  if (isNextYear) {
+    save.nextYearDev = save.nextYearDev || {};
+    save.nextYearDev[upgradeId] = {
+      domainKey, gain: upg.gain,
+      investedAt: save.race || 0,
+    };
+    const displayGain = Math.round(upg.gain * (F1Data.nextYearBonusMultiplier||1.8));
+    toast(`🟣 Investissement ${domain.label} ${(save.season||2025)+1} confirmé ! +${displayGain} pts base`);
+  } else {
+    // Appliquer rendement décroissant si fin de saison
+    const isLate   = (save.race||0) >= (F1Data.LATE_SEASON_RACE||15);
+    const gainMult = isLate ? (F1Data.LATE_SEASON_PENALTY||0.70) : 1.0;
+    const realGain = Math.round(upg.gain * gainMult);
+
+    dev.pending = dev.pending || [];
+    dev.pending.push({
+      upgradeId, name: upg.name, gain: realGain,
+      deliverAtRace: (save.race||0) + upg.deliveryGps,
+    });
+    toast(`✅ ${upg.name} commandé — livraison dans ${upg.deliveryGps} GP (+${realGain} pts)${isLate?' ⚠️ -30% fin de saison':''}`);
+  }
+
+  document.getElementById('tokenBadge').textContent  = `🔬 ${save.tokens} tokens`;
+  document.getElementById('budgetBadge').textContent = `💰 ${Math.round((save.budget||0)*10)/10} M €`;
+
+  Save.save(save);
+  renderAll();
+}
+
+function cancelUpgrade(domainKey, upgradeId) {
+  const domain = F1Data.rdTree[domainKey];
+  const dev    = save.carDev[domainKey];
+  const upg    = domain.upgrades.find(u => u.id === upgradeId);
+  if (!upg || !dev.pending) return;
+
+  const idx = dev.pending.findIndex(p => p.upgradeId === upgradeId);
+  if (idx < 0) return;
+
+  // Rembourser 50%
+  const refund = Math.round(upg.cost * 0.5);
+  save.budget  = Math.round(((save.budget||0) + refund) * 10) / 10;
+  save.tokens    = (save.tokens||0) + upg.tokens;
+  dev.pending.splice(idx, 1);
+
+  Save.save(save);
+  toast(`↩️ Annulé — remboursement partiel : ${refund}M€`);
+  renderAll();
+}
+
+// ── FILE D'ATTENTE ──────────────────────────────────────────
+function renderQueue() {
+  const panel = document.getElementById('queuePanel');
+  const items = [];
+  const race  = save.race || 0;
+
+  Object.entries(F1Data.rdTree).forEach(([key, domain]) => {
+    const dev = save.carDev[key];
+    (dev?.pending || []).forEach(p => {
+      items.push({ ...p, domainKey: key, domain, eta: p.deliverAtRace - race });
+    });
+  });
+
+  items.sort((a, b) => a.eta - b.eta);
+
+  if (!items.length) {
+    panel.innerHTML = '<div style="padding:12px 14px;font-family:var(--fh);font-size:12px;color:var(--muted)">Aucun upgrade en livraison.</div>';
+    return;
+  }
+
+  panel.innerHTML = items.map(item => `
+    <div class="queue-row">
+      <div class="queue-icon">${item.domain.icon}</div>
+      <div class="queue-info">
+        <div class="queue-name">${item.name}</div>
+        <div class="queue-eta">Livraison dans ${Math.max(0, item.eta)} GP (course ${item.deliverAtRace}) · +${item.gain} ${item.domain.label}</div>
+      </div>
+      <button class="queue-cancel" onclick="cancelUpgrade('${item.domainKey}','${item.upgradeId}')">Annuler (50%)</button>
+    </div>
+  `).join('');
+}
+
+// ── PROJECTION SAISON SUIVANTE ──────────────────────────────
+function renderProjection() {
+  const panel    = document.getElementById('projectionPanel');
+  const nextSeason = (save.season || 2025) + 1;
+  const pctFuture  = (100 - allocValue) / 100;
+  document.getElementById('nextYear').textContent = nextSeason;
+
+  const projections = Object.entries(F1Data.rdTree).map(([key, domain]) => {
+    const dev         = save.carDev[key] || { level: 70 };
+    const currentLevel= dev.level || 70;
+
+    // Bonus investissement direct (nextYearDev)
+    const directBonus = save.nextYearDev?.[domain.nextYear.id]?.gain || 0;
+
+    // Bonus allocation ressources — plafonné et réaliste
+    // Max +6 pts si 100% alloué au futur, moins si allocation partielle
+    // Aéro/châssis légèrement favorisés (règlement 2026)
+    const multiplier  = (key === 'aero' || key === 'chassis') ? 1.15 : 1.0;
+    const allocBonus  = Math.round(pctFuture * 5 * multiplier); // max +5-6 pts
+
+    const projected   = Math.min(100, currentLevel + directBonus + allocBonus);
+
+    return { key, domain, currentLevel, directBonus, allocBonus, projected };
+  });
+
+  panel.innerHTML = `
+    <div class="projection-box">
+      <div class="proj-title">🟣 Projection voiture ${nextSeason} — allocation ${100-allocValue}% ressources</div>
+      ${projections.map(p => `
+        <div class="proj-row">
+          <span style="color:${p.domain.color}">${p.domain.icon} ${p.domain.label}</span>
+          <span style="color:var(--muted)">${p.currentLevel} → <strong style="color:${p.domain.color}">${p.projected}</strong>
+            <span style="color:var(--green);font-size:11px"> (+${p.projected - p.currentLevel})</span>
+          </span>
+        </div>
+      `).join('')}
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-family:var(--fh);font-size:11px;color:var(--muted)">
+        💡 Investissement direct 🟣 + allocation ${100-allocValue}% ressources. Augmente l'allocation pour améliorer la projection.
+      </div>
+    </div>
+  `;
+}
+
+// ── TOAST ───────────────────────────────────────────────────
+function toast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className   = `toast${isError?' error':''}`;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+init();
+</script>
+
+</body>
+</html>

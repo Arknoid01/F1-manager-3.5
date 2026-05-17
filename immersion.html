@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>F1 Manager — Paddock & Saison</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>.section-.tile-val{font-family:var(--fh);font-weight:900;font-size:34px;line-height:1;margin-bottom:3px}.tile-sub{font-family:var(--fh);font-size:11px;color:var(--muted);line-height:1.4}
+.news-row{padding:11px 0;border-bottom:1px solid var(--border);display:flex;gap:10px}.news-row:last-child{border-bottom:0}.news-ico{font-size:20px;width:26px;text-align:center;flex-shrink:0}.news-title{font-family:var(--fh);font-weight:700;font-size:14px;margin-bottom:3px}.news-text{font-family:var(--fb);font-size:12px;color:var(--muted);line-height:1.5}.row{display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--border);font-family:var(--fh)}.row:last-child{border-bottom:0}.row-main{flex:1;min-width:0}.row-name{font-weight:700;font-size:14px}.row-sub{font-family:var(--fb);font-size:12px;color:var(--muted);line-height:1.35}.row-val{font-family:var(--fh);font-weight:900;font-size:20px;color:var(--gold);white-space:nowrap}.quote{background:#0b0b12;border:1px solid var(--border);border-radius:8px;padding:11px 12px;margin:8px 0;font-size:13px;line-height:1.45}.quote b{font-family:var(--fh);font-size:14px;color:var(--gold)}.junior{display:grid;grid-template-columns:38px 1fr 48px;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}.junior:last-child{border-bottom:0}.flag{font-size:24px}
+@media(max-width:640px){.tile-val{font-size:30px}}
+
+/* ── ACADÉMIE JUNIOR ── */
+.jr-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:8px}
+.jr-card.promotable{border-color:#3a3400}
+.jr-card.promoted{border-color:#003a1a;opacity:.7}
+.jr-header{padding:12px 14px;display:flex;gap:10px;align-items:center;cursor:pointer}
+.jr-flag{font-size:26px;flex-shrink:0}
+.jr-main{flex:1;min-width:0}
+.jr-name{font-family:var(--fh);font-weight:900;font-size:16px}
+.jr-meta{font-family:var(--fh);font-size:11px;color:var(--muted);margin-top:2px}
+.jr-badge{font-family:var(--fh);font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;border:1px solid}
+.jr-badge.reserve{color:var(--blue);border-color:#1a2a4a;background:#0a1220}
+.jr-badge.promotable{color:var(--gold);border-color:#3a3400;background:#161200}
+.jr-badge.f1{color:var(--green);border-color:#003a1a;background:#001a0a}
+.jr-progress{padding:0 14px 10px}
+.jr-body{padding:12px 14px;border-top:1px solid var(--border);background:var(--surface2)}
+.jr-profile{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.jr-stat{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:8px 10px}
+.jr-stat-lbl{font-family:var(--fh);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
+.jr-stat-val{font-family:var(--fh);font-weight:900;font-size:20px}
+.jr-traits{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.jr-trait{font-family:var(--fh);font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;background:var(--surface);border:1px solid var(--border)}
+.jr-trait.neg{border-color:#3a0000;background:#1a0000;color:#ff6666}
+.jr-trait.pos{border-color:#003a00;background:#001a00;color:var(--green)}
+.jr-actions{display:flex;gap:6px;flex-wrap:wrap}
+.jr-ovr{font-family:var(--fh);font-weight:900;font-size:28px;color:var(--gold);text-align:right;flex-shrink:0}
+
+</style>
+<link rel="stylesheet" href="css/immersive-theme.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#07070d">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="F1 Manager">
+</head>
+<body>
+<div class="topbar"><div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></div><a class="nav-back" href="index.html">← Accueil</a><div class="top-pills"><div class="pill pill-muted" id="seasonBadge">Saison —</div><div class="pill pill-gold" id="repBadge">⭐ —</div></div></div>
+<div class="page"><section class="hero"><div class="hero-kicker">Centre narratif</div><div class="hero-title">Paddock & Saison</div><div class="hero-sub" id="heroSub">Réputation, moral, sponsors, interviews, historique et records de carrière.</div></section><div class="tab-bar"><button class="tab-btn active" onclick="showPane('overview',this)">🎙️ Vue paddock</button><button class="tab-btn" onclick="showPane('history',this)">📚 Historique</button><button class="tab-btn" onclick="showPane('records',this)">🏛️ Records</button><button class="tab-btn" onclick="showPane('academy',this)">🌱 Académie</button></div><main id="content"></main></div>
+<script src="js/data.js"></script><script src="js/save.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script><script src="js/career.js"></script><script src="js/immersion.js"></script>
+<script>
+let save=null;
+function clamp(v){return Math.max(0,Math.min(100,Math.round(v||0)));}
+function esc(s){return Immersion.esc(s);}
+function bar(v,cls=''){return `<div class="sbar"><div class="sbar-fill ${cls}" style="width:${clamp(v)}%"></div></div>`;}
+function showPane(id,btn){document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));document.getElementById(id)?.classList.add('active');document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('active'));btn?.classList.add('active'); if(id) history.replaceState(null,'','#'+id);}
+function panel(title,body,extra=''){return `<div class="panel"><div class="sec-lbl">${title}${extra}</div><div class="section-body">${body}</div></div>`;}
+function renderNews(items){ if(!items?.length) return '<div class="empty">Aucune nouvelle paddock pour le moment. Termine un GP pour générer des articles.</div>'; return items.slice(-8).reverse().map(n=>`<div class="news-row"><div class="news-ico">${n.icon||'📰'}</div><div><div class="news-title">${esc(n.title)}</div><div class="news-text">${esc(n.text)}</div></div></div>`).join('');}
+function renderInterviews(items){ if(!items?.length) return '<div class="empty">Aucune interview disponible.</div>'; return items.slice(-3).reverse().map(i=>`<div class="quote"><b>${esc(i.circuitName)} — ${esc(i.headline)}</b>${(i.quotes||[]).map(q=>`<div style="margin-top:8px">${esc(q)}</div>`).join('')}</div>`).join('');}
+function moraleList(m){
+  if(!m||!Object.keys(m).length) return '<div class="empty">Moral pilote disponible après le prochain GP.</div>';
+  return Object.entries(m).slice(0,4).map(([id,d])=>{
+    const driver = F1Data.drivers.find(x=>x.id===id);
+    const name   = driver ? driver.firstName+' '+driver.name : (d.name||id);
+    const col    = clamp(d.value)>=70?'var(--green)':clamp(d.value)>=40?'var(--gold)':'var(--accent)';
+    return `<div class="row"><div class="row-main"><div class="row-name">${esc(name)}</div><div class="row-sub">${esc(d.note||'')}</div></div><div class="row-val" style="color:${col}">${clamp(d.value)}</div></div>`;
+  }).join('');
+}
+function topRows(arr,suffix=''){ if(!arr.length) return '<div class="empty">Pas encore assez de données.</div>'; return arr.map((r,i)=>`<div class="row"><div class="row-main"><div class="row-name">${i+1}. ${esc(r.name)}</div></div><div class="row-val">${r.value}${suffix}</div></div>`).join('');}
+function histRows(items){ if(!items?.length) return '<div class="empty">Termine une course pour remplir l’historique.</div>'; return items.slice().reverse().map(g=>`<div class="row"><div class="row-main"><div class="row-name">S${g.season} — ${esc(g.circuitName)}</div><div class="row-sub">Victoire ${esc(g.winner)} · ${esc(g.weather)} · SC ${g.safetyCarLaps||0}t · DNF ${g.dnf||0}</div></div><div class="row-val">${g.teamPoints||0} pts</div></div>`).join('');}
+function init(){
+  save=Save.load(); if(!save){document.getElementById('content').innerHTML=panel('Erreur','<div class="empty">Aucune carrière chargée.</div>');return;}
+  Immersion.ensure(save); Save.save(save);
+  const im=save.immersion; const rep=im.teamReputation||{};
+  document.getElementById('seasonBadge').textContent=`Saison ${save.season||2025}`;
+  document.getElementById('repBadge').textContent=`⭐ ${clamp(rep.value)}`;
+  document.getElementById('heroSub').textContent=`Saison ${save.season||2025} · Réputation ${clamp(rep.value)}/100 · ${im.gpHistory.length} GP archivé${im.gpHistory.length>1?'s':''}`;
+  const last=(im.gpHistory||[]).slice(-1)[0];
+  document.getElementById('content').innerHTML=`
+  <section class="tab-pane active" id="overview">
+    <div class="tiles-grid">
+      ${panel('Réputation équipe',`<div class="tile-val">${clamp(rep.value)}</div>${bar(rep.value,'blue')}<div>${(rep.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</div>`)}
+      ${panel('Humeur sponsors',`<div class="tile-val">${clamp(im.sponsorMood.value)}<span style="font-size:13px;color:var(--muted)">/100</span></div>${bar(im.sponsorMood.value,'orange')}<div class="tile-sub" style="margin-top:8px">${esc(im.sponsorMood.note)}</div>`)}
+      ${panel('Moral pilotes',moraleList(im.driverMorale))}
+      ${panel('Garage & staff',`<div class="tile-val">${clamp(im.staffMorale.value)}</div>${bar(im.staffMorale.value,'green')}<div class="tile-sub" style="margin-top:8px">${esc(im.staffMorale.note)}</div>`)}
+    </div>
+    ${panel('📰 Paddock news',renderNews(im.paddockNews))}
+    ${panel('🎤 Interviews post-course',renderInterviews(im.interviews))}
+    <div class="btns"><a class="btn btn-sec" href="news.html">Actualités classiques</a><a class="btn btn-red" href="weekend.html">Prochain week-end</a></div>
+  </section>
+  <section class="tab-pane" id="history">
+    ${panel('Résumé récent',last?`<div class="quote"><b>${esc(last.circuitName)}</b><div>${esc(last.winner)} gagne pour ${esc(last.winnerTeam)}.</div><div class="row-sub">Podium : ${(last.podium||[]).map(esc).join(' · ')||'—'} · Votre meilleur résultat : ${last.playerBest?'P'+last.playerBest:'—'} · ${last.teamPoints||0} pts</div></div>`:'<div class="empty">Aucun GP archivé.</div>')}
+    ${panel('Historique des GP',histRows(im.gpHistory))}
+  </section>
+  <section class="tab-pane" id="records">
+    <div class="tiles-grid">
+      ${panel('Victoires',topRows(Immersion.top(im.records.wins,6)))}
+      ${panel('Podiums',topRows(Immersion.top(im.records.podiums,6)))}
+      ${panel('Points carrière',topRows(Immersion.top(im.records.points,6),' pts'))}
+      ${panel('Meilleurs résultats',topRows(Immersion.top(im.records.bestResults,6,true).map(r=>({...r,value:'P'+r.value}))))}
+    </div>
+  </section>
+  <section class="tab-pane" id="academy">
+    <div id="academyContent"></div>
+  </section>`;
+  document.getElementById('academyContent').innerHTML = renderAcademy(im);
+  const hash=(location.hash||'#overview').slice(1); const b=[...document.querySelectorAll('.tab-btn')].find(x=>x.getAttribute('onclick')?.includes(hash)); if(hash!=='overview') showPane(hash,b);
+}
+
+function traitInfo(id){
+  return (Immersion.JUNIOR_TRAITS||[]).find(t=>t.id===id)||{label:id,icon:'•',bonus:0};
+}
+function renderJuniorCard(j){
+  const isPromoted   = j.promoted;
+  const isPromotable = j.promotable && !isPromoted;
+  const badgeCls = isPromoted ? 'f1' : isPromotable ? 'promotable' : (j.stage==='reserve'?'reserve':'');
+  const badgeTxt = isPromoted ? '✅ F1' : isPromotable ? '⭐ Promouvable' : (j.stage==='reserve'?'🔵 Réserve':'⏳ Formation');
+  const cardCls  = isPromoted ? 'promoted' : isPromotable ? 'promotable' : '';
+
+  // Corps dépliable — masqué par défaut, toggle au clic sur le header
+  let actionsHtml = '';
+  if(!isPromoted){
+    const currentSeason = save?.season || 2025;
+    const sameYear      = (j.fpSeasonYear||0) === currentSeason;
+    const usedSessions  = sameYear ? (j.fpSeasonCount||0) : 0;
+    const maxSessions   = (typeof Immersion !== 'undefined' && Immersion.FP_PER_SEASON) ? Immersion.FP_PER_SEASON : 2;
+    const sessLabel     = isPromotable ? `🏎️ ${usedSessions}/${maxSessions} EL utilisée${usedSessions!==1?'s':''} cette saison · Sessions depuis la page <strong>Week-end</strong>.` : '';
+
+    actionsHtml = `<div class="jr-body" id="jrbody_${j.id}" style="display:none">
+      ${sessLabel ? `<div style="font-family:var(--fh);font-size:11px;color:var(--muted);margin-bottom:8px">${sessLabel}</div>` : ''}
+      <div class="jr-actions">
+        ${isPromotable ? `<button class="btn btn-red" onclick="doPromote('${j.id}')">🏁 Promouvoir en F1</button>` : ''}
+        <button class="btn btn-sec" style="border-color:#3a0000;color:#ff6666" onclick="doRelease('${j.id}','${esc(j.firstName)} ${esc(j.name)}')">🚪 Libérer</button>
+      </div>
+    </div>`;
+  }
+
+  return `<div class="jr-card ${cardCls}" id="jrcard_${j.id}">
+    <div class="jr-header" onclick="toggleJr('${j.id}')" style="cursor:pointer">
+      <div class="jr-flag">${j.flag}</div>
+      <div class="jr-main">
+        <div class="jr-name">${esc(j.firstName)} ${esc(j.name)}</div>
+        <div class="jr-meta">${j.age} ans · Potentiel ${j.potential} · ${esc(j.note||'')}</div>
+      </div>
+      <span class="jr-badge ${badgeCls}">${badgeTxt}</span>
+    </div>
+    <div class="jr-progress">${bar(isPromoted?100:j.progress, isPromotable||isPromoted?'green':'gold')}</div>
+    ${actionsHtml}
+  </div>`;
+}
+
+function renderAcademy(im){
+  const juniors = im.juniorAcademy||[];
+  const promotables = juniors.filter(j=>j.promotable&&!j.promoted).length;
+  const promoted = juniors.filter(j=>j.promoted).length;
+  const extra = `<div style="display:flex;gap:8px;font-family:var(--fh);font-size:11px;color:var(--muted)">
+    <span>⭐ ${promotables} promouvable${promotables!==1?'s':''}</span>
+    <span>·</span>
+    <span>✅ ${promoted} en F1</span>
+  </div>`;
+  const intro = `<div class="tile-sub" style="margin-bottom:12px">
+    Chaque junior progresse à chaque GP. À 3 paliers ou potentiel ≥ 88, il devient promouvable et une fiche complète est générée.
+    Lance-le en essais libres avant de le promouvoir en titulaire.
+  </div>`;
+  const cards = juniors.map(j=>renderJuniorCard(j)).join('');
+  return panel('🌱 Académie Junior', intro+cards, extra);
+}
+
+function toggleJr(id){
+  const body = document.getElementById('jrbody_'+id);
+  if(body) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+// doFP supprimé — les sessions EL se lancent depuis la page Weekend
+
+function doPromote(juniorId){
+  // Exclure les juniors déjà promus du comptage (évite les doublons)
+  const promotedIds = (save.immersion?.juniorAcademy||[]).filter(j=>j.promoted).map(j=>j.driverId).filter(Boolean);
+  const current = F1Data.drivers.filter(d=>d.teamId&&d.teamId===save.playerTeamId && !d.retired && !promotedIds.includes(d.id));
+  let replaceDriverId = null;
+  if(current.length >= 2){
+    const list = current.map((d,i)=>`${i+1}. ${d.firstName} ${d.name}`).join('\n');
+    const choice = prompt(`Choisis le pilote à remplacer :\n${list}\n\nEntre le numéro du pilote.`);
+    if(choice === null) return;
+    const idx = Number(choice) - 1;
+    if(!current[idx]){ alert('Choix invalide. Promotion annulée.'); return; }
+    replaceDriverId = current[idx].id;
+    if(!confirm(`${current[idx].firstName} ${current[idx].name} deviendra agent libre. Confirmer la promotion ?`)) return;
+  } else if(!confirm('Promouvoir ce pilote comme titulaire ? Il rejoindra immédiatement votre équipe avec un contrat rookie.')) return;
+  const result = Immersion.promoteJunior(save, juniorId, replaceDriverId);
+  if(!result.ok){ alert(result.msg); return; }
+  save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+
+  // Synchroniser F1Data avec driverStates (teamId, retired)
+  if (save && save.driverStates) {
+    F1Data.drivers.forEach(d => {
+      const st = save.driverStates[d.id];
+      if (!st) return;
+      if (st.teamId !== undefined) d.teamId = st.teamId;
+      if (Object.prototype.hasOwnProperty.call(st, 'retired')) d.retired = st.retired;
+    });
+  }
+  Immersion.ensure(save);
+  document.getElementById('academyContent').innerHTML = renderAcademy(save.immersion);
+  alert(result.msg + (result.replaced ? `\n${result.replaced.firstName} ${result.replaced.name} devient agent libre.` : '') + '\n\nContrat rookie généré : 2 ans, 1 à 3M€/an.');
+}
+
+
+function doRelease(juniorId, juniorName){
+  if(!confirm(`Libérer ${juniorName} de l'académie ?\n\nIl deviendra agent libre et pourra être recruté par n'importe quelle équipe. Cette action est irréversible.`)) return;
+  const im = save.immersion;
+  im.juniorAcademy = im.juniorAcademy.filter(j => j.id !== juniorId);
+  // Ajouter une news paddock
+  Immersion.addNews(save, '🚪', 'Académie — Départ', `${juniorName} quitte votre centre de formation. Il est désormais agent libre sur le marché des transferts.`, 'junior');
+  Save.save(save);
+  save = Save.load();
+  Immersion.ensure(save);
+  document.getElementById('academyContent').innerHTML = renderAcademy(save.immersion);
+  const notif = document.createElement('div');
+  notif.style.cssText='position:fixed;bottom:20px;right:16px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid #ff4444;border-radius:6px;padding:10px 14px;font-family:var(--fh);font-size:13px;z-index:200;max-width:280px';
+  notif.textContent=`🚪 ${juniorName} a quitté l'académie.`;
+  document.body.appendChild(notif);
+  setTimeout(()=>notif.remove(), 3000);
+}
+
+init();
+</script>
+
+</body>
+</html>
