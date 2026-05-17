@@ -250,7 +250,7 @@ window.addEventListener("beforeinstallprompt", (e) => {
 
   const btn = document.getElementById("installPwaBtn");
   if (btn) {
-    btn.style.display = "inline-flex";
+    btn.style.display = "none";
     btn.disabled = false;
     btn.textContent = "Installer l’application";
   }
@@ -277,9 +277,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(btn);
   }
 
-  btn.style.display = "inline-flex";
-  btn.textContent = "Installation non disponible";
-  btn.disabled = true;
+  btn.style.display = "none";
+  btn.textContent = "Installer l'application";
+  btn.disabled = false;
 
   btn.addEventListener("click", async () => {
     if (!deferredPrompt) return;
