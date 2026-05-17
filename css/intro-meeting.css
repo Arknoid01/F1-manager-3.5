@@ -1,0 +1,124 @@
+
+/* ============================================================
+   INTRO MEETING — modal sobre, uniquement nouvelle partie
+   ============================================================ */
+
+.intro-meeting-overlay{
+  position:fixed;
+  inset:0;
+  z-index:99999;
+  display:grid;
+  place-items:center;
+  padding:18px;
+  background:rgba(3,5,10,.78);
+  backdrop-filter:blur(8px);
+}
+
+.intro-meeting-card{
+  width:min(720px,100%);
+  border-radius:24px;
+  border:1px solid rgba(255,255,255,.12);
+  background:
+    radial-gradient(circle at top left,rgba(225,6,0,.16),transparent 35%),
+    linear-gradient(180deg,rgba(22,26,39,.98),rgba(8,10,18,.98));
+  box-shadow:0 24px 80px rgba(0,0,0,.45);
+  padding:22px;
+  color:#eef2f8;
+}
+
+.intro-meeting-kicker{
+  color:#e6c05a;
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  font-weight:900;
+  margin-bottom:8px;
+}
+
+.intro-meeting-card h2{
+  margin:0 0 8px;
+  font-size:24px;
+  line-height:1.1;
+}
+
+.intro-meeting-lead{
+  color:#aeb6c6;
+  margin:0 0 18px;
+  line-height:1.45;
+}
+
+.intro-meeting-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+
+.intro-person{
+  border:1px solid rgba(255,255,255,.09);
+  border-radius:18px;
+  padding:14px;
+  background:rgba(255,255,255,.045);
+}
+
+.intro-person .role{
+  display:block;
+  color:#818ba0;
+  font-size:10px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-bottom:6px;
+}
+
+.intro-person strong{
+  display:block;
+  font-size:16px;
+  margin-bottom:8px;
+}
+
+.intro-person p{
+  margin:0;
+  color:#c8ceda;
+  font-size:13px;
+  line-height:1.4;
+}
+
+.intro-person.driver{
+  border-left:3px solid #e10600;
+}
+
+.intro-person.staff{
+  border-left:3px solid #e6c05a;
+}
+
+.intro-meeting-btn{
+  width:100%;
+  margin-top:16px;
+  border:0;
+  border-radius:16px;
+  padding:14px 18px;
+  background:#e10600;
+  color:white;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+
+.intro-meeting-overlay.closing{
+  opacity:0;
+  transition:opacity .18s ease;
+}
+
+@media(max-width:640px){
+  .intro-meeting-card{
+    padding:18px;
+    max-height:92vh;
+    overflow:auto;
+  }
+  .intro-meeting-grid{
+    grid-template-columns:1fr;
+  }
+  .intro-meeting-card h2{
+    font-size:21px;
+  }
+}
