@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>F1 Manager � Course</title>
+  <title>F1 Manager — Course</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="js/circuit-viz.js"></script>
   <style>/* TOPBAR */
     
     
@@ -39,7 +38,7 @@
       .race-live-pills .w-badge { max-width:none !important; }
     }
 
-    /* Correctif onglet Ordres : m�mes dimensions et m�me rendu pour tous les boutons */
+    /* Correctif onglet Ordres : mêmes dimensions et même rendu pour tous les boutons */
     .race-order-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
     .race-order-grid .btn,.race-pit-row .btn{width:100%!important;min-height:44px!important;display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;border:1px solid var(--border)!important;border-radius:6px!important;background:var(--surface)!important;color:var(--text)!important;opacity:1!important}
     .race-order-grid .btn.order-active{border-color:var(--accent)!important;background:rgba(0,153,255,.14)!important;color:var(--accent)!important;box-shadow:inset 0 0 0 1px rgba(0,153,255,.18)}
@@ -52,7 +51,7 @@
 
     @keyframes pulse { from{opacity:.6} to{opacity:1} }
 
-    /* PAGE LAYOUT � mobile first: stack vertical */
+    /* PAGE LAYOUT — mobile first: stack vertical */
     
 
     /* CONTROLS */
@@ -69,7 +68,7 @@
     select.sel { font-family:var(--fh); font-size:13px; font-weight:600; background:var(--surface2); color:var(--text); border:1px solid var(--border); padding:5px 8px; border-radius:4px; outline:none; max-width:180px; }
     .spd { font-family:var(--fh); font-size:12px; color:var(--muted); }
 
-    /* MAIN ROW � circuit pleine largeur */
+    /* MAIN ROW — circuit pleine largeur */
     .main-row { display:flex; flex-direction:column; gap:8px; }
 
     /* CIRCUIT PANEL */
@@ -80,7 +79,7 @@
     /* SVG container */
     .svg-wrap { position:relative; width:100%; padding-top:75%; background:#0d0d14; }
     .svg-wrap svg { position:absolute; top:0; left:0; width:100%; height:100%; }
-    .svg-overlay { position:absolute; bottom:8px; left:10px; z-index:6; font-family:var(--fh); font-size:12px; color:var(--muted); background:rgba(5,8,18,.6); padding:2px 8px; border-radius:6px; backdrop-filter:blur(8px); }
+    .svg-overlay { position:absolute; bottom:8px; right:10px; font-family:var(--fh); font-size:12px; color:var(--muted); }
     .svg-overlay span { color:var(--text); font-weight:700; font-size:15px; }
 
     /* PROGRESS */
@@ -130,7 +129,7 @@
     .strat-panel { background:var(--surface); border:1px solid var(--border); border-radius:6px; overflow:hidden; width:220px; flex-shrink:0; }
     @media(max-width:650px) { .strat-panel { width:100%; } }
 
-    /* Tuile strat�gie pneus */
+    /* Tuile stratégie pneus */
     .strat-option { background:var(--surface2); border:1px solid var(--border); border-radius:5px; padding:8px; font-family:var(--fh); }
     .strat-option.recommended { border-color:var(--gold); background:#1a1a00; }
     .strat-option.possible    { border-color:#2979ff44; }
@@ -149,7 +148,7 @@
     .cpill { font-family:var(--fh); font-weight:700; font-size:9px; padding:1px 5px; border-radius:8px; background:rgba(255,255,255,.06); }
 
 
-    /* Strat�gie joueur � plan pr�vu vs r�el */
+    /* Stratégie joueur — plan prévu vs réel */
     .player-strat-live { background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:10px; margin-bottom:10px; }
     .player-strat-title { font-family:var(--fh); font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
     .player-strat-card { background:rgba(255,255,255,.025); border:1px solid rgba(255,255,255,.07); border-radius:6px; padding:8px; margin-bottom:7px; }
@@ -206,7 +205,7 @@
     .strat-name-t { font-family:var(--fh); font-weight:700; font-size:12px; width:80px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     .strat-stops { font-family:var(--fh); font-size:10px; color:var(--muted); margin-left:auto; }
 
-    /* POPUP M�T�O */
+    /* POPUP MÉTÉO */
     .humidity-bar { height:8px; background:var(--border); border-radius:4px; overflow:hidden; margin:4px 0; }
     .humidity-fill { height:100%; border-radius:4px; transition:width .3s; }
     .weather-msg { display:flex; gap:8px; align-items:flex-start; padding:5px 0; border-bottom:1px solid var(--border); font-family:var(--fh); font-size:11px; }
@@ -216,12 +215,12 @@
 
     ::-webkit-scrollbar{width:3px} ::-webkit-scrollbar-track{background:transparent} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-    /* FEUX DE D�PART */
+    /* FEUX DE DÉPART */
     .light-dot { width:22px; height:22px; border-radius:50%; background:#1a0000; border:2px solid #3a0000; transition:background .15s,box-shadow .15s; }
     .light-dot.on { background:#ff0000; box-shadow:0 0 12px #ff0000,0 0 24px #ff000066; border-color:#ff4444; }
   .entity-link{color:inherit;text-decoration:none;border-bottom:1px dotted currentColor}.entity-link:hover{color:var(--gold,#ffd700)}
 
-    /* Correctif mobile : les onglets rouges passent sur plusieurs lignes au lieu de d�border */
+    /* Correctif mobile : les onglets rouges passent sur plusieurs lignes au lieu de déborder */
     @media (max-width:640px){
       
       
@@ -237,7 +236,7 @@
    Une seule carte :
    - photo en fond
    - SVG Monaco inline
-   - ancien trac� visuel supprim�/masqu�
+   - ancien tracé visuel supprimé/masqué
    - voitures sur #path4159 via getPointAtLength()
    ============================================================ */
 
@@ -292,10 +291,10 @@
   background: transparent !important;
 }
 
-/* Transform du circuit � surcharg� par le JS inline depuis le JSON */
+/* Transform du circuit — surchargé par le JS inline depuis le JSON */
 .monaco-single-svg-inner {
   transform-origin: center center;
-  /* valeur par d�faut, �cras�e dynamiquement par le JS */
+  /* valeur par défaut, écrasée dynamiquement par le JS */
   transform: translate(0px, 0px) scale(1) rotate(0deg);
 }
 
@@ -351,7 +350,7 @@
   transition: left 0.2s linear, top 0.2s linear;
 }
 
-/* Masque l'ancien trac� SVG quand le mode premium est actif */
+/* Masque l'ancien tracé SVG quand le mode premium est actif */
 .circmap-host.circmap-active > svg,
 .monaco-single-host.monaco-single-active > svg,
 .monaco-single-host.monaco-single-active > canvas {
@@ -393,19 +392,19 @@
 <!-- TOPBAR -->
 <div class="topbar topbar--glass">
   <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></div>
-  <a href="index.html" class="nav-back">? Accueil</a>
+  <a href="index.html" class="nav-back">← Accueil</a>
   <div class="top-pills race-live-pills">
-    <div class="lap-pill" id="tLap">Tour <b>0</b>/<span id="tTotal">�</span></div>
-    <div id="wBadge" class="w-badge w-dry" onclick="toggleWeatherPopup()" style="cursor:pointer" title="Voir les pr�visions m�t�o">?? SEC</div>
-    <!-- POPUP M�T�O -->
+    <div class="lap-pill" id="tLap">Tour <b>0</b>/<span id="tTotal">—</span></div>
+    <div id="wBadge" class="w-badge w-dry" onclick="toggleWeatherPopup()" style="cursor:pointer" title="Voir les prévisions météo">☀️ SEC</div>
+    <!-- POPUP MÉTÉO -->
     <div id="weatherPopup" style="display:none;position:fixed;top:56px;right:10px;z-index:300;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;width:300px;box-shadow:0 8px 32px rgba(0,0,0,.6)">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <div style="font-family:var(--fh);font-weight:900;font-size:14px;letter-spacing:2px;text-transform:uppercase">??? M�t�o & Piste</div>
-        <button onclick="toggleWeatherPopup()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">?</button>
+        <div style="font-family:var(--fh);font-weight:900;font-size:14px;letter-spacing:2px;text-transform:uppercase">🌦️ Météo & Piste</div>
+        <button onclick="toggleWeatherPopup()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
       </div>
-      <div id="weatherPopupContent"><div style="color:var(--muted);font-family:var(--fh);font-size:12px">Lance une course pour voir les pr�visions.</div></div>
+      <div id="weatherPopupContent"><div style="color:var(--muted);font-family:var(--fh);font-size:12px">Lance une course pour voir les prévisions.</div></div>
     </div>
-    <div id="scPill" class="sc-pill">?? SC</div>
+    <div id="scPill" class="sc-pill">🟡 SC</div>
   </div>
 </div>
 
@@ -416,20 +415,20 @@
     <div class="bt-live">Live</div>
     <div class="bt-phase" id="btPhase">RACE</div>
     <div class="bt-info">
-      <div class="bt-circuit" id="btCircuit">�</div>
-      <div class="bt-sub" id="btSub">En attente du d�part</div>
+      <div class="bt-circuit" id="btCircuit">—</div>
+      <div class="bt-sub" id="btSub">En attente du départ</div>
     </div>
     <div class="bt-timer" id="btLap">L0</div>
-    <div class="bt-chip" id="btGrip">GRIP �</div>
+    <div class="bt-chip" id="btGrip">GRIP —</div>
   </div>
 
   <!-- CONTROLS -->
   <div class="controls">
     <select id="circSel" class="sel"></select>
-    <button class="btn btn-red"  id="btnStart" onclick="startRace()">? D�marrer</button>
-    <button class="btn btn-gold" id="btnSlow"  onclick="setSimSpeed('slow')"  disabled>?? Lent</button>
-    <button class="btn btn-sec"  id="btnPause" onclick="togglePause()"        disabled>? Pause</button>
-    <button class="btn btn-sec"  id="btnSkip"  onclick="skipEnd()"        disabled>? Fin de course</button>
+    <button class="btn btn-red"  id="btnStart" onclick="startRace()">▶ Démarrer</button>
+    <button class="btn btn-gold" id="btnSlow"  onclick="setSimSpeed('slow')"  disabled>🐢 Lent</button>
+    <button class="btn btn-sec"  id="btnPause" onclick="togglePause()"        disabled>⏸ Pause</button>
+    <button class="btn btn-sec"  id="btnSkip"  onclick="skipEnd()"        disabled>⏩ Fin de course</button>
   </div>
 
   <!-- MAIN ROW : circuit + classement -->
@@ -440,18 +439,18 @@
       <div class="panel-head">
         <div style="display:flex;align-items:center;gap:6px">
           <div class="dot"></div>
-          <span id="circLabel">S�lectionne un circuit</span>
+          <span id="circLabel">Sélectionne un circuit</span>
         </div>
       </div>
-      <div class="svg-wrap circuit-viz-wrap">
+      <div class="svg-wrap">
         <svg id="circSvg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" style="display:none;">
           <g id="trackG"></g>
           <g id="carsG"></g>
         </svg>
         <canvas id="canvas3d" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
-        <div class="svg-overlay">Tour <span id="svgLap">0</span> / <span id="svgTotal">�</span></div>
+        <div class="svg-overlay">Tour <span id="svgLap">0</span> / <span id="svgTotal">—</span></div>
         <div id="lightsOverlay" style="display:none;position:absolute;inset:0;align-items:center;justify-content:center;flex-direction:column;gap:10px;background:rgba(0,0,0,0.75);z-index:10;">
-          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:3px;color:#fff;text-transform:uppercase;">Pr�t au d�part</div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:16px;letter-spacing:3px;color:#fff;text-transform:uppercase;">Prêt au départ</div>
           <div style="display:flex;gap:8px;" id="lightDots">
             <div class="light-dot"></div>
             <div class="light-dot"></div>
@@ -475,16 +474,16 @@
     </div>
 
   </div>
-  <!-- BOTTOM ROW : events + strat�gie -->
+  <!-- BOTTOM ROW : events + stratégie -->
   <div class="bottom-row">
     <div class="events-panel ds-panel">
       <div class="ds-panel-head"><span class="ds-dot"></span> Feed live</div>
       <div id="evLog" class="broadcast-feed">
-        <div style="padding:10px;color:var(--muted);font-size:11px;text-align:center">En attente du d�part�</div>
+        <div style="padding:10px;color:var(--muted);font-size:11px;text-align:center">En attente du départ…</div>
       </div>
     </div>
     <div class="strat-panel">
-      <div class="panel-head"><div class="dot"></div> ?? Dur�e estim�e des pneus</div>
+      <div class="panel-head"><div class="dot"></div> 🛞 Durée estimée des pneus</div>
       <div id="stratRecoBody" style="padding:8px;display:flex;flex-direction:column;gap:6px">
         <div style="color:var(--muted);font-size:11px;text-align:center;padding:8px">Lance une course pour voir les estimations pneus.</div>
       </div>
@@ -497,11 +496,11 @@
   <!-- TELEMETRY TABS -->
   <div class="telem-panel">
     <div class="tab-bar">
-      <button class="tab-btn active" onclick="showTab('tab-orders')">?? Ordres</button>
-      <button class="tab-btn" onclick="showTab('tab-tyres')">?? Pneus</button>
-      <button class="tab-btn" onclick="showTab('tab-pace')">? Rythme</button>
-      <button class="tab-btn" onclick="showTab('tab-gaps')">?? Gaps</button>
-      <button class="tab-btn" onclick="showTab('tab-strat')">?? Strat�gie</button>
+      <button class="tab-btn active" onclick="showTab('tab-orders')">🎧 Ordres</button>
+      <button class="tab-btn" onclick="showTab('tab-tyres')">🔴 Pneus</button>
+      <button class="tab-btn" onclick="showTab('tab-pace')">⏱ Rythme</button>
+      <button class="tab-btn" onclick="showTab('tab-gaps')">📊 Gaps</button>
+      <button class="tab-btn" onclick="showTab('tab-strat')">🗺 Stratégie</button>
     </div>
     <div class="tab-pane active" id="tab-orders">
       <div id="playerControlsNew"></div>
@@ -509,21 +508,21 @@
     <div class="tab-pane" id="tab-tyres">
       <div id="tyresLegend" class="chart-legend"></div>
       <div class="chart-wrap"><canvas id="canvasTyres"></canvas></div>
-      <div class="chart-hint">Condition pneu (100%=neuf � 0%=mort) � Ligne rouge = cliff � 20%</div>
+      <div class="chart-hint">Condition pneu (100%=neuf · 0%=mort) · Ligne rouge = cliff à 20%</div>
     </div>
     <div class="tab-pane" id="tab-pace">
       <div id="paceLegend" class="chart-legend"></div>
       <div class="chart-wrap"><canvas id="canvasPace"></canvas></div>
-      <div class="chart-hint">Temps au tour en secondes � Pics = pit stops</div>
+      <div class="chart-hint">Temps au tour en secondes · Pics = pit stops</div>
     </div>
     <div class="tab-pane" id="tab-gaps">
       <div id="gapsLegend" class="chart-legend"></div>
       <div class="chart-wrap"><canvas id="canvasGaps"></canvas></div>
-      <div class="chart-hint">�cart en secondes au leader</div>
+      <div class="chart-hint">Écart en secondes au leader</div>
     </div>
     <div class="tab-pane" id="tab-strat">
       <div id="playerStrategyLive"></div>
-      <div style="font-family:var(--fh);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Strat�gies � Tous les pilotes</div>
+      <div style="font-family:var(--fh);font-weight:700;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Stratégies — Tous les pilotes</div>
       <div id="stratFull"></div>
     </div>
   </div>
@@ -531,7 +530,7 @@
 <!-- RESULTS -->
 <div id="resOverlay" class="overlay" style="display:none">
   <div class="res-card">
-    <div class="res-title">?? R�sultats</div>
+    <div class="res-title">🏁 Résultats</div>
     <div class="res-sub" id="resSub"></div>
     <div id="resBody"></div>
     <div style="margin-top:14px;display:flex;gap:8px">
@@ -554,10 +553,10 @@
 <script src="js/profiles.js"></script>
 <script src="js/events.js"></script>
 <script>
-// ----------------------------------------------
-//  CIRCUITS � paths SVG ajust�s pour remplir
-//  le viewBox 400�300 au maximum
-// ----------------------------------------------
+// ══════════════════════════════════════════════
+//  CIRCUITS — paths SVG ajustés pour remplir
+//  le viewBox 400×300 au maximum
+// ══════════════════════════════════════════════
 const TRACKS = {
   bahrain: {
     d: "M60,40 L280,40 Q340,40 345,80 L345,100 Q345,120 325,120 L285,120 Q265,120 265,140 L265,160 Q265,178 282,178 L315,178 Q338,178 338,200 L338,228 Q338,258 308,260 L130,260 Q100,260 88,238 L75,210 Q64,190 44,190 L38,175 Q30,155 38,130 L38,100 Q38,60 60,40 Z",
@@ -585,9 +584,9 @@ const TRACKS = {
   },
 };
 
-// ----------------------------------------------
+// ══════════════════════════════════════════════
 //  CIRCUIT RENDERER
-// ----------------------------------------------
+// ══════════════════════════════════════════════
 const CR = {
   pathEl: null,
   len: 0,
@@ -595,9 +594,9 @@ const CR = {
   raf: null,
   fractions: [],
 
-  // Le SVG est maintenant pilot� par les donn�es de course.
+  // Le SVG est maintenant piloté par les données de course.
   // currentLap + gaps + temps au tour => position visuelle.
-  // �a �vite le d�calage o� l'animation finissait un tour avant/apr�s la simulation.
+  // Ça évite le décalage où l'animation finissait un tour avant/après la simulation.
   _lapStartTime: 0,
   _lastRaceLap: 0,
 
@@ -631,19 +630,8 @@ const CR = {
     this.pathEl = road;
     this.len    = road.getTotalLength();
 
-    /* Init 3D en parall�le */
-    if (typeof CR3D !== 'undefined') {
-      CR3D.init(circuitId);
-      if (typeof CircuitViz !== 'undefined') {
-        CircuitViz.setRaceSync({
-          getStarted: () => CR._started,
-          getLapStartTime: () => CR._lapStartTime,
-          getInterval: () => (typeof getInterval === 'function' ? getInterval() : 6000),
-          getStandings: () => Race.getStandings ? Race.getStandings() : (Race.state?.grid || []),
-          getRaceState: () => Race.state
-        });
-      }
-    }
+    /* Init 3D en parallèle */
+    if(typeof CR3D !== 'undefined') CR3D.init(circuitId);
 
     if (!Race.state) return;
     const colorMap = {};
@@ -704,7 +692,7 @@ const CR = {
     return el;
   },
 
-  // Appel� apr�s chaque tour simul� : on recale le SVG sur le nouveau tour r�el.
+  // Appelé après chaque tour simulé : on recale le SVG sur le nouveau tour réel.
   advanceLap() {
     if (!Race.state || !this.pathEl || !this._carMap) return;
     this._lastRaceLap = Race.state.currentLap || 0;
@@ -723,7 +711,7 @@ const CR = {
     let progress = progressOverride;
     if (progress == null) progress = Math.min(0.985, elapsed / interval);
 
-    // Apr�s l'arriv�e, on garde tout le monde proche de la ligne.
+    // Après l'arrivée, on garde tout le monde proche de la ligne.
     if (Race.state.finished) progress = 0.995;
 
     const lapTime = Race.state.circuit?.baseLapTime || 90;
@@ -738,8 +726,8 @@ const CR = {
         return;
       }
 
-      // La distance est d�duite du vrai gap en secondes.
-      // Un petit espacement minimum garde l'ordre lisible quand les �carts sont tr�s faibles.
+      // La distance est déduite du vrai gap en secondes.
+      // Un petit espacement minimum garde l'ordre lisible quand les écarts sont très faibles.
       const gap = Math.max(0, Number(car.gap || 0));
       const realBehind = gap / lapTime;
       const minBehind = posIdx * 0.006;
@@ -753,7 +741,7 @@ const CR = {
     });
   },
 
-  // Boucle visuelle : pas de simulation s�par�e, seulement interpolation entre deux tours r�els.
+  // Boucle visuelle : pas de simulation séparée, seulement interpolation entre deux tours réels.
   startAnim() {
     if (!this.pathEl) return;
     this._started = false;
@@ -801,15 +789,15 @@ const CR = {
   },
 };
 
-// ----------------------------------------------
+// ══════════════════════════════════════════════
 //  UI STATE
-// ----------------------------------------------
+// ══════════════════════════════════════════════
 let simInterval = null;
 let isPaused    = false;
 let simMode = 'slow'; // 'slow' | 'pause'
 let started     = false;
 
-// Intervalles en ms par tour simul�
+// Intervalles en ms par tour simulé
 const SPEEDS = { slow: 6000, pause: null };
 
 function syncLapUI(forceLap) {
@@ -819,7 +807,7 @@ function syncLapUI(forceLap) {
   const svgLap = document.getElementById('svgLap');
   const tLap = document.getElementById('tLap');
   if (svgLap) svgLap.textContent = lap;
-  if (tLap) tLap.innerHTML = `Tour <b>${lap}</b>/<span>${total || '�'}</span>`;
+  if (tLap) tLap.innerHTML = `Tour <b>${lap}</b>/<span>${total || '—'}</span>`;
 
   const ticker = document.getElementById('raceTicker');
   const btLap = document.getElementById('btLap');
@@ -834,8 +822,8 @@ function syncLapUI(forceLap) {
     }
     if (btSub) {
       const w = Race.state.weather || 'dry';
-      const wTxt = w === 'heavy_rain' ? 'Pluie forte' : w === 'light_rain' ? 'Piste humide' : 'Piste s�che';
-      btSub.textContent = wTxt + (Race.state.safetyCar?.active ? ' � SC' : '');
+      const wTxt = w === 'heavy_rain' ? 'Pluie forte' : w === 'light_rain' ? 'Piste humide' : 'Piste sèche';
+      btSub.textContent = wTxt + (Race.state.safetyCar?.active ? ' · SC' : '');
     }
   }
 }
@@ -844,23 +832,23 @@ function getInterval() {
   return SPEEDS.slow; // toujours lent
 }
 
-// ----------------------------------------------------------
-//  RECOMMANDATIONS STRAT�GIE PNEUS
-// ----------------------------------------------------------
+// ══════════════════════════════════════════════════════════
+//  RECOMMANDATIONS STRATÉGIE PNEUS
+// ══════════════════════════════════════════════════════════
 function calcTyreLifeFromEL(fpResults, circuit) {
-  // Retourne la dur�e estim�e par compound depuis les donn�es EL
+  // Retourne la durée estimée par compound depuis les données EL
   const lifemap = {};
   if (fpResults && fpResults.length) {
     fpResults.forEach(r => {
       if (!r.tyreLife || !r.laps) return;
       const wearPerLap  = (100 - r.tyreLife) / r.laps;
       if (wearPerLap <= 0) return;
-      const life        = Math.round(75 / wearPerLap); // jusqu'� 25% restant � pit avant la mort
+      const life        = Math.round(75 / wearPerLap); // jusqu'à 25% restant — pit avant la mort
       if (!lifemap[r.compound] || life > lifemap[r.compound])
         lifemap[r.compound] = Math.min(life, circuit.laps - 2);
     });
   }
-  // Fallback depuis les donn�es circuit si EL manquent
+  // Fallback depuis les données circuit si EL manquent
   ['SOFT','MEDIUM','HARD'].forEach(c => {
     if (!lifemap[c]) {
       const tyre       = F1Data.tyres[c];
@@ -875,7 +863,7 @@ function buildStrategyOptions(circuit, lifeMap) {
   const L = circuit.laps;
   const options = [];
 
-  // -- 1 arr�t --------------------------------------------
+  // ── 1 arrêt ────────────────────────────────────────────
   [['MEDIUM','HARD'],['HARD','MEDIUM'],['SOFT','HARD'],['MEDIUM','MEDIUM']].forEach(([c1,c2]) => {
     const life1 = lifeMap[c1] || 20;
     const life2 = lifeMap[c2] || 30;
@@ -885,13 +873,13 @@ function buildStrategyOptions(circuit, lifeMap) {
         stops: 1,
         compounds: [c1, c2],
         pitLaps:   [pit1],
-        detail:    `${c1} ${pit1}t ? ${c2} ${L - pit1}t`,
+        detail:    `${c1} ${pit1}t → ${c2} ${L - pit1}t`,
         feasible:  pit1 <= life1 + 3 && (L - pit1) <= life2 + 5,
       });
     }
   });
 
-  // -- 2 arr�ts -------------------------------------------
+  // ── 2 arrêts ───────────────────────────────────────────
   [['SOFT','MEDIUM','HARD'],['SOFT','HARD','MEDIUM'],['MEDIUM','SOFT','HARD'],['SOFT','SOFT','HARD']].forEach(([c1,c2,c3]) => {
     const life1 = lifeMap[c1] || 15;
     const life2 = lifeMap[c2] || 20;
@@ -903,13 +891,13 @@ function buildStrategyOptions(circuit, lifeMap) {
         stops: 2,
         compounds: [c1, c2, c3],
         pitLaps:   [pit1, pit2],
-        detail:    `${c1} ${pit1}t ? ${c2} ${pit2-pit1}t ? ${c3} ${L-pit2}t`,
+        detail:    `${c1} ${pit1}t → ${c2} ${pit2-pit1}t → ${c3} ${L-pit2}t`,
         feasible:  pit1 <= life1 + 2 && (pit2 - pit1) <= life2 + 3 && (L - pit2) <= life3 + 5,
       });
     }
   });
 
-  // -- 3 arr�ts (d�gradation �lev�e) ---------------------
+  // ── 3 arrêts (dégradation élevée) ─────────────────────
   if (circuit.tyreDegradation > 1.2) {
     const life = lifeMap['SOFT'] || 12;
     const p1   = Math.round(L * 0.22);
@@ -920,7 +908,7 @@ function buildStrategyOptions(circuit, lifeMap) {
         stops: 3,
         compounds: ['SOFT','SOFT','SOFT','HARD'],
         pitLaps:   [p1, p2, p3],
-        detail:    `3� Soft + Hard � ${p1}t / ${p2-p1}t / ${p3-p2}t / ${L-p3}t`,
+        detail:    `3× Soft + Hard · ${p1}t / ${p2-p1}t / ${p3-p2}t / ${L-p3}t`,
         feasible:  life >= 12,
       });
     }
@@ -934,7 +922,7 @@ function getRaceLifeMap(circuit) {
   const save = Save.load();
 
   // Appliquer driverStates sur TOUS les pilotes F1Data (y compris GAS, COL etc.)
-  // pour refl�ter les changements d'�quipe en cours de saison
+  // pour refléter les changements d'équipe en cours de saison
   if (save.driverStates) {
     F1Data.drivers.forEach(d => {
       const state = save.driverStates[d.id];
@@ -958,15 +946,15 @@ function estimateCurrentTyreLapsLeft(car, circuit) {
   const age = Math.max(0, Number(car.tyre.age || 0));
   let wearPerLap = null;
 
-  // Plus fiable en direct : usure r�ellement observ�e depuis le d�but du relais.
+  // Plus fiable en direct : usure réellement observée depuis le début du relais.
   if (age > 0 && condPct < 100) wearPerLap = (100 - condPct) / age;
 
-  // Fallback avant les premiers tours ou apr�s un pit.
+  // Fallback avant les premiers tours ou après un pit.
   if (!wearPerLap || wearPerLap <= 0) {
     wearPerLap = (tyre.degradationRate || 0.012) * (circuit.tyreDegradation || 1) * 100;
   }
 
-  const safeLimit = 25; // sous 25%, on consid�re que le pneu entre en zone rouge strat�gique
+  const safeLimit = 25; // sous 25%, on considère que le pneu entre en zone rouge stratégique
   if (condPct <= safeLimit) return 0;
   return Math.max(0, Math.floor((condPct - safeLimit) / wearPerLap));
 }
@@ -994,7 +982,7 @@ function renderPlayerStrategyLive() {
 
   box.innerHTML = `
     <div class="player-strat-live">
-      <div class="player-strat-title">?? Plan pr�vu vs situation r�elle</div>
+      <div class="player-strat-title">🗺 Plan prévu vs situation réelle</div>
       ${cars.map(car => {
         const tyre = F1Data.tyres[car.tyre.compound] || F1Data.tyres.MEDIUM;
         const cond = Math.round((car.tyre.condition || 0) * 100);
@@ -1005,14 +993,14 @@ function renderPlayerStrategyLive() {
         const nextPit = (car.strategy?.pitLaps || []).map(Number).find(l => l >= currentLap);
         const plannedToPit = nextPit ? Math.max(0, nextPit - currentLap) : null;
         const actualStops = (car.pitStops || []).map(p => 'T'+p.lap).join(', ');
-        const warning = leftOnTyre < Math.min(5, raceLeft) ? '<span class="player-strat-warning">?? fen�tre proche</span>' : '? OK';
+        const warning = leftOnTyre < Math.min(5, raceLeft) ? '<span class="player-strat-warning">⚠️ fenêtre proche</span>' : '✅ OK';
         const compounds = (car.strategy?.compounds || [car.tyre.compound]).map((c, idx) => {
           const t = F1Data.tyres[c] || F1Data.tyres.MEDIUM;
           const done = idx < currentIdx;
           const active = idx === currentIdx;
           const len = plannedStintLength(car, idx);
           return `<span class="stint-chip ${done?'done':''} ${active?'active':''}" style="color:${t.color};border-color:${active?t.color:'transparent'}">${t.name} ${len?`~${len}t`:''}</span>`;
-        }).join('<span class="stint-arrow">?</span>');
+        }).join('<span class="stint-arrow">→</span>');
         return `
           <div class="player-strat-card">
             <div class="player-strat-head">
@@ -1022,10 +1010,10 @@ function renderPlayerStrategyLive() {
             </div>
             <div class="player-stint-line">${compounds}</div>
             <div class="player-strat-meta">
-              <div>Pneu actuel : <b style="color:${tyre.color}">${tyre.name}</b> � ${cond}% � ${age}t</div>
-              <div>Reste estim� avec ce pneu : <b>${leftOnTyre} tour${leftOnTyre>1?'s':''}</b> � ${warning}</div>
-              <div>Prochain arr�t pr�vu : <b>${plannedToPit === null ? 'aucun' : 'T.'+nextPit+' dans '+plannedToPit+'t'}</b></div>
-              <div>Arr�ts effectu�s : <b>${actualStops || 'aucun'}</b></div>
+              <div>Pneu actuel : <b style="color:${tyre.color}">${tyre.name}</b> · ${cond}% · ${age}t</div>
+              <div>Reste estimé avec ce pneu : <b>${leftOnTyre} tour${leftOnTyre>1?'s':''}</b> · ${warning}</div>
+              <div>Prochain arrêt prévu : <b>${plannedToPit === null ? 'aucun' : 'T.'+nextPit+' dans '+plannedToPit+'t'}</b></div>
+              <div>Arrêts effectués : <b>${actualStops || 'aucun'}</b></div>
             </div>
           </div>
         `;
@@ -1049,7 +1037,7 @@ function renderStratReco() {
   const lifeMap   = calcTyreLifeFromEL(fpResults, circuit);
 
   const hasFP = fpResults.some(r => r.program === 'long_run' || r.program === 'quali_sim');
-  const legendSource = hasFP ? '?? Donn�es issues des essais libres' : '?? Estimation circuit';
+  const legendSource = hasFP ? '📊 Données issues des essais libres' : '📐 Estimation circuit';
   const compounds = ['SOFT','MEDIUM','HARD','INTER','WET'].filter(c => lifeMap[c] && F1Data.tyres[c]);
   const save = Save.load();
   const pid = save?.playerTeamId?.toLowerCase?.() || '';
@@ -1061,15 +1049,15 @@ function renderStratReco() {
         const cond = Math.round((car.tyre.condition || 0) * 100);
         const left = estimateCurrentTyreLapsLeft(car, circuit);
         return `<div style="background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-family:var(--fh);font-size:10px;color:var(--muted);display:flex;justify-content:space-between;gap:8px">
-          <span>${Profiles.linkDriver(car.driver)} � <b style="color:${t.color}">${t.name}</b> ${cond}%</span>
-          <span>reste r�el ~<b style="color:var(--text)">${left}t</b></span>
+          <span>${Profiles.linkDriver(car.driver)} · <b style="color:${t.color}">${t.name}</b> ${cond}%</span>
+          <span>reste réel ~<b style="color:var(--text)">${left}t</b></span>
         </div>`;
       }).join('')}
     </div>` : '';
 
   box.innerHTML = `
     <div style="font-family:var(--fh);font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;padding:0 2px">
-      ${legendSource} � ${circuit.laps} tours � usure x${circuit.tyreDegradation?.toFixed ? circuit.tyreDegradation.toFixed(2) : circuit.tyreDegradation}
+      ${legendSource} · ${circuit.laps} tours · usure x${circuit.tyreDegradation?.toFixed ? circuit.tyreDegradation.toFixed(2) : circuit.tyreDegradation}
     </div>
     ${liveTyreHtml}
     <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px">
@@ -1080,7 +1068,7 @@ function renderStratReco() {
         return `
           <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px 8px">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px">
-              <span style="font-family:var(--fh);font-size:12px;font-weight:800;color:${t.color}">? ${t.name}</span>
+              <span style="font-family:var(--fh);font-size:12px;font-weight:800;color:${t.color}">● ${t.name}</span>
               <span style="font-family:var(--fh);font-size:13px;font-weight:900;color:var(--text)">~${life}t</span>
             </div>
             <div style="height:5px;border-radius:4px;background:#111827;overflow:hidden">
@@ -1091,16 +1079,16 @@ function renderStratReco() {
       }).join('')}
     </div>
     <div style="font-family:var(--fh);font-size:10px;color:var(--muted);line-height:1.35;margin-top:2px;padding:0 2px">
-      Rep�re strat�gique uniquement : pluie, Safety Car et rythme pilote peuvent d�placer la fen�tre r�elle.
+      Repère stratégique uniquement : pluie, Safety Car et rythme pilote peuvent déplacer la fenêtre réelle.
     </div>
   `;
 }
 
-// ----------------------------------------------------------
-//  M�T�O & HUMIDIT�
-// ----------------------------------------------------------
-let raceWeatherData = null; // profil m�t�o complet de la course
-let currentHumidity = 0;   // humidit� piste actuelle
+// ══════════════════════════════════════════════════════════
+//  MÉTÉO & HUMIDITÉ
+// ══════════════════════════════════════════════════════════
+let raceWeatherData = null; // profil météo complet de la course
+let currentHumidity = 0;   // humidité piste actuelle
 
 function initRaceWeather(circuit) {
   if (typeof Weather === 'undefined') return;
@@ -1112,7 +1100,7 @@ function updateHumidity(lap) {
   if (!raceWeatherData?.humidityProfile) return;
   currentHumidity = raceWeatherData.humidityProfile[lap - 1] || 0;
 
-  // Mettre � jour le badge m�t�o
+  // Mettre à jour le badge météo
   const cond = Weather.getTrackCondition(currentHumidity);
   const badge = document.getElementById('wBadge');
   if (badge) {
@@ -1124,11 +1112,11 @@ function updateHumidity(lap) {
   // Alerte si changement de zone critique
   const prev = lap > 1 ? (raceWeatherData.humidityProfile[lap - 2] || 0) : 0;
   if (prev <= 30 && currentHumidity > 30) {
-    addEvents([{ lap, type:'weather', message:`??? Piste mouill�e ! (${currentHumidity.toFixed(0)}% humidit�) � Passer en Interm�diaires ?` }]);
+    addEvents([{ lap, type:'weather', message:`🌧️ Piste mouillée ! (${currentHumidity.toFixed(0)}% humidité) — Passer en Intermédiaires ?` }]);
   } else if (prev > 30 && currentHumidity <= 30) {
-    addEvents([{ lap, type:'weather', message:`?? Piste qui s�che ! (${currentHumidity.toFixed(0)}%) � Fen�tre slick bient�t !` }]);
+    addEvents([{ lap, type:'weather', message:`☀️ Piste qui sèche ! (${currentHumidity.toFixed(0)}%) — Fenêtre slick bientôt !` }]);
   } else if (prev <= 70 && currentHumidity > 70) {
-    addEvents([{ lap, type:'weather', message:`?? Piste d�tremp�e ! (${currentHumidity.toFixed(0)}%) � Full Wet obligatoires !` }]);
+    addEvents([{ lap, type:'weather', message:`⛈️ Piste détrempée ! (${currentHumidity.toFixed(0)}%) — Full Wet obligatoires !` }]);
   }
 }
 
@@ -1149,7 +1137,7 @@ function renderWeatherPopup() {
   const profile = raceWeatherData?.humidityProfile || [];
 
   if (!profile.length) {
-    box.innerHTML = '<div style="color:var(--muted);font-family:var(--fh);font-size:12px">Pas de donn�es m�t�o disponibles (course sans pluie pr�vue).</div>';
+    box.innerHTML = '<div style="color:var(--muted);font-family:var(--fh);font-size:12px">Pas de données météo disponibles (course sans pluie prévue).</div>';
     return;
   }
 
@@ -1157,12 +1145,12 @@ function renderWeatherPopup() {
   const condition = Weather.getTrackCondition(currentHumidity);
   const optimal   = Weather.getOptimalTyre(currentHumidity);
 
-  // Graphique simplifi� humidit� (20 prochains tours)
+  // Graphique simplifié humidité (20 prochains tours)
   const nextLaps  = Math.min(20, total - lap);
   const chartData = profile.slice(lap - 1, lap - 1 + nextLaps);
   const maxH      = 100;
 
-  // Pr�-calculer les barres m�t�o (�vite map+index dans template)
+  // Pré-calculer les barres météo (évite map+index dans template)
   const chartBars = chartData.map((h, barIdx) => {
     const cond2 = Weather.getTrackCondition(h);
     const hp = Math.max(4, (h / maxH) * 100);
@@ -1170,41 +1158,41 @@ function renderWeatherPopup() {
   }).join('');
 
   let html = `
-    <!-- Humidit� actuelle -->
+    <!-- Humidité actuelle -->
     <div style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:11px;margin-bottom:4px">
-        <span style="color:var(--muted)">Humidit� piste</span>
-        <span style="color:${condition.color};font-weight:700">${currentHumidity.toFixed(0)}% � ${condition.label}</span>
+        <span style="color:var(--muted)">Humidité piste</span>
+        <span style="color:${condition.color};font-weight:700">${currentHumidity.toFixed(0)}% — ${condition.label}</span>
       </div>
       <div class="humidity-bar">
         <div class="humidity-fill" style="width:${currentHumidity}%;background:${condition.color}"></div>
       </div>
       <div style="font-family:var(--fh);font-size:10px;color:var(--muted);margin-top:3px">
         Pneu optimal : <span style="color:${optimal==='slick'?'#fff':optimal==='INTER'?'#00cc44':'#4488ff'};font-weight:700">
-          ${optimal === 'slick' ? '?? Slick (Soft/Med/Hard)' : optimal === 'INTER' ? '?? Interm�diaire' : '?? Full Wet'}
+          ${optimal === 'slick' ? '🔴 Slick (Soft/Med/Hard)' : optimal === 'INTER' ? '🟢 Intermédiaire' : '🔵 Full Wet'}
         </span>
       </div>
     </div>
 
-    <!-- Mini graphique profil humidit� -->
+    <!-- Mini graphique profil humidité -->
     <div style="margin-bottom:10px">
-      <div style="font-family:var(--fh);font-size:10px;color:var(--muted);margin-bottom:4px">Pr�vision ${nextLaps} prochains tours</div>
+      <div style="font-family:var(--fh);font-size:10px;color:var(--muted);margin-bottom:4px">Prévision ${nextLaps} prochains tours</div>
       <div style="display:flex;align-items:flex-end;gap:2px;height:40px;background:#0a0a14;border-radius:4px;padding:4px">
         ${chartBars}
       </div>
       <div style="display:flex;justify-content:space-between;font-family:var(--fh);font-size:9px;color:var(--muted);margin-top:2px">
         <span>T.${lap}</span>
-        <span>? 30% slick | 70% wet ?</span>
+        <span>← 30% slick | 70% wet →</span>
         <span>T.${lap + nextLaps}</span>
       </div>
       <!-- Lignes de seuil -->
       <div style="display:flex;gap:8px;margin-top:4px;font-family:var(--fh);font-size:9px">
-        <span style="color:#ffcc00">� 30% inter</span>
-        <span style="color:#4488ff">� 70% wet</span>
+        <span style="color:#ffcc00">— 30% inter</span>
+        <span style="color:#4488ff">— 70% wet</span>
       </div>
     </div>
 
-    <!-- Pr�visions par blocs -->
+    <!-- Prévisions par blocs -->
     <div class="forecast-grid">
       ${(forecast?.predictions || []).map(p => `
         <div class="forecast-chip" style="border-color:${p.condition.color}30">
@@ -1215,7 +1203,7 @@ function renderWeatherPopup() {
       `).join('')}
     </div>
 
-    <!-- Messages cl�s -->
+    <!-- Messages clés -->
     <div style="margin-top:8px">
       ${(forecast?.messages || []).map(m => `
         <div class="weather-msg">
@@ -1223,7 +1211,7 @@ function renderWeatherPopup() {
           <span style="color:${m.color}">${m.text}</span>
         </div>
       `).join('')}
-      ${!forecast?.messages?.length ? '<div style="color:var(--muted);font-family:var(--fh);font-size:11px">Aucun changement majeur pr�vu dans les 20 prochains tours.</div>' : ''}
+      ${!forecast?.messages?.length ? '<div style="color:var(--muted);font-family:var(--fh);font-size:11px">Aucun changement majeur prévu dans les 20 prochains tours.</div>' : ''}
     </div>
   `;
 
@@ -1249,7 +1237,7 @@ function initSel() {
 function startRace() {
   try {
   const cid = document.getElementById('circSel').value;
-  // �v�nement pr�-course g�r� sur weekend.html � supprim� ici
+  // Événement pré-course géré sur weekend.html — supprimé ici
   if (!cid) { alert('Choisis un circuit !'); return; }
 
   console.log('[1] Telem');
@@ -1258,7 +1246,7 @@ function startRace() {
   console.log('[2] Strategies');
   const wSave = Save.load();
   const weekendStrats = wSave?.raceStrategies || null;
-  // Initialiser la m�t�o de course AVANT Race.init pour avoir les bons pneus de d�part
+  // Initialiser la météo de course AVANT Race.init pour avoir les bons pneus de départ
   const tempCircuit = F1Data.circuits.find(c => c.id === cid) || F1Data.circuits[0];
   const tempWeatherData = typeof Weather !== 'undefined' ? Weather.initRaceWeather(tempCircuit, tempCircuit.laps) : null;
   const startHumidity = tempWeatherData?.initialHumidity || 0;
@@ -1342,7 +1330,7 @@ function startRace() {
   } catch(err) {
     console.error('startRace ERROR:', err);
     console.error('Stack:', err.stack);
-    alert('Erreur d�marrage : ' + err.message + '\n' + (err.stack||'').split('\n').slice(0,3).join('\n'));
+    alert('Erreur démarrage : ' + err.message + '\n' + (err.stack||'').split('\n').slice(0,3).join('\n'));
   }
 }
 
@@ -1357,7 +1345,7 @@ function runSim() {
     CR.advanceLap();
     syncLapUI(res.lap);
 
-    // Mise � jour humidit� piste (async pour �viter le lag)
+    // Mise à jour humidité piste (async pour éviter le lag)
     if (typeof Weather !== 'undefined' && Race.state) {
       requestAnimationFrame(() => {
         updateHumidity(Race.state.currentLap);
@@ -1367,7 +1355,7 @@ function runSim() {
       });
     }
 
-    // Progress bar uniquement � compteur de tour g�r� par _syncLapCounter
+    // Progress bar uniquement — compteur de tour géré par _syncLapCounter
     document.getElementById('progFill').style.width =
       (Race.state.currentLap / Race.state.totalLaps * 100) + '%';
 
@@ -1394,7 +1382,7 @@ function setSimSpeed(mode) {
     isPaused = false;
     document.getElementById('btnSlow').classList.add('on');
     document.getElementById('btnPause').classList.remove('on');
-    document.getElementById('btnPause').textContent = '? Pause';
+    document.getElementById('btnPause').textContent = '⏸ Pause';
     if (!simInterval) runSim();
   }
 }
@@ -1402,7 +1390,7 @@ function setSimSpeed(mode) {
 function togglePause() {
   isPaused = !isPaused;
   document.getElementById('btnPause').classList.toggle('on', isPaused);
-  document.getElementById('btnPause').textContent = isPaused ? '? Reprendre' : '? Pause';
+  document.getElementById('btnPause').textContent = isPaused ? '▶ Reprendre' : '⏸ Pause';
   document.getElementById('btnSlow').classList.toggle('on', !isPaused);
 }
 
@@ -1424,9 +1412,9 @@ function updateWeather() {
   const w = Race.state.weather;
   const b = document.getElementById('wBadge');
   b.className = 'w-badge';
-  if (w==='dry')        { b.classList.add('w-dry');   b.textContent='?? SEC'; }
-  if (w==='light_rain') { b.classList.add('w-rain');  b.textContent='??? PLUIE'; }
-  if (w==='heavy_rain') { b.classList.add('w-heavy'); b.textContent='?? FORT'; }
+  if (w==='dry')        { b.classList.add('w-dry');   b.textContent='☀️ SEC'; }
+  if (w==='light_rain') { b.classList.add('w-rain');  b.textContent='🌧️ PLUIE'; }
+  if (w==='heavy_rain') { b.classList.add('w-heavy'); b.textContent='⛈️ FORT'; }
   document.getElementById('scPill').classList.toggle('on', Race.state.safetyCar.active);
 }
 
@@ -1437,7 +1425,7 @@ function renderStandings() {
 
   const sv  = Save.load();
   const pid = sv?.playerTeamId?.toLowerCase() || '';
-  // Table couleurs directe � source de v�rit� unique
+  // Table couleurs directe — source de vérité unique
   const cMap = {};
   F1Data.teams.forEach(t => { cMap[t.id] = visibleTeamColor(t.color); });
 
@@ -1449,7 +1437,7 @@ function renderStandings() {
     const tid       = car.driver.teamId?.toLowerCase() || '';
     const isPlayer  = tid === pid;
     const teamColor = cMap[tid] || cMap[car.driver.teamId] || '#888';
-    const shortName = F1Data.teams.find(t=>t.id===car.driver.teamId)?.shortName || car.driver.teamId || '�';
+    const shortName = F1Data.teams.find(t=>t.id===car.driver.teamId)?.shortName || car.driver.teamId || '—';
     const cond      = Math.round(car.tyre.condition * 100);
     const cc        = cond > 60 ? '#00e676' : cond > 30 ? '#ffea00' : '#ff4444';
     const degradation = 1 - car.tyre.condition;
@@ -1457,7 +1445,7 @@ function renderStandings() {
     const penaltyStr  = tyrePenalty > 0.5 ? ` +${tyrePenalty.toFixed(1)}s` : '';
     const lastLap = car.lapTimes.length > 0 ? car.lapTimes[car.lapTimes.length - 1] : null;
     const prevLap = car.lapTimes.length > 1 ? car.lapTimes[car.lapTimes.length - 2] : null;
-    const last   = lastLap != null ? fmtLap(lastLap) : '�';
+    const last   = lastLap != null ? fmtLap(lastLap) : '—';
     let lapCls = '';
     if (lastLap != null && prevLap != null) {
       lapCls = lastLap < prevLap - 0.001 ? ' faster' : lastLap > prevLap + 0.001 ? ' slower' : '';
@@ -1484,7 +1472,7 @@ function renderStandings() {
       <div class="dnum ds-num" style="color:${teamColor}">${car.driver.number}</div>
       <div class="tbar ds-bar" style="background:${teamColor};box-shadow:0 0 8px ${teamColor}"></div>
       <div style="flex:1;min-width:0">
-        <div class="dname ds-name" style="color:${teamColor}">${isPlayer?'<span style="color:var(--podium-gold);font-size:10px;vertical-align:middle;margin-right:2px">?</span>':''}${car.driver.name} ${badge}</div>
+        <div class="dname ds-name" style="color:${teamColor}">${isPlayer?'<span style="color:var(--podium-gold);font-size:10px;vertical-align:middle;margin-right:2px">★</span>':''}${car.driver.name} ${badge}</div>
         <div class="dteam-s ds-meta" style="color:${teamColor}">${shortName}</div>
       </div>
       <div class="tyre-cell">
@@ -1493,7 +1481,7 @@ function renderStandings() {
           <div class="tyre-cond"><div class="tyre-bar" style="width:${cond}%;background:${cc}"></div></div>
           <div style="font-family:var(--fh);font-size:9px;color:${cc}">${cond}%${penaltyStr}</div>
           <div class="gap-cell ds-gap ${isLead?'ldr':''}" style="margin-top:1px">${gap}</div>
-          ${interval ? `<div style="font-family:var(--fh);font-size:9px;color:var(--muted);margin-top:1px">? ${interval}</div>` : ''}
+          ${interval ? `<div style="font-family:var(--fh);font-size:9px;color:var(--muted);margin-top:1px">▲ ${interval}</div>` : ''}
         </div>
       </div>
       <div class="last-cell ds-lap${lapCls}">${last}</div>
@@ -1502,10 +1490,10 @@ function renderStandings() {
   });
 }
 
-// ----------------------------------------------------------
-//  IMMERSION COURSE � Radio, ing�nieur, broadcast
+// ══════════════════════════════════════════════════════════
+//  IMMERSION COURSE — Radio, ingénieur, broadcast
 //  Surcouche uniquement : lit Race.state / Race.getStandings(), ne modifie pas la simulation.
-// ----------------------------------------------------------
+// ══════════════════════════════════════════════════════════
 const RaceNarrative = {
   lastGeneralLap: 0,
   said: {},
@@ -1530,11 +1518,11 @@ function visibleTeamColor(color) {
 }
 
 function driverLabel(driver) {
-  if (!driver) return '�';
+  if (!driver) return '—';
   return `${driver.firstName ? driver.firstName + ' ' : ''}${driver.name}`.trim();
 }
 function teamShort(teamId) {
-  return F1Data.teams.find(t => t.id === teamId)?.shortName || teamId || '�';
+  return F1Data.teams.find(t => t.id === teamId)?.shortName || teamId || '—';
 }
 function getPlayerCars() {
   const save = Save.load();
@@ -1551,137 +1539,137 @@ function initRaceBroadcast() {
   const grid = Race.getStandings();
   const pole = grid[0];
   const pCars = getPlayerCars();
-  const weatherTxt = Race.state.weather === 'heavy_rain' ? 'pluie forte' : Race.state.weather === 'light_rain' ? 'piste humide' : 'piste s�che';
+  const weatherTxt = Race.state.weather === 'heavy_rain' ? 'pluie forte' : Race.state.weather === 'light_rain' ? 'piste humide' : 'piste sèche';
   const messages = [
-    lapEvent(0, 'broadcast', `??? Bienvenue � <b>${cir.name}</b> � ${cir.laps} tours, ${weatherTxt}.`)
+    lapEvent(0, 'broadcast', `🎙️ Bienvenue à <b>${cir.name}</b> — ${cir.laps} tours, ${weatherTxt}.`)
   ];
-  if (pole) messages.push(lapEvent(0, 'grid', `?? Pole position : <b>${driverLabel(pole.driver)}</b> (${teamShort(pole.driver.teamId)}).`));
+  if (pole) messages.push(lapEvent(0, 'grid', `🏁 Pole position : <b>${driverLabel(pole.driver)}</b> (${teamShort(pole.driver.teamId)}).`));
   if (pCars.length) {
-    messages.push(lapEvent(0, 'engineer', `?? Ing�nieur : nos voitures partent P${pCars.map(c => c.position).join(' / P')}. Objectif : course propre et fen�tres de pit surveill�es.`));
+    messages.push(lapEvent(0, 'engineer', `🎧 Ingénieur : nos voitures partent P${pCars.map(c => c.position).join(' / P')}. Objectif : course propre et fenêtres de pit surveillées.`));
     pCars.forEach(c => { RaceNarrative.lastPlayerPos[c.driver.id] = c.position; });
   }
   addEvents(messages);
 }
 
-// -- POOLS DE COMMENTAIRES VARI�S -------------------------
+// ── POOLS DE COMMENTAIRES VARIÉS ─────────────────────────
 const NarrativePool = {
   pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; },
 
   gainPos(name, pos, gainCount) {
     const multi = gainCount >= 3;
     const pool = multi ? [
-      `?? ${name} remonte fort � P${pos} ! Quelle relance !`,
-      `?? ${name} d�vore le classement, P${pos} maintenant.`,
-      `?? +${gainCount} places d'un coup pour ${name}. Belle opportunit� saisie.`,
-      `?? ${name} explose dans le peloton ! P${pos} en quelques tours seulement.`,
-      `?? Magistral ! ${name} remonte ${gainCount} positions pour pointer � P${pos}.`,
-      `?? ${name} sur les chapeaux de roues � P${pos}. La voiture est en feu.`,
+      `📻 ${name} remonte fort — P${pos} ! Quelle relance !`,
+      `📻 ${name} dévore le classement, P${pos} maintenant.`,
+      `📻 +${gainCount} places d'un coup pour ${name}. Belle opportunité saisie.`,
+      `📻 ${name} explose dans le peloton ! P${pos} en quelques tours seulement.`,
+      `📻 Magistral ! ${name} remonte ${gainCount} positions pour pointer à P${pos}.`,
+      `📻 ${name} sur les chapeaux de roues — P${pos}. La voiture est en feu.`,
     ] : [
-      `?? ${name} P${pos}. Passage en douceur, bon feeling.`,
-      `?? ${name} grappille une place � P${pos}. On continue.`,
-      `?? ${name} grimpe � P${pos}. La strat�gie paie.`,
-      `?? ${name} profite du trafic : P${pos}. Bien jou�.`,
-      `?? ${name} � P${pos} � le rythme est l�, on garde la pression.`,
-      `?? Beau move de ${name} � P${pos} dans le viseur.`,
-      `?? ${name} passe proprement � P${pos}. Freinage parfait.`,
-      `?? ${name} monte � P${pos}. La voiture r�pond bien.`,
-      `?? P${pos} pour ${name}. On reste concentr�s, la course est longue.`,
-      `?? ${name} � P${pos}. L'undercut a fonctionn�, continue comme �a.`,
-      `?? Belle gestion de ${name} � P${pos}, on garde le cap.`,
-      `?? ${name} grignote une place : P${pos}. Le rythme est bon.`,
-      `?? Bien jou� ${name} � P${pos}. On surveille le suivant.`,
-      `?? ${name} profite d'une erreur adverse � P${pos}. Bonne opportunit�.`,
-      `?? P${pos} pour ${name}. L'�quipe valide le d�passement depuis le muret.`,
+      `📻 ${name} P${pos}. Passage en douceur, bon feeling.`,
+      `📻 ${name} grappille une place — P${pos}. On continue.`,
+      `📻 ${name} grimpe à P${pos}. La stratégie paie.`,
+      `📻 ${name} profite du trafic : P${pos}. Bien joué.`,
+      `📻 ${name} à P${pos} — le rythme est là, on garde la pression.`,
+      `📻 Beau move de ${name} — P${pos} dans le viseur.`,
+      `📻 ${name} passe proprement — P${pos}. Freinage parfait.`,
+      `📻 ${name} monte à P${pos}. La voiture répond bien.`,
+      `📻 P${pos} pour ${name}. On reste concentrés, la course est longue.`,
+      `📻 ${name} à P${pos}. L'undercut a fonctionné, continue comme ça.`,
+      `📻 Belle gestion de ${name} — P${pos}, on garde le cap.`,
+      `📻 ${name} grignote une place : P${pos}. Le rythme est bon.`,
+      `📻 Bien joué ${name} — P${pos}. On surveille le suivant.`,
+      `📻 ${name} profite d'une erreur adverse — P${pos}. Bonne opportunité.`,
+      `📻 P${pos} pour ${name}. L'équipe valide le dépassement depuis le muret.`,
     ];
     return this.pick(pool);
   },
 
   losePos(name, pos) {
     const pool = [
-      `?? ${name} r�trograde � P${pos}. On analyse et on r�pond.`,
-      `?? ${name} perd du terrain � P${pos}. On reste concentr�s.`,
-      `?? ${name} d�bord�, P${pos}. Fen�tre de pit � surveiller.`,
-      `?? ${name} � P${pos}. Pneus ? Cherche le bon moment pour r�pondre.`,
-      `?? ${name} c�de une place � P${pos}. Pas de panique, course longue.`,
-      `?? ${name} sous pression, P${pos}. On recalcule.`,
-      `?? P${pos} pour ${name}. On ne panique pas � il reste des tours.`,
-      `?? ${name} laisse passer � P${pos}. Les pneus sont en cause, on surveille.`,
-      `?? ${name} recule � P${pos}. Timing de pit � revoir.`,
-      `?? ${name} perd une position � P${pos}. On pr�pare la r�ponse.`,
-      `?? D�pass�, ${name} tombe � P${pos}. La gestion pneus est cl� maintenant.`,
-      `?? ${name} � P${pos}. Le muret �tudie les options pour regagner cette place.`,
-      `?? P${pos} pour ${name}. Moment difficile mais pas insurmontable.`,
-      `?? ${name} recule d'une position � P${pos}. On ne baisse pas les bras.`,
-      `?? ${name} c�de du terrain, P${pos}. La course n'est pas termin�e.`,
+      `📻 ${name} rétrograde à P${pos}. On analyse et on répond.`,
+      `📻 ${name} perd du terrain — P${pos}. On reste concentrés.`,
+      `📻 ${name} débordé, P${pos}. Fenêtre de pit à surveiller.`,
+      `📻 ${name} à P${pos}. Pneus ? Cherche le bon moment pour répondre.`,
+      `📻 ${name} cède une place — P${pos}. Pas de panique, course longue.`,
+      `📻 ${name} sous pression, P${pos}. On recalcule.`,
+      `📻 P${pos} pour ${name}. On ne panique pas — il reste des tours.`,
+      `📻 ${name} laisse passer — P${pos}. Les pneus sont en cause, on surveille.`,
+      `📻 ${name} recule à P${pos}. Timing de pit à revoir.`,
+      `📻 ${name} perd une position — P${pos}. On prépare la réponse.`,
+      `📻 Dépassé, ${name} tombe à P${pos}. La gestion pneus est clé maintenant.`,
+      `📻 ${name} à P${pos}. Le muret étudie les options pour regagner cette place.`,
+      `📻 P${pos} pour ${name}. Moment difficile mais pas insurmontable.`,
+      `📻 ${name} recule d'une position — P${pos}. On ne baisse pas les bras.`,
+      `📻 ${name} cède du terrain, P${pos}. La course n'est pas terminée.`,
     ];
     return this.pick(pool);
   },
 
   tyreCritical(name, cond) {
     const pool = [
-      `?? ${name} : pneus � <b>${cond}%</b>. C'est limite, confirme le pit.`,
-      `?? ${name} : gommes � <b>${cond}%</b>. On va perdre des dixi�mes par tour. Box ?`,
-      `?? ${name} � <b>${cond}%</b> sur les pneus. On risque le flat-spot si on reste.`,
-      `?? Alerte pneus ${name} : <b>${cond}%</b>. La fen�tre se ferme.`,
-      `?? ${name} : <b>${cond}%</b> de gomme. C'est critique � box dans ce tour.`,
-      `?? ${name} pr�pare-toi � <b>${cond}%</b> sur les pneus. On ne peut plus attendre.`,
-      `?? ${name} : la d�gradation s'acc�l�re, <b>${cond}%</b>. On perd du rythme � chaque tour.`,
-      `?? Box imminent pour ${name} � <b>${cond}%</b>. Les donn�es confirment qu'on est au bout.`,
-      `?? ${name} : attention aux cloquages � <b>${cond}%</b>. Le muret demande le box.`,
-      `?? ${name} : <b>${cond}%</b> de vie pneu. On s�curise maintenant.`,
+      `🎧 ${name} : pneus à <b>${cond}%</b>. C'est limite, confirme le pit.`,
+      `🎧 ${name} : gommes à <b>${cond}%</b>. On va perdre des dixièmes par tour. Box ?`,
+      `🎧 ${name} — <b>${cond}%</b> sur les pneus. On risque le flat-spot si on reste.`,
+      `🎧 Alerte pneus ${name} : <b>${cond}%</b>. La fenêtre se ferme.`,
+      `🎧 ${name} : <b>${cond}%</b> de gomme. C'est critique — box dans ce tour.`,
+      `🎧 ${name} prépare-toi — <b>${cond}%</b> sur les pneus. On ne peut plus attendre.`,
+      `🎧 ${name} : la dégradation s'accélère, <b>${cond}%</b>. On perd du rythme à chaque tour.`,
+      `🎧 Box imminent pour ${name} — <b>${cond}%</b>. Les données confirment qu'on est au bout.`,
+      `🎧 ${name} : attention aux cloquages à <b>${cond}%</b>. Le muret demande le box.`,
+      `🎧 ${name} : <b>${cond}%</b> de vie pneu. On sécurise maintenant.`,
     ];
     return this.pick(pool);
   },
 
   tyreWarning(name, cond) {
     const pool = [
-      `?? ${name} : pneus � ${cond}%. On garde un �il.`,
-      `?? ${name} : d�gradation visible � ${cond}% restant.`,
-      `?? ${name} � ${cond}% sur les gommes. Anticipe la fen�tre.`,
-      `?? ${name} : on commence � voir la d�gradation, ${cond}%.`,
-      `?? ${name} : ${cond}% de pneu. Surveille le delta par rapport au tour pr�c�dent.`,
-      `?? ${name} : les gommes travaillent fort � ${cond}% restant. Ajuste si besoin.`,
-      `?? ${name} : ${cond}% de vie. On anticipe la fen�tre de pit dans les prochains tours.`,
-      `?? ${name} : attention d�gradation thermique � ${cond}%. G�re tes freinages.`,
-      `?? ${name} � ${cond}% sur les pneus. Pas d'alarme mais on surveille de pr�s.`,
-      `?? ${name} : ${cond}% de gomme. Reste dans la fen�tre de temp�rature.`,
-      `?? ${name} : premier signe de graining � ${cond}%. Fais attention � la trajectoire.`,
+      `🎧 ${name} : pneus à ${cond}%. On garde un œil.`,
+      `🎧 ${name} : dégradation visible — ${cond}% restant.`,
+      `🎧 ${name} — ${cond}% sur les gommes. Anticipe la fenêtre.`,
+      `🎧 ${name} : on commence à voir la dégradation, ${cond}%.`,
+      `🎧 ${name} : ${cond}% de pneu. Surveille le delta par rapport au tour précédent.`,
+      `🎧 ${name} : les gommes travaillent fort — ${cond}% restant. Ajuste si besoin.`,
+      `🎧 ${name} : ${cond}% de vie. On anticipe la fenêtre de pit dans les prochains tours.`,
+      `🎧 ${name} : attention dégradation thermique — ${cond}%. Gère tes freinages.`,
+      `🎧 ${name} à ${cond}% sur les pneus. Pas d'alarme mais on surveille de près.`,
+      `🎧 ${name} : ${cond}% de gomme. Reste dans la fenêtre de température.`,
+      `🎧 ${name} : premier signe de graining — ${cond}%. Fais attention à la trajectoire.`,
     ];
     return this.pick(pool);
   },
 
   attack(name, opp, delta) {
     const pool = [
-      `?? ${name} � ${delta} de ${opp}. Zone DRS accessible au prochain tour.`,
-      `?? ${name} se rapproche de ${opp} � ${delta}. L'attaque se pr�pare.`,
-      `?? ${name} colle � ${opp} : ${delta}. C'est maintenant ou jamais.`,
-      `?? ${delta} entre ${name} et ${opp}. Le muret surveille le delta.`,
-      `?? ${name} est dans la fen�tre DRS de ${opp}. On tente ?`,
-      `?? ${name} revient fort sur ${opp} � ${delta}. La place est dans le viseur.`,
-      `?? ${delta} seulement pour ${name} derri�re ${opp}. Le DRS va tout changer.`,
-      `?? ${name} dans les roues de ${opp} � ${delta}. L'opportunit� approche.`,
-      `?? Attaque imminente de ${name} sur ${opp}. ${delta} de marge pour l'adversaire.`,
-      `?? ${name} est l� � ${delta} de ${opp}. On surveille la ligne droite.`,
-      `?? Le muret donne le feu vert � ${name}. ${delta} sur ${opp} � c'est jouable.`,
-      `?? ${name} chasse ${opp} � ${delta}. Choisis bien ton point de freinage.`,
+      `📻 ${name} à ${delta} de ${opp}. Zone DRS accessible au prochain tour.`,
+      `📻 ${name} se rapproche de ${opp} — ${delta}. L'attaque se prépare.`,
+      `📻 ${name} colle à ${opp} : ${delta}. C'est maintenant ou jamais.`,
+      `📻 ${delta} entre ${name} et ${opp}. Le muret surveille le delta.`,
+      `📻 ${name} est dans la fenêtre DRS de ${opp}. On tente ?`,
+      `📻 ${name} revient fort sur ${opp} — ${delta}. La place est dans le viseur.`,
+      `📻 ${delta} seulement pour ${name} derrière ${opp}. Le DRS va tout changer.`,
+      `📻 ${name} dans les roues de ${opp} — ${delta}. L'opportunité approche.`,
+      `📻 Attaque imminente de ${name} sur ${opp}. ${delta} de marge pour l'adversaire.`,
+      `📻 ${name} est là — ${delta} de ${opp}. On surveille la ligne droite.`,
+      `📻 Le muret donne le feu vert à ${name}. ${delta} sur ${opp} — c'est jouable.`,
+      `📻 ${name} chasse ${opp} — ${delta}. Choisis bien ton point de freinage.`,
     ];
     return this.pick(pool);
   },
 
   defend(name, opp, delta) {
     const pool = [
-      `?? ${opp} revient � ${delta} de ${name}. D�fend les lignes de freinage.`,
-      `?? ${name} sous pression � ${opp} � ${delta}. On ferme la porte.`,
-      `?? ${opp} dans le DRS de ${name} ! ${delta}. Tiens bon.`,
-      `?? ${name} : ${opp} dans ton r�tro � ${delta}. Pas de cadeau.`,
-      `?? ${opp} revient vite sur ${name} � ${delta}. Les pneus tiennent ?`,
-      `?? ${name} : d�fends ta position ! ${opp} � ${delta} et il a le DRS.`,
-      `?? Attention ${name} � ${opp} revient � ${delta}. Prot�ge les freinage.`,
-      `?? ${opp} est l�, ${delta} de ${name}. Couvre l'int�rieur dans le prochain virage.`,
-      `?? ${name} : ${opp} souffle dans le casque � ${delta}. On reste concentr�s.`,
-      `?? D�fense capitale pour ${name}. ${opp} � ${delta} � pas question de c�der.`,
-      `?? ${name} : garde ton style de conduite. ${opp} � ${delta} mais tu contr�les.`,
-      `?? ${opp} attaque � ${delta} sur ${name}. D�fends proprement, pas de p�nalit�.`,
+      `📻 ${opp} revient à ${delta} de ${name}. Défend les lignes de freinage.`,
+      `📻 ${name} sous pression — ${opp} à ${delta}. On ferme la porte.`,
+      `📻 ${opp} dans le DRS de ${name} ! ${delta}. Tiens bon.`,
+      `📻 ${name} : ${opp} dans ton rétro à ${delta}. Pas de cadeau.`,
+      `📻 ${opp} revient vite sur ${name} — ${delta}. Les pneus tiennent ?`,
+      `📻 ${name} : défends ta position ! ${opp} à ${delta} et il a le DRS.`,
+      `📻 Attention ${name} — ${opp} revient à ${delta}. Protège les freinage.`,
+      `📻 ${opp} est là, ${delta} de ${name}. Couvre l'intérieur dans le prochain virage.`,
+      `📻 ${name} : ${opp} souffle dans le casque — ${delta}. On reste concentrés.`,
+      `📻 Défense capitale pour ${name}. ${opp} à ${delta} — pas question de céder.`,
+      `📻 ${name} : garde ton style de conduite. ${opp} à ${delta} mais tu contrôles.`,
+      `📻 ${opp} attaque — ${delta} sur ${name}. Défends proprement, pas de pénalité.`,
     ];
     return this.pick(pool);
   },
@@ -1690,103 +1678,103 @@ const NarrativePool = {
     const pct = lap / total;
     if (pct < 0.3) {
       return this.pick([
-        `??? <b>${leaderName}</b> impose son rythme en t�te, ${gap} sur P2.`,
-        `??? D�but de course : <b>${leaderName}</b> m�ne avec ${gap} d'avance.`,
-        `??? <b>${leaderName}</b> contr�le pour l'instant � ${gap} sur le suivant.`,
+        `🎙️ <b>${leaderName}</b> impose son rythme en tête, ${gap} sur P2.`,
+        `🎙️ Début de course : <b>${leaderName}</b> mène avec ${gap} d'avance.`,
+        `🎙️ <b>${leaderName}</b> contrôle pour l'instant — ${gap} sur le suivant.`,
       ]);
     } else if (pct < 0.7) {
       return this.pick([
-        `??? Mi-course : <b>${leaderName}</b> toujours en t�te, ${gap}.`,
-        `??? <b>${leaderName}</b> ne l�che rien � ${gap} sur P2.`,
-        `??? Point classement : <b>${leaderName}</b> leader avec ${gap} de marge.`,
-        `??? <b>${leaderName}</b> solide en t�te. ${gap} sur son poursuivant.`,
+        `🎙️ Mi-course : <b>${leaderName}</b> toujours en tête, ${gap}.`,
+        `🎙️ <b>${leaderName}</b> ne lâche rien — ${gap} sur P2.`,
+        `🎙️ Point classement : <b>${leaderName}</b> leader avec ${gap} de marge.`,
+        `🎙️ <b>${leaderName}</b> solide en tête. ${gap} sur son poursuivant.`,
       ]);
     } else {
       return this.pick([
-        `??? Fin de course : <b>${leaderName}</b> m�ne avec ${gap}. �a se dessine.`,
-        `??? <b>${leaderName}</b> sent la victoire � ${gap} � g�rer.`,
-        `??? Derni�re partie : <b>${leaderName}</b> en t�te, ${gap}. Suffit-il ?`,
+        `🎙️ Fin de course : <b>${leaderName}</b> mène avec ${gap}. Ça se dessine.`,
+        `🎙️ <b>${leaderName}</b> sent la victoire — ${gap} à gérer.`,
+        `🎙️ Dernière partie : <b>${leaderName}</b> en tête, ${gap}. Suffit-il ?`,
       ]);
     }
   },
 
   safetyCarIn: [
-    `?? Safety Car ! On regarde la fen�tre pit � c'est quasi gratuit de box maintenant.`,
-    `?? SC d�ploy�e. Opportunit� strat�gique : tout le monde au stand ?`,
-    `?? Safety Car sur la piste. Attention aux pneus froids au restart.`,
-    `?? SC ! Le muret analyse : box maintenant ou couvrir au restart ?`,
-    `?? Safety Car ! C'est le moment ou jamais pour un arr�t gratuit.`,
-    `?? SC sur la piste � le muret calcule. On a 2 tours pour d�cider.`,
-    `?? Neutralisation ! Les pneus vont refroidir � attention � la relance.`,
-    `?? Safety Car d�ploy�e. Tout se remet � z�ro � soyez pr�ts au restart.`,
-    `?? SC ! Opportunit� en or pour pit sans perte de temps. On analyse.`,
-    `?? La Safety Car regroupe le peloton. Le muret est en pleine r�flexion.`,
-    `?? SC sur la piste. Le classement va se redistribuer selon les pit stops.`,
-    `?? Neutralisation ! Les adversaires vont box � on doit d�cider maintenant.`,
+    `🎧 Safety Car ! On regarde la fenêtre pit — c'est quasi gratuit de box maintenant.`,
+    `🎧 SC déployée. Opportunité stratégique : tout le monde au stand ?`,
+    `🎧 Safety Car sur la piste. Attention aux pneus froids au restart.`,
+    `🎧 SC ! Le muret analyse : box maintenant ou couvrir au restart ?`,
+    `🎧 Safety Car ! C'est le moment ou jamais pour un arrêt gratuit.`,
+    `🎧 SC sur la piste — le muret calcule. On a 2 tours pour décider.`,
+    `🎧 Neutralisation ! Les pneus vont refroidir — attention à la relance.`,
+    `🎧 Safety Car déployée. Tout se remet à zéro — soyez prêts au restart.`,
+    `🎧 SC ! Opportunité en or pour pit sans perte de temps. On analyse.`,
+    `🎧 La Safety Car regroupe le peloton. Le muret est en pleine réflexion.`,
+    `🎧 SC sur la piste. Le classement va se redistribuer selon les pit stops.`,
+    `🎧 Neutralisation ! Les adversaires vont box — on doit décider maintenant.`,
   ],
   safetyCarOut: [
-    `?? Safety Car rentre ! Relance dans un tour � pr�pare le restart.`,
-    `?? Piste d�gag�e, relance imminente. Attention aux duels dans le premier virage.`,
-    `?? C'est reparti ! Le peloton est serr� � tout est possible.`,
-    `?? Relance ! Les pneus sont froids, les premi�res secondes seront chaotiques.`,
-    `?? SC rentre � la course reprend ! Explosif dans le premier secteur.`,
-    `?? Relance imminente. Tout le monde � fond d�s l'extinction des feux de SC.`,
-    `?? Piste libre ! Les pneus froids vont cr�er du chaos � reste vigilant.`,
-    `?? C'est reparti ! Le peloton compact offre des opportunit�s de d�passement.`,
-    `?? Safety Car aux stands. Le spectacle reprend � accroche-toi !`,
-    `?? Relance dans un tour. Position de freinage va d�cider des places.`,
+    `🟢 Safety Car rentre ! Relance dans un tour — prépare le restart.`,
+    `🟢 Piste dégagée, relance imminente. Attention aux duels dans le premier virage.`,
+    `🟢 C'est reparti ! Le peloton est serré — tout est possible.`,
+    `🟢 Relance ! Les pneus sont froids, les premières secondes seront chaotiques.`,
+    `🟢 SC rentre — la course reprend ! Explosif dans le premier secteur.`,
+    `🟢 Relance imminente. Tout le monde à fond dès l'extinction des feux de SC.`,
+    `🟢 Piste libre ! Les pneus froids vont créer du chaos — reste vigilant.`,
+    `🟢 C'est reparti ! Le peloton compact offre des opportunités de dépassement.`,
+    `🟢 Safety Car aux stands. Le spectacle reprend — accroche-toi !`,
+    `🟢 Relance dans un tour. Position de freinage va décider des places.`,
   ],
   weatherChange: [
-    `?? La pluie arrive. Interm�diaires ou rester sec ? On surveille le timing.`,
-    `?? M�t�o changeante � recalcul de strat�gie en cours.`,
-    `?? Piste qui s'humidifie. Le choix pneus va tout changer dans les prochains tours.`,
-    `?? Alerte m�t�o. On chronom�tre le delta inter/sec pour d�cider du bon moment.`,
-    `?? La pluie pointe son nez. On surveille le niveau de pr�cipitations avant de d�cider.`,
-    `?? Piste mixte. Ni tout sec ni tout mouill� � le timing est crucial.`,
-    `?? La m�t�o bascule ! Pr�pare-toi au changement de pneus au prochain tour possible.`,
-    `?? Pr�cipitations en hausse. Le muret calcule le delta inter vs slick.`,
-    `?? Alerte pluie ! C'est la loterie des pneus � qui va box en premier ?`,
-    `?? Piste qui �volue vite. On ne peut pas attendre trop longtemps pour d�cider.`,
+    `🎧 La pluie arrive. Intermédiaires ou rester sec ? On surveille le timing.`,
+    `🎧 Météo changeante — recalcul de stratégie en cours.`,
+    `🎧 Piste qui s'humidifie. Le choix pneus va tout changer dans les prochains tours.`,
+    `🎧 Alerte météo. On chronomètre le delta inter/sec pour décider du bon moment.`,
+    `🎧 La pluie pointe son nez. On surveille le niveau de précipitations avant de décider.`,
+    `🎧 Piste mixte. Ni tout sec ni tout mouillé — le timing est crucial.`,
+    `🎧 La météo bascule ! Prépare-toi au changement de pneus au prochain tour possible.`,
+    `🎧 Précipitations en hausse. Le muret calcule le delta inter vs slick.`,
+    `🎧 Alerte pluie ! C'est la loterie des pneus — qui va box en premier ?`,
+    `🎧 Piste qui évolue vite. On ne peut pas attendre trop longtemps pour décider.`,
   ],
   dnf: [
-    `??? Abandon dans le peloton � �a redistribue les cartes au classement.`,
-    `??? Une voiture s'arr�te. Chaque place r�cup�r�e compte en championnat.`,
-    `??? Abandon confirm�. Le muret recalcule les positions.`,
-    `??? Une voiture hors course. Le classement se redistribue.`,
-    `??? Abandon ! Mauvaise journ�e pour cette �quipe � bonne nouvelle pour les autres.`,
-    `??? Retrait en course. Les places lib�r�es font avancer tout le monde.`,
-    `??? Voiture abandonn�e. La course ne pardonne pas.`,
-    `??? Encore un abandon. La F1 peut �tre cruelle.`,
-    `??? Une �quipe de moins dans la bagarre. Le muret met � jour le classement.`,
+    `🎙️ Abandon dans le peloton — ça redistribue les cartes au classement.`,
+    `🎙️ Une voiture s'arrête. Chaque place récupérée compte en championnat.`,
+    `🎙️ Abandon confirmé. Le muret recalcule les positions.`,
+    `🎙️ Une voiture hors course. Le classement se redistribue.`,
+    `🎙️ Abandon ! Mauvaise journée pour cette équipe — bonne nouvelle pour les autres.`,
+    `🎙️ Retrait en course. Les places libérées font avancer tout le monde.`,
+    `🎙️ Voiture abandonnée. La course ne pardonne pas.`,
+    `🎙️ Encore un abandon. La F1 peut être cruelle.`,
+    `🎙️ Une équipe de moins dans la bagarre. Le muret met à jour le classement.`,
   ],
   pitUndercut: [
-    `Box cette tour ! On couvre l'undercut � fen�tre ferm�e apr�s �a.`,
-    `Arr�t maintenant : on ne laisse pas l'undercut passer.`,
+    `Box cette tour ! On couvre l'undercut — fenêtre fermée après ça.`,
+    `Arrêt maintenant : on ne laisse pas l'undercut passer.`,
     `On rentre ! L'undercut, c'est maintenant ou jamais.`,
   ],
   pitSafetyCar: [
-    `?? Box box box ! Safety Car � arr�t quasi gratuit, on en profite.`,
-    `?? SC sur la piste, on entre ! C'est le meilleur moment de la course pour pitter.`,
-    `?? Pit stop SC ! On ressort avec des pneus neufs sans perdre de terrain.`,
+    `📻 Box box box ! Safety Car — arrêt quasi gratuit, on en profite.`,
+    `📻 SC sur la piste, on entre ! C'est le meilleur moment de la course pour pitter.`,
+    `📻 Pit stop SC ! On ressort avec des pneus neufs sans perdre de terrain.`,
   ],
   pitWeather: [
-    `?? On rentre pour le changement de pneus � la piste �volue trop vite.`,
-    `?? Box ! On s'adapte � la m�t�o, interm�diaires pr�ts.`,
-    `?? Pit stop m�t�o. Le timing est cl� � ni trop t�t ni trop tard.`,
+    `📻 On rentre pour le changement de pneus — la piste évolue trop vite.`,
+    `📻 Box ! On s'adapte à la météo, intermédiaires prêts.`,
+    `📻 Pit stop météo. Le timing est clé — ni trop tôt ni trop tard.`,
   ],
   pitDead: [
-    `?? Box box ! Les pneus sont morts, on s�curise la course.`,
-    `?? On rentre � les gommes sont au bout, risque de crevaison.`,
-    `?? Pit obligatoire ! Les pneus ne tiennent plus, on n'a pas le choix.`,
+    `📻 Box box ! Les pneus sont morts, on sécurise la course.`,
+    `📻 On rentre — les gommes sont au bout, risque de crevaison.`,
+    `📻 Pit obligatoire ! Les pneus ne tiennent plus, on n'a pas le choix.`,
   ],
   pitPlanned: [
-    `?? Muret : arr�t planifi� dans la fen�tre. Tout est pr�t c�t� stand.`,
-    `?? On confirme l'arr�t � la fen�tre est bonne, les pneus chauds.`,
-    `?? Pit stop confirm�. L'�quipe est pr�te, objectif arr�t propre.`,
+    `🧠 Muret : arrêt planifié dans la fenêtre. Tout est prêt côté stand.`,
+    `🧠 On confirme l'arrêt — la fenêtre est bonne, les pneus chauds.`,
+    `🧠 Pit stop confirmé. L'équipe est prête, objectif arrêt propre.`,
   ],
   pitTeamOrder: [
-    `?? Box sur consigne � le muret a d�cid�, on ex�cute.`,
-    `?? Arr�t sur ordre d'�quipe. Strat�gie globale prioritaire.`,
+    `📻 Box sur consigne — le muret a décidé, on exécute.`,
+    `📻 Arrêt sur ordre d'équipe. Stratégie globale prioritaire.`,
   ],
 };
 
@@ -1799,45 +1787,45 @@ function buildRaceNarrative(res) {
   const msgs  = [];
   const pCars = getPlayerCars();
 
-  // D�part
+  // Départ
   if (lap === 1 && RaceNarrative.once('start')) {
     msgs.push(lapEvent(lap, 'broadcast', NarrativePool.pick([
-      `?? D�part lanc� ! <b>${driverLabel(leader?.driver)}</b> bondit en t�te.`,
-      `?? Les feux s'�teignent � <b>${driverLabel(leader?.driver)}</b> m�ne au premier virage.`,
-      `?? C'est parti ! <b>${driverLabel(leader?.driver)}</b> prend la t�te d�s le d�part.`,
-      `?? Extinction des feux, c'est lanc� ! <b>${driverLabel(leader?.driver)}</b> garde le commandement.`,
-      `?? Le Grand Prix est lanc� ! Bagarre imm�diate derri�re <b>${driverLabel(leader?.driver)}</b>.`,
-      `?? D�part propre pour <b>${driverLabel(leader?.driver)}</b> qui s'impose en t�te d�s le d�part.`,
-      `?? Les moteurs rugissent � <b>${driverLabel(leader?.driver)}</b> sort parfaitement de la ligne.`,
+      `🚦 Départ lancé ! <b>${driverLabel(leader?.driver)}</b> bondit en tête.`,
+      `🚦 Les feux s'éteignent — <b>${driverLabel(leader?.driver)}</b> mène au premier virage.`,
+      `🚦 C'est parti ! <b>${driverLabel(leader?.driver)}</b> prend la tête dès le départ.`,
+      `🚦 Extinction des feux, c'est lancé ! <b>${driverLabel(leader?.driver)}</b> garde le commandement.`,
+      `🚦 Le Grand Prix est lancé ! Bagarre immédiate derrière <b>${driverLabel(leader?.driver)}</b>.`,
+      `🚦 Départ propre pour <b>${driverLabel(leader?.driver)}</b> qui s'impose en tête dès le départ.`,
+      `🚦 Les moteurs rugissent — <b>${driverLabel(leader?.driver)}</b> sort parfaitement de la ligne.`,
     ])));
   }
 
   // Mi-course
   if (lap === Math.ceil(total / 2) && RaceNarrative.once('halfway')) {
     msgs.push(lapEvent(lap, 'broadcast', NarrativePool.pick([
-      `?? Mi-course. Les strat�gies commencent � se dessiner.`,
-      `?? La moiti� du Grand Prix est pass�e � qui a le meilleur rythme de fin ?`,
-      `?? ${total - lap} tours � tenir. La gestion pneus va tout d�cider.`,
-      `?? Mi-distance. Les �carts se creusent, les pneus parlent.`,
-      `?? On est � la moiti� � les murets recalculent les fen�tres de pit.`,
-      `?? ${total - lap} tours restants. La vraie course commence maintenant.`,
-      `?? Mi-course pass�e. Qui a gard� le meilleur gomme pour la fin ?`,
-      `?? La course entre dans sa deuxi�me partie. Tout peut encore basculer.`,
+      `📊 Mi-course. Les stratégies commencent à se dessiner.`,
+      `📊 La moitié du Grand Prix est passée — qui a le meilleur rythme de fin ?`,
+      `📊 ${total - lap} tours à tenir. La gestion pneus va tout décider.`,
+      `📊 Mi-distance. Les écarts se creusent, les pneus parlent.`,
+      `📊 On est à la moitié — les murets recalculent les fenêtres de pit.`,
+      `📊 ${total - lap} tours restants. La vraie course commence maintenant.`,
+      `📊 Mi-course passée. Qui a gardé le meilleur gomme pour la fin ?`,
+      `📊 La course entre dans sa deuxième partie. Tout peut encore basculer.`,
     ])));
   }
 
   // 10 derniers tours
   if (lap === Math.max(1, total - 10) && RaceNarrative.once('last10')) {
     msgs.push(lapEvent(lap, 'broadcast', NarrativePool.pick([
-      `?? 10 tours restants. On joue le tout pour le tout.`,
-      `?? Derniers 10 tours � les pneus vont parler maintenant.`,
-      `?? On entre dans le money time. Chaque dixi�me compte.`,
-      `?? 10 tours ! La course se d�cide maintenant.`,
-      `?? Plus que 10 tours. Qui tient ses pneus jusqu'au bout ?`,
-      `?? Les 10 derniers tours � le moment de tout donner.`,
-      `?? Compte � rebours lanc�. 10 tours pour �crire l'histoire.`,
-      `?? On entre dans la zone rouge. Chaque position va se payer cash.`,
-      `?? Derni�re ligne droite de la course. Les d�cisions strat�giques sont prises.`,
+      `🔥 10 tours restants. On joue le tout pour le tout.`,
+      `🔥 Derniers 10 tours — les pneus vont parler maintenant.`,
+      `🔥 On entre dans le money time. Chaque dixième compte.`,
+      `🔥 10 tours ! La course se décide maintenant.`,
+      `🔥 Plus que 10 tours. Qui tient ses pneus jusqu'au bout ?`,
+      `🔥 Les 10 derniers tours — le moment de tout donner.`,
+      `🔥 Compte à rebours lancé. 10 tours pour écrire l'histoire.`,
+      `🔥 On entre dans la zone rouge. Chaque position va se payer cash.`,
+      `🔥 Dernière ligne droite de la course. Les décisions stratégiques sont prises.`,
     ])));
   }
 
@@ -1873,13 +1861,13 @@ function buildRaceNarrative(res) {
     }
   });
 
-  // �v�nements course
+  // Événements course
   (res?.events || []).forEach(ev => {
     if (ev.type === 'pit') {
       const reason     = ev.reason || '';
-      const driverName = (ev.message || '').replace(/^\uD83D\uDD27\s*/, '').split(' � ')[0] || 'Pilote';
+      const driverName = (ev.message || '').replace(/^\uD83D\uDD27\s*/, '').split(' — ')[0] || 'Pilote';
       const radioKey   = `pit_reason_${reason}_${ev.driverId || driverName}_${lap}`;
-      if      (reason === 'undercut'               && RaceNarrative.once(radioKey)) msgs.push(lapEvent(lap, 'radio',    `?? ${driverName} � ${NarrativePool.pick(NarrativePool.pitUndercut)}`));
+      if      (reason === 'undercut'               && RaceNarrative.once(radioKey)) msgs.push(lapEvent(lap, 'radio',    `📻 ${driverName} — ${NarrativePool.pick(NarrativePool.pitUndercut)}`));
       else if (reason === 'safety_car_opportunity' && RaceNarrative.once(radioKey)) msgs.push(lapEvent(lap, 'radio',    NarrativePool.pick(NarrativePool.pitSafetyCar)));
       else if (reason === 'weather_change'         && RaceNarrative.once(radioKey)) msgs.push(lapEvent(lap, 'radio',    NarrativePool.pick(NarrativePool.pitWeather)));
       else if (reason === 'tyre_dead'              && RaceNarrative.once(radioKey)) msgs.push(lapEvent(lap, 'radio',    NarrativePool.pick(NarrativePool.pitDead)));
@@ -1896,7 +1884,7 @@ function buildRaceNarrative(res) {
   if (lap - RaceNarrative.lastGeneralLap >= 4 && leader) {
     RaceNarrative.lastGeneralLap = lap;
     const p2      = standings[1];
-    const leadGap = p2 && p2.gap !== null ? p2.gap.toFixed(1) + 's' : '�';
+    const leadGap = p2 && p2.gap !== null ? p2.gap.toFixed(1) + 's' : '—';
     msgs.push(lapEvent(lap, 'broadcast', NarrativePool.leaderUpdate(driverLabel(leader.driver), leadGap, lap, total)));
   }
 
@@ -1906,16 +1894,16 @@ function buildRaceNarrative(res) {
 function addPostRaceBroadcast(results) {
   if (!results?.length || !Race.state) return;
   const winner = results[0];
-  const podium = results.slice(0,3).map(r => `${r.position}. ${driverLabel(r.driver)}`).join(' � ');
+  const podium = results.slice(0,3).map(r => `${r.position}. ${driverLabel(r.driver)}`).join(' · ');
   const save = Save.load();
   const pid = save?.playerTeamId;
   const playerResults = pid ? results.filter(r => r.driver.teamId === pid) : [];
   const msg = [
-    lapEvent(Race.state.currentLap || Race.state.totalLaps, 'podium', `?? Victoire de <b>${driverLabel(winner.driver)}</b> � Podium : ${podium}.`)
+    lapEvent(Race.state.currentLap || Race.state.totalLaps, 'podium', `🏆 Victoire de <b>${driverLabel(winner.driver)}</b> — Podium : ${podium}.`)
   ];
   if (playerResults.length) {
     const pts = playerResults.reduce((sum, r) => sum + (r.points || 0), 0);
-    msg.push(lapEvent(Race.state.currentLap || Race.state.totalLaps, 'engineer', `?? D�brief �quipe : P${playerResults.map(r=>r.position).join(' / P')} � ${pts} point${pts>1?'s':''}.`));
+    msg.push(lapEvent(Race.state.currentLap || Race.state.totalLaps, 'engineer', `🎧 Débrief équipe : P${playerResults.map(r=>r.position).join(' / P')} · ${pts} point${pts>1?'s':''}.`));
   }
   addEvents(msg);
 }
@@ -1959,7 +1947,7 @@ function initPreRaceStrategy() {
   const circuit = F1Data.circuits.find(c => c.id === cid) || F1Data.circuits[0];
   const drivers = getPlayerDrivers();
   if (!drivers.length) {
-    box.innerHTML = '<span style="color:var(--muted);font-size:11px">Aucune �quipe joueur d�tect�e. Va sur la page �quipe pour cr�er/charger une carri�re.</span>';
+    box.innerHTML = '<span style="color:var(--muted);font-size:11px">Aucune équipe joueur détectée. Va sur la page Équipe pour créer/charger une carrière.</span>';
     return;
   }
   box.innerHTML = '';
@@ -1979,7 +1967,7 @@ function initPreRaceStrategy() {
       <span style="font-family:var(--fh);color:var(--muted);font-size:11px">Pit T.</span>
       <input class="mini-sel" id="pre_p2_${driver.id}" type="number" min="2" max="${circuit.laps-3}" value="${defaultPits[1] || ''}" style="width:58px">
       <select class="mini-sel" id="pre_c3_${driver.id}">${tyreOptions(defaults[2])}</select>
-      <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">${circuit.laps} tours � pneus adaptatifs pluie/SC</span>
+      <span style="font-family:var(--fh);font-size:11px;color:var(--muted)">${circuit.laps} tours · pneus adaptatifs pluie/SC</span>
     `;
     box.appendChild(row);
   });
@@ -2014,15 +2002,15 @@ function forcePitNew(driverId) { const sel = document.getElementById('pit_new_'+
 function syncOrdersTab() {
   const box = document.getElementById('playerControlsNew');
   if (!box) return;
-  if (!Race.state) { box.innerHTML = '<span style="color:var(--muted);font-size:11px">D�marre une course.</span>'; return; }
+  if (!Race.state) { box.innerHTML = '<span style="color:var(--muted);font-size:11px">Démarre une course.</span>'; return; }
   const save = Save.load(); const pid = save?.playerTeamId;
   const cars = Race.state.grid.filter(c => c.driver.teamId === pid && c.status === 'racing');
-  if (!cars.length) { box.innerHTML = '<span style="color:var(--muted);font-size:11px;padding:6px">Aucune �quipe joueur.</span>'; return; }
+  if (!cars.length) { box.innerHTML = '<span style="color:var(--muted);font-size:11px;padding:6px">Aucune équipe joueur.</span>'; return; }
   box.innerHTML = '';
   cars.forEach(car => {
     const tyre = F1Data.tyres[car.tyre.compound], cond = Math.round(car.tyre.condition*100);
     const mode = car.orderMode||'normal', laps = Race.state.totalLaps - Race.state.currentLap;
-    const pit = cond<35?'?? PIT URGENT':(cond<55&&laps>5)?'?? Fen�tre pit':'?? OK';
+    const pit = cond<35?'🔴 PIT URGENT':(cond<55&&laps>5)?'🟡 Fenêtre pit':'🟢 OK';
     const col = visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff');
     const card = document.createElement('div');
     card.style.cssText = 'background:var(--surface2);border:1px solid var(--border);border-radius:5px;padding:10px 12px;margin-bottom:8px';
@@ -2031,22 +2019,22 @@ function syncOrdersTab() {
         <div style="font-family:var(--fh);font-weight:900;font-size:20px;color:${col}">P${car.position}</div>
         <div style="font-family:var(--fh);font-weight:700;font-size:15px;flex:1">${car.driver.firstName} ${car.driver.name}</div>
         <div style="font-family:var(--fh);font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:${mode==='attack'?'#1a1a00':mode==='save'?'#001a00':'var(--surface)'};color:${mode==='attack'?'var(--gold)':mode==='save'?'var(--green)':'var(--muted)'};border:1px solid ${mode==='attack'?'#3a3a00':mode==='save'?'#003a00':'var(--border)'}">
-          ${mode==='attack'?'? Attaque':mode==='save'?'?? �conomie':'? Normal'}
+          ${mode==='attack'?'⚡ Attaque':mode==='save'?'🌿 Économie':'◼ Normal'}
         </div>
       </div>
       <div style="font-family:var(--fh);font-size:11px;color:var(--muted);margin-bottom:8px">
-        <span style="color:${tyre.color}">? ${tyre.name}</span> ${cond}% &nbsp;|&nbsp; Gap: ${car.gap===0?'LEADER':'+'+car.gap.toFixed(1)+'s'} &nbsp;|&nbsp; ${pit} &nbsp;|&nbsp; ${laps} tours restants
+        <span style="color:${tyre.color}">● ${tyre.name}</span> ${cond}% &nbsp;|&nbsp; Gap: ${car.gap===0?'LEADER':'+'+car.gap.toFixed(1)+'s'} &nbsp;|&nbsp; ${pit} &nbsp;|&nbsp; ${laps} tours restants
       </div>
       <div class="race-order-grid">
-        <button class="btn race-order-btn order-attack ${mode==='attack'?'order-active':''}" onclick="setMode('${car.driver.id}','attack')">? Attaquer</button>
-        <button class="btn race-order-btn order-normal ${mode==='normal'?'order-active':''}" onclick="setMode('${car.driver.id}','normal')">? Normal</button>
-        <button class="btn race-order-btn order-save ${mode==='save'?'order-active':''}" onclick="setMode('${car.driver.id}','save')">?? �conomiser</button>
+        <button class="btn race-order-btn order-attack ${mode==='attack'?'order-active':''}" onclick="setMode('${car.driver.id}','attack')">⚡ Attaquer</button>
+        <button class="btn race-order-btn order-normal ${mode==='normal'?'order-active':''}" onclick="setMode('${car.driver.id}','normal')">◼ Normal</button>
+        <button class="btn race-order-btn order-save ${mode==='save'?'order-active':''}" onclick="setMode('${car.driver.id}','save')">🌿 Économiser</button>
       </div>
       <div class="race-pit-row">
         <select class="mini-sel" id="pit_new_${car.driver.id}">
           ${['SOFT','MEDIUM','HARD','INTER','WET'].map(c=>`<option value="${c}"${c==='MEDIUM'?' selected':''}>${F1Data.tyres[c].name}</option>`).join('')}
         </select>
-        <button class="btn btn-red" onclick="forcePitNew('${car.driver.id}')">?? Pitter</button>
+        <button class="btn btn-red" onclick="forcePitNew('${car.driver.id}')">🔧 Pitter</button>
       </div>`;
     box.appendChild(card);
   });
@@ -2057,7 +2045,7 @@ function forcePit(driverId) { const sel = document.getElementById('pit_'+driverI
 function renderStrat() {
   if (!Race.state) return;
   const body = document.getElementById('stratBody');
-  if (!body) return; // �l�ment absent dans cette version
+  if (!body) return; // élément absent dans cette version
   body.innerHTML = '';
   Race.getStandings().slice(0,5).forEach(car => {
     const row = document.createElement('div');
@@ -2081,7 +2069,7 @@ function persistRaceResults(results) {
   Race.state._careerReward = careerReward;
 
   if (!careerReward) {
-    console.warn('[Race] R�sultat affich�, mais non enregistr� dans la carri�re. Cr�e/charge une carri�re depuis la page �quipe.');
+    console.warn('[Race] Résultat affiché, mais non enregistré dans la carrière. Crée/charge une carrière depuis la page Équipe.');
   }
   return careerReward;
 }
@@ -2093,7 +2081,7 @@ function saveLastGpSummary(results, careerReward) {
     if (!save || !Race.state || !Array.isArray(results) || !results.length) return;
     const circuit = Race.state.circuit || {};
     const playerTeamId = save.playerTeamId;
-    // Filtrer avec driverStates pour exclure les pilotes lib�r�s en cours de saison
+    // Filtrer avec driverStates pour exclure les pilotes libérés en cours de saison
     const activeDriverIds = Object.entries(save.driverStates||{})
       .filter(([,v]) => v.teamId && v.teamId !== 'free_agent' && v.teamId === playerTeamId && !v.retired)
       .map(([k]) => k);
@@ -2165,8 +2153,8 @@ function showResults() {
   let results = [];
   try { results = Race.assignPoints(); } catch(e) { console.error('[Race] Erreur assignPoints', e); }
   let careerReward = null;
-  try { careerReward = persistRaceResults(results); } catch(e) { console.error('[Race] Erreur sauvegarde r�sultats', e); }
-  // D�clencher �v�nement post-course
+  try { careerReward = persistRaceResults(results); } catch(e) { console.error('[Race] Erreur sauvegarde résultats', e); }
+  // Déclencher événement post-course
   try {
     const sv2 = Save.load();
     if (sv2 && typeof CareerEvents !== 'undefined') {
@@ -2175,8 +2163,8 @@ function showResults() {
     }
   } catch(e) { console.warn('[Race] triggerPostRace:', e); }
   careerReward = careerReward || Race.state?._careerReward;
-  try { saveLastGpSummary(results, careerReward); } catch(e) { console.warn('[Race] sauvegarde r�sum� GP:', e); }
-  document.getElementById('resSub').textContent = `Grand Prix de ${Race.state.circuit.name}` + (careerReward ? ` � Gains �quipe : +${careerReward.reward}M � � Frais GP : -${careerReward.operatingCost || 0}M � � +${careerReward.tokens} token${careerReward.tokens > 1 ? 's' : ''}` : '');
+  try { saveLastGpSummary(results, careerReward); } catch(e) { console.warn('[Race] sauvegarde résumé GP:', e); }
+  document.getElementById('resSub').textContent = `Grand Prix de ${Race.state.circuit.name}` + (careerReward ? ` · Gains équipe : +${careerReward.reward}M € · Frais GP : -${careerReward.operatingCost || 0}M € · +${careerReward.tokens} token${careerReward.tokens > 1 ? 's' : ''}` : '');
   const body = document.getElementById('resBody');
   body.innerHTML = '';
   results.forEach((r,i) => {
@@ -2191,7 +2179,7 @@ function showResults() {
       <div class="rnum">${r.driver.number}</div>
       <div class="rname" style="color:${visibleTeamColor(r.team.color)}">${r.driver.firstName} ${r.driver.name}
         <div style="font-size:9px;color:var(--muted)">${r.team.name}</div></div>
-      <div class="rpts">${r.points>0?r.points+' pts':'�'}</div>
+      <div class="rpts">${r.points>0?r.points+' pts':'—'}</div>
       <div class="rtime">${t}</div>
     `;
     body.appendChild(row);
@@ -2215,19 +2203,19 @@ function resetRace() {
   document.getElementById('btnSkip').disabled   = true;
   document.getElementById('circSel').disabled   = false;
   
-  document.getElementById('tLap').innerHTML     = 'Tour <b>0</b>/<span id="tTotal">�</span>';
+  document.getElementById('tLap').innerHTML     = 'Tour <b>0</b>/<span id="tTotal">—</span>';
   document.getElementById('svgLap').textContent = '0';
-  document.getElementById('svgTotal').textContent = '�';
+  document.getElementById('svgTotal').textContent = '—';
   document.getElementById('progFill').style.width = '0%';
   document.getElementById('standBody').innerHTML  = '';
-  document.getElementById('evLog').innerHTML = '<div style="padding:10px;color:var(--muted);font-size:11px;text-align:center">En attente du d�part�</div>';
-  const sb2=document.getElementById('stratBody'); if(sb2) sb2.innerHTML  = '<div style="color:var(--muted);font-size:11px;text-align:center">�</div>';
+  document.getElementById('evLog').innerHTML = '<div style="padding:10px;color:var(--muted);font-size:11px;text-align:center">En attente du départ…</div>';
+  const sb2=document.getElementById('stratBody'); if(sb2) sb2.innerHTML  = '<div style="color:var(--muted);font-size:11px;text-align:center">—</div>';
   document.getElementById('trackG').innerHTML = '';
   document.getElementById('carsG').innerHTML  = '';
-  document.getElementById('circLabel').textContent = 'S�lectionne un circuit';
+  document.getElementById('circLabel').textContent = 'Sélectionne un circuit';
 }
 
-// -- UTILS -------------------------------------
+// ── UTILS ─────────────────────────────────────
 function fmtTime(s) {
   const h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = Math.floor(s%60);
   if(h>0) return `${h}h${String(m).padStart(2,'0')}m${String(sec).padStart(2,'0')}s`;
@@ -2239,9 +2227,9 @@ function fmtLap(s) {
 }
 
 
-// ------------------------------------
-//  T�L�M�TRIE
-// ------------------------------------
+// ════════════════════════════════════
+//  TÉLÉMÉTRIE
+// ════════════════════════════════════
 const Telem = {
   tyreH:{},paceH:{},gapH:{},
   reset(){this.tyreH={};this.paceH={};this.gapH={};},
@@ -2259,20 +2247,20 @@ const Telem = {
   },
   drawChart(id,datasets,opts={}){
     const canvas=document.getElementById(id);if(!canvas)return;
-    // Debug: log si donn�es vides
+    // Debug: log si données vides
     const hasData = datasets.some(d=>d.data.length>0);
     if(!hasData && Race.state?.currentLap > 3) {
-      console.warn('[Telem] drawChart',id,'- donn�es vides. Keys tyreH:',Object.keys(this.tyreH).length,'datasets:',datasets.map(d=>d.data.length));
+      console.warn('[Telem] drawChart',id,'- données vides. Keys tyreH:',Object.keys(this.tyreH).length,'datasets:',datasets.map(d=>d.data.length));
     }
     const ctx=canvas.getContext('2d');
-    // Forcer une largeur correcte m�me si le canvas vient d'�tre rendu visible
+    // Forcer une largeur correcte même si le canvas vient d'être rendu visible
     const parentW = canvas.closest('.tab-pane')?.offsetWidth || canvas.parentElement?.offsetWidth || 0;
     const W = Math.max(parentW - 20, canvas.offsetWidth || 0, 280), H = 175;
     canvas.width=W;canvas.height=H;
     ctx.fillStyle='#0d0d14';ctx.fillRect(0,0,W,H);
     const p={l:36,r:10,t:8,b:22},pw=W-p.l-p.r,ph=H-p.t-p.b;
     const all=datasets.flatMap(d=>d.data);
-    if(!all.length){ctx.fillStyle='#4a4a6a';ctx.font='12px Barlow Condensed';ctx.textAlign='center';ctx.fillText('Pas encore de donn�es',W/2,H/2);return;}
+    if(!all.length){ctx.fillStyle='#4a4a6a';ctx.font='12px Barlow Condensed';ctx.textAlign='center';ctx.fillText('Pas encore de données',W/2,H/2);return;}
     let mn=opts.minY!==undefined?opts.minY:Math.floor(Math.min(...all));
     let mx=opts.maxY!==undefined?opts.maxY:Math.ceil(Math.max(...all));
     if(mn===mx){mn-=1;mx+=1;}
@@ -2308,25 +2296,25 @@ const Telem = {
     if(!Race.state)return;
     const save=Save.load(),pid=save?.playerTeamId;
     const standings=Race.getStandings();
-    // Pneus - pilotes joueur (match insensible � la casse)
+    // Pneus - pilotes joueur (match insensible à la casse)
     const tc = pid
       ? standings.filter(c => c.driver.teamId?.toLowerCase() === pid?.toLowerCase())
       : standings.slice(0,2);
     const tcFinal = tc.length ? tc : standings.slice(0,2);
     this.drawChart('canvasTyres',tcFinal.map(car=>({color:visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff'),data:this.tyreH[car.driver.id]||[]})),{minY:0,maxY:100,dangerLine:20});
     const tyL=document.getElementById('tyresLegend');
-    if(tyL)tyL.innerHTML=tcFinal.map(car=>{const col=visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff');const ty=F1Data.tyres[car.tyre.compound];return`<div class="legend-item"><div class="legend-dot" style="background:${col}"></div>${Profiles.linkDriver(car.driver)} � <span style="color:${ty.color}">${ty.name}</span> ${Math.round(car.tyre.condition*100)}%</div>`;}).join('');
+    if(tyL)tyL.innerHTML=tcFinal.map(car=>{const col=visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff');const ty=F1Data.tyres[car.tyre.compound];return`<div class="legend-item"><div class="legend-dot" style="background:${col}"></div>${Profiles.linkDriver(car.driver)} — <span style="color:${ty.color}">${ty.name}</span> ${Math.round(car.tyre.condition*100)}%</div>`;}).join('');
     // Rythme
     const top5=standings.filter(c=>c.status==='racing').slice(0,5),base=Race.state.circuit.baseLapTime;
     this.drawChart('canvasPace',top5.map(car=>({color:visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff'),data:this.paceH[car.driver.id]||[]})),{minY:base-2,maxY:base+10});
     const paL=document.getElementById('paceLegend');
-    if(paL)paL.innerHTML=top5.map(car=>{const col=visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff');const last=car.lapTimes.length>0?car.lapTimes[car.lapTimes.length-1].toFixed(3):'�';return`<div class="legend-item"><div class="legend-dot" style="background:${col}"></div>${Profiles.linkDriver(car.driver)} ${last}s</div>`;}).join('');
+    if(paL)paL.innerHTML=top5.map(car=>{const col=visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff');const last=car.lapTimes.length>0?car.lapTimes[car.lapTimes.length-1].toFixed(3):'—';return`<div class="legend-item"><div class="legend-dot" style="background:${col}"></div>${Profiles.linkDriver(car.driver)} ${last}s</div>`;}).join('');
     // Gaps
     const top8=standings.filter(c=>c.status==='racing').slice(0,8);
     this.drawChart('canvasGaps',top8.map((car,gapIdx)=>({color:gapIdx===0?'#00e676':visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff'),data:this.gapH[car.driver.id]||[]})),{minY:0});
     const gaL=document.getElementById('gapsLegend');
     if(gaL)gaL.innerHTML=top8.map((car,gIdx)=>{const col=gIdx===0?'#00e676':visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff');const gapTxt=gIdx===0?'LEADER':'+'+car.gap.toFixed(1)+'s';return'<div class="legend-item"><div class="legend-dot" style="background:'+col+'"></div>'+Profiles.linkDriver(car.driver)+' '+gapTxt+'</div>';}).join('');
-    // Strat�gie
+    // Stratégie
     renderPlayerStrategyLive();
     const sf=document.getElementById('stratFull');
     if(sf){sf.innerHTML='';standings.forEach(car=>{const col=visibleTeamColor(F1Data.teams.find(t=>t.id===car.driver.teamId)?.color||'#fff');const pills=car.strategy.compounds.map((c,pIdx)=>{const ty=F1Data.tyres[c];const act=pIdx===car.currentCompoundIndex;return'<span class="cpill" style="color:'+ty.color+';border:1px solid '+(act?ty.color:'transparent')+'">'+ty.name+'</span>';}).join('');const pits=car.pitStops.map(p=>'T'+p.lap).join(',');const row=document.createElement('div');row.className='strat-row-t';row.innerHTML=`<div class="strat-pos-t">${car.position}</div><div class="tbar" style="background:${col};height:18px;margin:0 2px;border-radius:2px"></div><div class="strat-name-t">${Profiles.linkDriver(car.driver)}</div>${pills}<div class="strat-stops">${car.pitStops.length}arr.${pits?' ('+pits+')':''}</div>${car.status==='dnf'?'<span class="dnf-b">DNF T.'+car.dnfLap+'</span>':''}`;sf.appendChild(row);});}
@@ -2343,12 +2331,12 @@ function showTab(id){
 }
 
 
-// -- Restaurer les �tats pilotes depuis la save -------------
+// ── Restaurer les états pilotes depuis la save ─────────────
 function restoreDriverStates() {
   const save = Save.load();
   if (!save) return;
 
-  // Restaurer les �tats sauvegard�s (teamId, �ge, stats, retraite...)
+  // Restaurer les états sauvegardés (teamId, âge, stats, retraite...)
   if (save.driverStates) {
     F1Data.drivers.forEach(d => {
       const state = save.driverStates[d.id];
@@ -2368,7 +2356,7 @@ function restoreDriverStates() {
     });
   }
 
-  // Restaurer les pilotes g�n�r�s (juniors promus)
+  // Restaurer les pilotes générés (juniors promus)
   if (save.generatedDrivers?.length) {
     save.generatedDrivers.forEach(gd => {
       // Fusionner avec driverStates pour avoir le teamId final
@@ -2400,14 +2388,14 @@ initSel();
 
 
 <script>
-/* --------------------------------------------------------------
+/* ══════════════════════════════════════════════════════════════
    CIRCUIT MAP SYSTEM v4
-   Bas� sur la version Monaco qui fonctionnait.
-   Priorit� :
-     1. img/json/{cid}.json  ? path d= + transform + bg
-     2. img/circuit-{cid}.svg + img/bg-{cid}.png  ? SVG direct
-     3. Fallback ? trac� CR basique
-   -------------------------------------------------------------- */
+   Basé sur la version Monaco qui fonctionnait.
+   Priorité :
+     1. img/json/{cid}.json  → path d= + transform + bg
+     2. img/circuit-{cid}.svg + img/bg-{cid}.png  → SVG direct
+     3. Fallback → tracé CR basique
+   ══════════════════════════════════════════════════════════════ */
 (function(){
 
   var TEAM_COLORS = [
@@ -2420,7 +2408,7 @@ initSel();
   var setupDone     = false;
   var currentCid    = null;
 
-  /* -- Trouve le conteneur du circuit -- */
+  /* ── Trouve le conteneur du circuit ── */
   function findHost(){
     var svgWrap = document.querySelector('.svg-wrap');
     if(svgWrap) return svgWrap;
@@ -2429,14 +2417,14 @@ initSel();
     return null;
   }
 
-  /* -- R�cup�re l'ID du circuit s�lectionn� -- */
+  /* ── Récupère l'ID du circuit sélectionné ── */
   function getCid(){
     var sel = document.getElementById('circSel');
     if(sel && sel.value) return sel.value.toLowerCase();
     return null;
   }
 
-  /* -- Supprime les fonds noirs du SVG -- */
+  /* ── Supprime les fonds noirs du SVG ── */
   function makeTransparent(svg){
     svg.querySelectorAll('rect').forEach(function(r){
       var w = r.getAttribute('width');
@@ -2448,9 +2436,9 @@ initSel();
     });
   }
 
-  /* -- Choisit le meilleur path dans le SVG -- */
+  /* ── Choisit le meilleur path dans le SVG ── */
   function pickBestPath(svg){
-    /* IDs connus en priorit� */
+    /* IDs connus en priorité */
     var preferred = ['#path4159','#monacoTrackPath','[data-track="main"]','.track-path'];
     for(var i=0; i<preferred.length; i++){
       var p = svg.querySelector(preferred[i]);
@@ -2474,7 +2462,7 @@ initSel();
     return best;
   }
 
-  /* -- Convertit la string CSS transform en attribut SVG -- */
+  /* ── Convertit la string CSS transform en attribut SVG ── */
   function cssToSvgTransform(css){
     if(!css) return '';
     var tx=0, ty=0, sc=1, ro=0;
@@ -2487,7 +2475,7 @@ initSel();
     return 'translate('+tx+','+ty+') rotate('+ro+') scale('+sc+')';
   }
 
-  /* -- Injecte le SVG dans le layer et retourne le path -- */
+  /* ── Injecte le SVG dans le layer et retourne le path ── */
   function injectSvgText(svgText, svgLayer, transformStr){
     svgLayer.innerHTML = svgText;
     var svg = svgLayer.querySelector('svg');
@@ -2497,7 +2485,7 @@ initSel();
 
     svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;overflow:visible;background:transparent;';
 
-    /* Enveloppe dans un <g> transform� */
+    /* Enveloppe dans un <g> transformé */
     var g = document.createElementNS('http://www.w3.org/2000/svg','g');
     g.classList.add('monaco-single-svg-inner');
     g.style.transformOrigin = 'center center';
@@ -2512,7 +2500,7 @@ initSel();
     return pickBestPath(svg);
   }
 
-  /* -- Cr�e les couches DOM dans le host -- */
+  /* ── Crée les couches DOM dans le host ── */
   function buildLayers(host, bgSrc){
     /* Bg */
     var bg = document.createElement('img');
@@ -2540,7 +2528,7 @@ initSel();
     return svgLayer;
   }
 
-  /* -- Nettoie les couches existantes -- */
+  /* ── Nettoie les couches existantes ── */
   function clearLayers(host){
     ['monaco-single-bg','monaco-single-svg-layer','monaco-single-vignette','monaco-single-cars-layer'].forEach(function(cls){
       var el = host.querySelector('.'+cls);
@@ -2551,20 +2539,20 @@ initSel();
     setupDone = false;
   }
 
-  /* -- SETUP principal -- */
+  /* ── SETUP principal ── */
   function setup(){
     return new Promise(function(resolve){
       var cid = getCid();
       if(!cid){ resolve(false); return; }
 
-      /* Circuit chang� ? tout reconstruire */
+      /* Circuit changé → tout reconstruire */
       if(currentCid && currentCid !== cid){
         var oldHost = document.querySelector('.monaco-single-host');
         if(oldHost) clearLayers(oldHost);
         currentCid = null;
       }
 
-      /* D�j� pr�t */
+      /* Déjà prêt */
       if(setupDone && mainPath && currentCid === cid){ resolve(true); return; }
 
       currentCid = cid;
@@ -2574,7 +2562,7 @@ initSel();
 
       host.classList.add('monaco-single-host');
 
-      /* -- NIVEAU 1 : JSON -- */
+      /* ── NIVEAU 1 : JSON ── */
       fetch('img/json/' + cid + '.json', {cache:'no-store'})
         .then(function(r){
           if(!r.ok) throw new Error('no json');
@@ -2596,7 +2584,7 @@ initSel();
           path.setAttribute('fill','none');
           path.id = 'circmap-track-path';
 
-          /* <g> transform� */
+          /* <g> transformé */
           var g = document.createElementNS(ns,'g');
           g.classList.add('monaco-single-svg-inner');
           g.style.transformOrigin = 'center center';
@@ -2612,13 +2600,13 @@ initSel();
           mainPath = path;
           host.classList.add('monaco-single-active');
           setupDone = true;
-          console.log('[CircuitMap] ? JSON "' + cid + '" � longueur path:', Math.round(path.getTotalLength()));
+          console.log('[CircuitMap] ✓ JSON "' + cid + '" — longueur path:', Math.round(path.getTotalLength()));
           resolve(true);
         })
 
-        /* -- NIVEAU 2 : SVG fichier direct -- */
+        /* ── NIVEAU 2 : SVG fichier direct ── */
         .catch(function(){
-          console.log('[CircuitMap] Pas de JSON pour "' + cid + '" ? SVG direct');
+          console.log('[CircuitMap] Pas de JSON pour "' + cid + '" → SVG direct');
 
           fetch('img/circuit-' + cid + '.svg', {cache:'no-store'})
             .then(function(r){
@@ -2633,15 +2621,15 @@ initSel();
                 mainPath.classList.add('monaco-main-path');
                 host.classList.add('monaco-single-active');
                 setupDone = true;
-                console.log('[CircuitMap] ? SVG direct "' + cid + '" � longueur:', Math.round(mainPath.getTotalLength()));
+                console.log('[CircuitMap] ✓ SVG direct "' + cid + '" — longueur:', Math.round(mainPath.getTotalLength()));
               }
               resolve(!!found);
             })
 
-            /* -- NIVEAU 3 : fallback CR -- */
+            /* ── NIVEAU 3 : fallback CR ── */
             .catch(function(){
-              console.log('[CircuitMap] Pas de SVG pour "' + cid + '" ? fallback CR');
-              /* Retire les couches incompl�tes */
+              console.log('[CircuitMap] Pas de SVG pour "' + cid + '" → fallback CR');
+              /* Retire les couches incomplètes */
               clearLayers(host);
               resolve(false);
             });
@@ -2649,7 +2637,7 @@ initSel();
     });
   }
 
-  /* -- Lecture pilotes -- */
+  /* ── Lecture pilotes ── */
   function readDrivers(){
     var arrays = [
       window.raceState && window.raceState.drivers,
@@ -2684,7 +2672,7 @@ initSel();
     }
     var dist = Number(d && (d.distance != null ? d.distance : (d.trackDistance != null ? d.trackDistance : d.lapDistance)));
     if(isFinite(dist) && !isNaN(dist)) return dist > 1 ? dist%1 : dist;
-    /* Fallback anim� */
+    /* Fallback animé */
     return ((Date.now()/1000)*0.045 - i*0.014) % 1;
   }
 
@@ -2704,8 +2692,8 @@ initSel();
     };
   }
 
-  /* -- Render -- */
-  /* Cache des �l�ments voiture pour �viter de recr�er le DOM � chaque frame */
+  /* ── Render ── */
+  /* Cache des éléments voiture pour éviter de recréer le DOM à chaque frame */
   var carEls = [];
 
   function renderLoop(){
@@ -2718,7 +2706,7 @@ initSel();
     var drivers = readDrivers();
     var count   = Math.min(drivers.length, 22);
 
-    /* Cr�e les divs manquants, supprime les exc�dentaires */
+    /* Crée les divs manquants, supprime les excédentaires */
     while(carEls.length < count){
       var car = document.createElement('div');
       car.className = 'monaco-single-car';
@@ -2730,7 +2718,7 @@ initSel();
       if(old.parentNode) old.parentNode.removeChild(old);
     }
 
-    /* Met � jour position + couleur sans recr�er le DOM */
+    /* Met à jour position + couleur sans recréer le DOM */
     for(var i=0; i<count; i++){
       var d   = drivers[i];
       var p   = pointOnScreen(mainPath, progressOf(d,i), host);
@@ -2767,5 +2755,889 @@ initSel();
 })();
 </script>
 
+
+
+
+<script>
+/* ══════════════════════════════════════════════════════
+   CR3D v2 — Vue aérienne horizontale, boutons caméra,
+   circuit et voitures améliorés
+══════════════════════════════════════════════════════ */
+var CR3D = (function(){
+
+  var active = true, ready = false;
+  var renderer, scene, camera;
+  var carMeshes = [];
+  var curve3D = null;
+  var sparkSys = null, sparkVels = [];
+  var SPARK_N = 40;
+
+  /* ── Caméra : vue horizontale surélevée ── */
+  /* phi faible = vue du dessus, phi moyen = vue oblique */
+  var _theta = 0.0,  _phi = 0.32, _r = 48;
+  var _tTheta = 0.0, _tPhi = 0.32, _tR = 48;
+  /* Vitesse de rotation continue par les boutons */
+  var _dTheta = 0, _dPhi = 0, _dR = 0;
+
+  /* ── Points de circuit ── */
+  var TRACK_3D = {
+    _default: [
+      [ 0,0.0,-13],[ 8,0.2,-14],[14,0.4,-12],[18,0.5,-6],[18,0.4,2],
+      [15,0.2,9],[19,0.1,14],[15,0.0,18],[ 8,0.0,19],[ 1,0.1,17],
+      [-4,0.2,19],[-9,0.3,17],[-13,0.4,12],[-16,0.5,5],[-17,0.4,-2],
+      [-14,0.2,-9],[-8,0.1,-13],[-3,0.0,-14],[ 0,0.0,-13]
+    ],
+    monaco: [
+      [ 0,0.0,-12],[ 7,0.3,-13],[13,0.5,-11],[17,0.6,-4],[16,0.4,4],
+      [13,0.2,10],[16,0.1,16],[11,0.0,19],[ 4,0.0,20],[-2,0.1,17],
+      [-6,0.2,20],[-10,0.3,17],[-14,0.5,12],[-16,0.6,4],[-15,0.4,-4],
+      [-12,0.2,-10],[-6,0.1,-13],[-2,0.0,-13],[ 0,0.0,-12]
+    ],
+    spa: [
+      [ 0,0.0,-15],[11,0.1,-15],[17,0.2,-10],[18,0.3,-2],[14,0.5,7],
+      [10,0.8,11],[15,0.6,16],[11,0.3,20],[ 4,0.1,21],[-4,0.0,19],
+      [-11,0.1,21],[-16,0.3,15],[-18,0.5,6],[-17,0.6,-3],[-12,0.4,-10],
+      [-5,0.2,-14],[ 0,0.0,-15]
+    ],
+    monza: [
+      [ 0,0.0,-15],[18,0.0,-15],[18,0.1,-6],[14,0.2,-2],[10,0.2,0],
+      [14,0.2,3],[18,0.1,7],[18,0.0,15],[ 0,0.0,15],[-8,0.0,14],
+      [-14,0.1,8],[-14,0.1,-8],[-8,0.0,-14],[ 0,0.0,-15]
+    ],
+    silverstone: [
+      [ 0,0.0,-14],[8,0.2,-16],[15,0.4,-13],[18,0.5,-6],[17,0.4,3],
+      [13,0.2,9],[16,0.1,15],[10,0.0,19],[2,0.0,18],[-5,0.1,20],
+      [-12,0.2,16],[-17,0.3,8],[-17,0.4,-2],[-13,0.3,-9],[-6,0.1,-13],[0,0.0,-14]
+    ],
+  };
+
+  function getCurve(cid){
+    var pts = TRACK_3D[cid] || TRACK_3D._default;
+    return new THREE.CatmullRomCurve3(
+      pts.map(function(p){ return new THREE.Vector3(p[0],0,p[2]); }),
+      true,'catmullrom',0.5
+    );
+  }
+
+  /* ────────────────────────────────────────────────
+     INIT THREE.JS
+  ──────────────────────────────────────────────── */
+  /* ── Trail history pour chaque voiture ── */
+  var carTrails = [];   /* [{pts:[], mesh:null}, ...] */
+  var TRAIL_LEN = 22;
+
+  /* ── Étoiles ── */
+  var starsAdded = false;
+
+  function initThree(){
+    if(ready) return;
+    var canvas = document.getElementById('canvas3d');
+    if(!canvas || typeof THREE === 'undefined') return;
+
+    renderer = new THREE.WebGLRenderer({canvas:canvas, antialias:true, alpha:false});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.4;
+
+    scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x02040a);
+    /* Fog bleu nuit profond */
+    scene.fog = new THREE.FogExp2(0x030610, 0.011);
+
+    camera = new THREE.PerspectiveCamera(48, 4/3, 0.1, 400);
+
+    /* ── LUMIÈRES ── */
+    /* Ambiance nuit bleue */
+    scene.add(new THREE.AmbientLight(0x0a1540, 2.2));
+    /* Lumière principale chaude (projecteur) */
+    var sun = new THREE.DirectionalLight(0xffeedd, 1.1);
+    sun.position.set(15,45,20);
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(2048,2048);
+    sun.shadow.camera.left=-45; sun.shadow.camera.right=45;
+    sun.shadow.camera.top=45;   sun.shadow.camera.bottom=-45;
+    scene.add(sun);
+    /* Contre-jour bleu électrique */
+    var back = new THREE.DirectionalLight(0x2255ff, 0.55);
+    back.position.set(-20,15,-15); scene.add(back);
+    /* Lumière de sol verte (réflexion gazon) */
+    var ground = new THREE.HemisphereLight(0x0a1a30, 0x050810, 0.6);
+    scene.add(ground);
+
+    /* ── ÉTOILES ── */
+    var starGeo = new THREE.BufferGeometry();
+    var starPos = new Float32Array(2000*3);
+    for(var si=0; si<2000; si++){
+      starPos[si*3]   = (Math.random()-0.5)*400;
+      starPos[si*3+1] = Math.random()*80+5;
+      starPos[si*3+2] = (Math.random()-0.5)*400;
+    }
+    starGeo.setAttribute('position', new THREE.BufferAttribute(starPos,3));
+    var starMat = new THREE.PointsMaterial({
+      color:0xffffff, size:0.18, transparent:true, opacity:0.7,
+      sizeAttenuation:true
+    });
+    scene.add(new THREE.Points(starGeo, starMat));
+
+    /* ── SPARKS leader ── */
+    var sGeo = new THREE.BufferGeometry();
+    sGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(SPARK_N*3),3));
+    sparkSys = new THREE.Points(sGeo, new THREE.PointsMaterial({
+      color:0xffcc22, size:0.12, transparent:true, opacity:0.9, sizeAttenuation:true
+    }));
+    scene.add(sparkSys);
+    for(var i=0;i<SPARK_N;i++) sparkVels.push({x:0,y:0,z:0,life:0});
+
+    initOrbit(canvas);
+    buildUI();
+    ready = true;
+    resize3D();
+  }
+
+  /* ────────────────────────────────────────────────
+     CONSTRUCTION PISTE — visuel premium
+  ──────────────────────────────────────────────── */
+  function buildTrack(circuitId){
+    var rem = [];
+    scene.traverse(function(o){ if(o.userData.t3track) rem.push(o); });
+    rem.forEach(function(o){ scene.remove(o); });
+    carMeshes.forEach(function(e){
+      scene.remove(e.mesh);
+      if(e.trailMesh) scene.remove(e.trailMesh);
+    });
+    carMeshes = [];
+    carTrails = [];
+
+    curve3D = getCurve(circuitId);
+    function tag(m){ m.userData.t3track=true; return m; }
+    function add(m){ scene.add(tag(m)); return m; }
+
+    /* ── SOL ── */
+    var gnd = new THREE.Mesh(
+      new THREE.PlaneGeometry(400,400),
+      new THREE.MeshStandardMaterial({color:0x04060c, roughness:1, metalness:0})
+    );
+    gnd.rotation.x=-Math.PI/2;
+    gnd.position.y=-0.15;  /* Sol le plus bas */
+    gnd.receiveShadow=true; add(gnd);
+
+    /* Grille au-dessus du sol */
+    var grid = new THREE.GridHelper(400,80,0x0a1830,0x080f20);
+    grid.position.y=-0.12; add(grid);
+
+    /* ── HALO DE PISTE ── */
+    var glowGeo = new THREE.TubeGeometry(curve3D,300,2.2,8,true);
+    var glowMat = new THREE.MeshBasicMaterial({color:0x1133aa,transparent:true,opacity:0.06});
+    var glowMesh = new THREE.Mesh(glowGeo,glowMat);
+    glowMesh.position.y=-0.10; add(glowMesh);
+
+    /* ── ASPHALTE ── */
+    /* Ombre portée sous la route */
+    var shadow = new THREE.Mesh(
+      new THREE.TubeGeometry(curve3D,300,1.05,6,true),
+      new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:0.6})
+    );
+    shadow.position.y=-0.05; add(shadow);
+
+    /* Surface asphalte — MeshStandardMaterial pour reflets */
+    var road = new THREE.Mesh(
+      new THREE.TubeGeometry(curve3D,300,0.68,8,true),
+      new THREE.MeshStandardMaterial({
+        color:0x18202c, roughness:0.82, metalness:0.05,
+        emissive:0x050810, emissiveIntensity:0.4
+      })
+    );
+    road.receiveShadow=true;
+    /* polygonOffset évite le z-fighting avec les couches au-dessus */
+    road.material.polygonOffset = true;
+    road.material.polygonOffsetFactor = 1;
+    road.material.polygonOffsetUnits = 1;
+    add(road);
+
+    /* Ligne brillante centrale — bien au-dessus de la route */
+    var shine = new THREE.Mesh(
+      new THREE.TubeGeometry(curve3D,300,0.22,4,true),
+      new THREE.MeshBasicMaterial({color:0x304060,transparent:true,opacity:0.5})
+    );
+    shine.position.y=0.04; add(shine);
+
+    /* Bords lumineux — légèrement au-dessus */
+    var edgeOut = new THREE.Mesh(
+      new THREE.TubeGeometry(curve3D,300,0.72,8,true),
+      new THREE.MeshBasicMaterial({color:0x8ab4d4,transparent:true,opacity:0.18,side:THREE.BackSide})
+    );
+    edgeOut.position.y=0.01; add(edgeOut);
+
+    /* ── SECTEURS — néons colorés sur le bord ── */
+    function addSector(from, to, color){
+      var pts=[], N=100;
+      for(var i=0;i<=N;i++){
+        var t=from+(to-from)*(i/N);
+        var p=curve3D.getPoint(t);
+        var n=curve3D.getTangent(t);
+        var perp=new THREE.Vector3(-n.z,0,n.x).normalize().multiplyScalar(0.76);
+        pts.push(new THREE.Vector3(p.x+perp.x,p.y+0.12,p.z+perp.z));
+      }
+      var sc=new THREE.CatmullRomCurve3(pts);
+      /* Glow large */
+      add(new THREE.Mesh(
+        new THREE.TubeGeometry(sc,N,0.10,4,false),
+        new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.35})
+      ));
+      /* Ligne nette */
+      add(new THREE.Mesh(
+        new THREE.TubeGeometry(sc,N,0.04,4,false),
+        new THREE.MeshBasicMaterial({color:color,transparent:true,opacity:0.95})
+      ));
+    }
+    addSector(0,.33,0x44ccff);
+    addSector(.33,.66,0xcc44ff);
+    addSector(.66,1,0xffcc22);
+
+    /* ── LIGNE D'ARRIVÉE ── */
+    var slP=curve3D.getPoint(0), slT=curve3D.getTangent(0);
+    var sl=new THREE.Mesh(
+      new THREE.BoxGeometry(0.06,0.04,1.5),
+      new THREE.MeshBasicMaterial({color:0xffffff})
+    );
+    sl.position.set(slP.x,slP.y+0.07,slP.z);
+    sl.rotation.y=Math.atan2(slT.x,slT.z); add(sl);
+    /* Halo ligne de départ */
+    var slGlow=new THREE.Mesh(
+      new THREE.BoxGeometry(0.3,0.02,1.8),
+      new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.12})
+    );
+    slGlow.position.set(slP.x,slP.y+0.05,slP.z);
+    slGlow.rotation.y=Math.atan2(slT.x,slT.z); add(slGlow);
+
+    /* ── BARRIÈRES néon bleu nuit ── */
+    function addBarrier(offset,col,op){
+      var pts=[],N=250;
+      for(var i=0;i<=N;i++){
+        var t=i/N,p=curve3D.getPoint(t),n=curve3D.getTangent(t);
+        var perp=new THREE.Vector3(-n.z,0,n.x).normalize().multiplyScalar(offset);
+        pts.push(new THREE.Vector3(p.x+perp.x,p.y+0.20,p.z+perp.z));
+      }
+      var bc=new THREE.CatmullRomCurve3(pts,true);
+      add(new THREE.Mesh(
+        new THREE.TubeGeometry(bc,N,0.055,5,true),
+        new THREE.MeshBasicMaterial({color:col,transparent:!!op,opacity:op||1})
+      ));
+    }
+    addBarrier(0.92,0xaabbcc,0.85);
+    addBarrier(-0.92,0xaabbcc,0.85);
+    /* Glow barrières */
+    addBarrier(0.96,0x3366ff,0.18);
+    addBarrier(-0.96,0x3366ff,0.18);
+
+    /* ── VIBREURS rouge/blanc discrets ── */
+    [0.06,0.19,0.33,0.49,0.63,0.78,0.92].forEach(function(f){
+      var p=curve3D.getPoint(f),t=curve3D.getTangent(f);
+      var n=new THREE.Vector3(-t.z,0,t.x).normalize();
+      [0.80,-0.80].forEach(function(side){
+        for(var k=0;k<4;k++){
+          var km=new THREE.Mesh(
+            new THREE.BoxGeometry(0.16,0.032,0.12),
+            new THREE.MeshLambertMaterial({color:k%2===0?0xdd1111:0xeeeeee,
+              emissive:k%2===0?0x330000:0x111111,emissiveIntensity:0.3})
+          );
+          km.position.set(
+            p.x+n.x*side+t.x*(k-1.5)*0.16,
+            p.y+0.07,   /* bien au-dessus de l'asphalte */
+            p.z+n.z*side+t.z*(k-1.5)*0.16
+          );
+          km.userData.t3track=true; scene.add(km);
+        }
+      });
+    });
+
+    /* ── PYLÔNES LED ── */
+    [0,.09,.18,.28,.37,.46,.55,.64,.73,.82,.91].forEach(function(f,fi){
+      var lp=curve3D.getPoint(f),lt=curve3D.getTangent(f);
+      var ln=new THREE.Vector3(-lt.z,0,lt.x).normalize().multiplyScalar(1.05);
+      /* Mât */
+      var pole=new THREE.Mesh(
+        new THREE.CylinderGeometry(0.032,0.042,1.0,5),
+        new THREE.MeshStandardMaterial({color:0x1a2840,metalness:0.6,roughness:0.4})
+      );
+      pole.position.set(lp.x+ln.x,lp.y+0.5,lp.z+ln.z);
+      pole.userData.t3track=true; scene.add(pole);
+      /* LED colorée alternée */
+      var ledCols=[0xffffff,0x4488ff,0xffffff,0x44ffaa,0xffffff,0xff4488];
+      var ledCol=ledCols[fi%ledCols.length];
+      var lamp=new THREE.Mesh(
+        new THREE.SphereGeometry(0.075,6,4),
+        new THREE.MeshBasicMaterial({color:ledCol})
+      );
+      lamp.position.set(lp.x+ln.x,lp.y+1.05,lp.z+ln.z);
+      lamp.userData.t3track=true; scene.add(lamp);
+      /* Point light */
+      var pl=new THREE.PointLight(ledCol,0.55,7);
+      pl.position.set(lp.x+ln.x,lp.y+1.0,lp.z+ln.z);
+      pl.userData.t3track=true; scene.add(pl);
+    });
+
+    /* ── TRIBUNES ── */
+    function stand(x,z,ry,w){
+      var g=new THREE.Group(); g.userData.t3track=true;
+      var base=new THREE.Mesh(
+        new THREE.BoxGeometry(w,.10,1.5),
+        new THREE.MeshStandardMaterial({color:0x0e1520,roughness:0.9})
+      );
+      base.position.y=.05; g.add(base);
+      for(var s=0;s<4;s++){
+        var step=new THREE.Mesh(
+          new THREE.BoxGeometry(w,.08,.42),
+          new THREE.MeshStandardMaterial({
+            color:s%2?0x141e30:0x182440,
+            emissive:s%2?0x000510:0x000818,
+            emissiveIntensity:0.5
+          })
+        );
+        step.position.set(0,.12+s*.12,-.56+s*.38); g.add(step);
+      }
+      /* Toit avec reflet bleu */
+      var roof=new THREE.Mesh(
+        new THREE.BoxGeometry(w+.1,.04,1.45),
+        new THREE.MeshBasicMaterial({color:0x1144aa,transparent:true,opacity:.18})
+      );
+      roof.position.set(0,.76,0); g.add(roof);
+      /* Liseré lumineux toit */
+      var roofEdge=new THREE.Mesh(
+        new THREE.BoxGeometry(w+.12,.025,.06),
+        new THREE.MeshBasicMaterial({color:0x4488ff,transparent:true,opacity:.55})
+      );
+      roofEdge.position.set(0,.78,.72); g.add(roofEdge);
+      g.position.set(x,0,z); g.rotation.y=ry; scene.add(g);
+    }
+    stand(0,-21,0,8); stand(22,5,1.5,6); stand(-21,-5,1.5,6); stand(5,22,Math.PI,7);
+
+    /* ── BÂTIMENTS avec fenêtres ── */
+    var bldColors=[0x080e1a,0x060c16,0x0a1220,0x07101a];
+    [[-8,-26,2,2.5,5],[-3,-26,1.8,2.2,7.5],[2,-25,2,2.6,5.5],
+     [7,-26,1.8,2.2,4.5],[25,1,2.2,3.5,4.5],[25,8,2.8,3.5,6],[25,-7,2.2,3,4.5]].forEach(function(b,bi){
+      var bm=new THREE.Mesh(
+        new THREE.BoxGeometry(b[2],b[4],b[3]),
+        new THREE.MeshStandardMaterial({color:bldColors[bi%4],roughness:0.95,metalness:0.1,
+          emissive:bldColors[bi%4],emissiveIntensity:0.3})
+      );
+      bm.position.set(b[0],b[4]/2,b[1]); bm.userData.t3track=true; scene.add(bm);
+      /* Fenêtres lumineuses */
+      var rows=Math.floor(b[4]/1.2), cols=Math.max(2,Math.floor(b[2]/0.8));
+      for(var wr=0;wr<rows;wr++){
+        for(var wc=0;wc<cols;wc++){
+          if(Math.random()<0.65) continue;
+          var wColors=[0xffeeaa,0xaaccff,0xffeedd];
+          var wm=new THREE.Mesh(
+            new THREE.PlaneGeometry(0.22,0.14),
+            new THREE.MeshBasicMaterial({
+              color:wColors[Math.floor(Math.random()*wColors.length)],
+              transparent:true,opacity:0.18+Math.random()*0.25,
+              side:THREE.DoubleSide
+            })
+          );
+          wm.position.set(
+            b[0]+(wc/(cols-1)-0.5)*b[2]*0.7,
+            0.5+wr*1.1,
+            b[1]+b[3]/2+0.01
+          );
+          wm.userData.t3track=true; scene.add(wm);
+        }
+      }
+    });
+
+    /* Les voitures sont créées dynamiquement dans updateCars() */
+  }
+
+  /* ────────────────────────────────────────────────
+     PASTILLE VOITURE — avec trail
+  ──────────────────────────────────────────────── */
+  function makeCarMesh(hexColor){
+    var col=new THREE.Color(hexColor);
+    var g=new THREE.Group();
+
+    /* Disque principal avec fort emissive */
+    var disk=new THREE.Mesh(
+      new THREE.CylinderGeometry(0.36,0.36,0.18,16),
+      new THREE.MeshStandardMaterial({
+        color:col, emissive:col, emissiveIntensity:0.85,
+        roughness:0.3, metalness:0.2
+      })
+    );
+    disk.castShadow=true; g.add(disk);
+
+    /* Contour blanc lumineux */
+    var rim=new THREE.Mesh(
+      new THREE.CylinderGeometry(0.41,0.41,0.12,16),
+      new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.90})
+    );
+    g.add(rim);
+
+    /* Halo coloré sol */
+    var halo=new THREE.Mesh(
+      new THREE.CircleGeometry(0.65,16),
+      new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.30,side:THREE.DoubleSide})
+    );
+    halo.rotation.x=-Math.PI/2; halo.position.y=-0.12; g.add(halo);
+
+    /* Point light colorée sous la voiture */
+    var carPl=new THREE.PointLight(col, 1.2, 5.0);
+    carPl.position.set(0,-0.1,0); g.add(carPl);
+
+    return g;
+  }
+
+  /* Crée un mesh de trail pour une voiture */
+  function makeTrailMesh(hexColor){
+    var col=new THREE.Color(hexColor);
+    var geo=new THREE.BufferGeometry();
+    var positions=new Float32Array(TRAIL_LEN*3);
+    geo.setAttribute('position',new THREE.BufferAttribute(positions,3));
+    var mat=new THREE.LineBasicMaterial({
+      color:col,transparent:true,opacity:0.0,linewidth:1
+    });
+    return new THREE.Line(geo,mat);
+  }
+
+
+  /* ────────────────────────────────────────────────
+     UPDATE VOITURES
+  ──────────────────────────────────────────────── */
+  function getStandingsNow(){
+    try{
+      if(typeof Race !== 'undefined' && Race.getStandings) return Race.getStandings();
+      if(typeof Race !== 'undefined' && Race.state && Race.state.grid) return Race.state.grid;
+      if(window.Race && window.Race.getStandings) return window.Race.getStandings();
+      if(window.Race && window.Race.state && window.Race.state.grid) return window.Race.state.grid;
+    }catch(e){}
+    return [];
+  }
+
+  function getRaceState(){
+    try{
+      if(typeof Race !== 'undefined' && Race.state) return Race.state;
+      if(window.Race && window.Race.state) return window.Race.state;
+    }catch(e){}
+    return null;
+  }
+
+  var _lastLeaderFrac = 0;
+  var _lastLapStartT  = 0;  /* Pour détecter le changement de tour */
+
+  function updateCars(){
+    if(!curve3D) return;
+    var rs = getRaceState();
+    if(!rs) return;
+
+    /* Bloque pendant les feux de départ */
+    var started = (typeof CR !== 'undefined' && CR._started);
+    if(!started) return;
+
+    var interval  = (typeof getInterval==='function' ? getInterval() : 6000) || 6000;
+    var lapStartT = (typeof CR !== 'undefined' && CR._lapStartTime) ? CR._lapStartTime : performance.now();
+    var elapsed   = Math.max(0, performance.now() - lapStartT);
+    var leaderFrac = Math.min(0.985, elapsed / interval);
+    if(rs.finished) leaderFrac = 0.995;
+
+    /* Nouveau tour détecté → reset progressif + vide les trails */
+    if(lapStartT !== _lastLapStartT){
+      _lastLapStartT  = lapStartT;
+      _lastLeaderFrac = 0;
+      /* Vide les trails pour éviter le trait du point 0 */
+      carTrails.forEach(function(t){ t.pts = []; });
+    }
+
+    /* Lissage — si leaderFrac recule de plus de 5%, on l'ignore ce frame */
+    if(leaderFrac < _lastLeaderFrac - 0.05){
+      leaderFrac = _lastLeaderFrac + 0.002; /* avance doucement */
+      if(leaderFrac >= 1) leaderFrac = 0;
+    }
+    _lastLeaderFrac = leaderFrac;
+
+    var lapTime = (rs.circuit && rs.circuit.baseLapTime) || 90;
+
+    var standings = getStandingsNow();
+    if(!standings || !standings.length) return;
+
+    /* ── Création dynamique des voitures si pas encore faite ── */
+    if(carMeshes.length === 0){
+      console.log('[CR3D] Tentative création voitures, standings:', standings.length);
+
+      /* Couleurs officielles F1 2025 — garanties */
+      var colorMap = {
+        mclaren:     '#FF8000',
+        ferrari:     '#CC0000',
+        redbull:     '#1E3A6E',
+        mercedes:    '#00D2BE',
+        aston:       '#006F62',
+        alpine:      '#0090FF',
+        williams:    '#005AFF',
+        haas:        '#E8002D',
+        sauber:      '#BB0000',
+        racingbulls: '#6692FF',
+        cadillac:    '#6F6F78'
+      };
+      /* Enrichit depuis F1Data si dispo */
+      try{
+        var fdata = (typeof F1Data !== 'undefined') ? F1Data : window.F1Data;
+        if(fdata && fdata.teams) fdata.teams.forEach(function(t){
+          if(t.id && t.color) colorMap[t.id.toLowerCase()] = t.color;
+        });
+        console.log('[CR3D] colorMap ok, teams:', Object.keys(colorMap).length);
+      }catch(e){ console.log('[CR3D] colorMap erreur:', e.message); }
+
+      standings.slice(0,20).forEach(function(car){
+        var tid = (car.driver && car.driver.teamId) ? car.driver.teamId.toLowerCase() : '';
+        var col = colorMap[tid] || '#888888';
+        try{
+          var mesh = makeCarMesh(col);
+          mesh.userData.t3car = true;
+          scene.add(mesh);
+          /* Trail */
+          var trail = makeTrailMesh(col);
+          trail.userData.t3car = true;
+          scene.add(trail);
+          carMeshes.push({mesh:mesh, trail:trail});
+          carTrails.push({pts:[]});
+        }catch(e){ console.log('[CR3D] erreur makeCarMesh:', e.message); }
+      });
+      console.log('[CR3D] ' + carMeshes.length + ' voitures créées, curve3D:', !!curve3D);
+    }
+
+    if(!carMeshes.length) return;
+
+    /* Mini tower */
+    try{
+      var save = typeof Save !== 'undefined' ? Save.load() : null;
+      var pid  = save && save.playerTeamId ? save.playerTeamId.toLowerCase() : '';
+      updateMiniTower(standings, pid);
+    }catch(e){}
+
+    /* Debug — log position de la première voiture */
+    if(carMeshes.length > 0 && !window._cr3dPosLogged){
+      window._cr3dPosLogged = true;
+      var testPos = curve3D.getPoint(leaderFrac);
+      console.log('[CR3D] Position leader:', testPos.x.toFixed(2), testPos.y.toFixed(2), testPos.z.toFixed(2));
+      console.log('[CR3D] leaderFrac:', leaderFrac, 'lapTime:', lapTime);
+    }
+
+    standings.slice(0, carMeshes.length).forEach(function(car, posIdx){
+      var entry = carMeshes[posIdx];
+      if(!entry) return;
+      if(!car || car.status === 'dnf'){ entry.mesh.visible = false; return; }
+      entry.mesh.visible = true;
+
+      var gap  = Math.max(0, Number(car.gap || 0));
+      var frac = (leaderFrac - Math.max(gap / lapTime, posIdx * 0.006) + 1) % 1;
+
+      var pos  = curve3D.getPoint(frac);
+      var tan  = curve3D.getTangent(frac);
+      entry.mesh.position.set(pos.x, pos.y + 0.6, pos.z);
+      entry.mesh.rotation.y = Math.atan2(tan.x, tan.z);
+
+      /* Trail */
+      if(entry.trail && carTrails[posIdx]){
+        var trailData = carTrails[posIdx];
+        trailData.pts.push(new THREE.Vector3(pos.x, pos.y+0.55, pos.z));
+        if(trailData.pts.length > TRAIL_LEN) trailData.pts.shift();
+        var positions = entry.trail.geometry.attributes.position.array;
+        trailData.pts.forEach(function(tp, ti){
+          positions[ti*3]   = tp.x;
+          positions[ti*3+1] = tp.y;
+          positions[ti*3+2] = tp.z;
+        });
+        entry.trail.geometry.attributes.position.needsUpdate = true;
+        entry.trail.geometry.setDrawRange(0, trailData.pts.length);
+        var t_opacity = posIdx===0 ? 0.80 : 0.45;
+        entry.trail.material.opacity = t_opacity;
+      }
+    });
+
+    /* Étincelles sur la P1 — spectaculaires */
+    if(carMeshes.length>0&&sparkSys){
+      var lp=curve3D.getPoint(leaderFrac%1);
+      var arr=sparkSys.geometry.attributes.position.array;
+      sparkVels.forEach(function(v,si){
+        v.life-=0.035;
+        if(v.life<=0){
+          arr[si*3]  =lp.x+(Math.random()-.5)*.3;
+          arr[si*3+1]=lp.y+0.5;
+          arr[si*3+2]=lp.z+(Math.random()-.5)*.3;
+          v.x=(Math.random()-.5)*.14; v.y=Math.random()*.08+0.02; v.z=(Math.random()-.5)*.14;
+          v.life=Math.random()*0.8+0.2;
+        } else {
+          arr[si*3]+=v.x*.5; arr[si*3+1]+=v.y*.4-0.008; arr[si*3+2]+=v.z*.5;
+        }
+      });
+      sparkSys.geometry.attributes.position.needsUpdate=true;
+      sparkSys.material.opacity=0.7+Math.sin(performance.now()*0.012)*0.3;
+    }
+  }
+
+  /* ────────────────────────────────────────────────
+     CAMÉRA
+  ──────────────────────────────────────────────── */
+  function updateCam(){
+    /* Appliquer la vitesse des boutons */
+    _tTheta += _dTheta * 0.04;
+    _tPhi    = Math.max(0.12, Math.min(1.25, _tPhi + _dPhi * 0.025));
+    _tR      = Math.max(18,   Math.min(80,   _tR   + _dR   * 0.5));
+
+    _theta += (_tTheta-_theta)*.09;
+    _phi   += (_tPhi-_phi)*.09;
+    _r     += (_tR-_r)*.09;
+
+    camera.position.set(
+      _r * Math.sin(_phi) * Math.sin(_theta),
+      _r * Math.cos(_phi),
+      _r * Math.sin(_phi) * Math.cos(_theta)
+    );
+    camera.lookAt(0,0,0);
+  }
+
+  function initOrbit(canvas){
+    /* Pinch zoom uniquement sur mobile, pas de drag */
+    var pDist=0, pR0=0;
+    canvas.addEventListener('touchstart',function(e){
+      if(e.touches.length===2){
+        var dx=e.touches[0].clientX-e.touches[1].clientX;
+        var dy=e.touches[0].clientY-e.touches[1].clientY;
+        pDist=Math.sqrt(dx*dx+dy*dy); pR0=_tR;
+      }
+    },{passive:true});
+    canvas.addEventListener('touchmove',function(e){
+      if(e.touches.length===2){
+        var dx=e.touches[0].clientX-e.touches[1].clientX;
+        var dy=e.touches[0].clientY-e.touches[1].clientY;
+        _tR=Math.max(18,Math.min(80,pR0*(pDist/Math.sqrt(dx*dx+dy*dy))));
+      }
+    },{passive:true});
+    /* Wheel sur desktop */
+    canvas.addEventListener('wheel',function(e){
+      _tR=Math.max(18,Math.min(80,_tR+e.deltaY*.04));
+    },{passive:true});
+  }
+
+  /* ────────────────────────────────────────────────
+     BOUTONS CAMÉRA (flèches + zoom)
+  ──────────────────────────────────────────────── */
+  function buildUI(){
+    /* Retire un éventuel UI précédent */
+    var old = document.getElementById('cr3d-ui');
+    if(old) old.parentNode.removeChild(old);
+
+    var ui = document.createElement('div');
+    ui.id  = 'cr3d-ui';
+    ui.style.cssText = [
+      'position:absolute', 'bottom:12px', 'right:12px', 'z-index:20',
+      'display:grid', 'grid-template-columns:repeat(3,34px)',
+      'grid-template-rows:repeat(3,34px)', 'gap:4px',
+      'pointer-events:auto'
+    ].join(';');
+
+    /* Grille 3×3 :
+       [zoom+] [haut]  [  ]
+       [gauche][  ]  [droite]
+       [zoom-] [bas]   [  ]   */
+    var btns = [
+      {r:0,c:0, icon:'＋', tip:'Zoom +',   start:function(){_dR=-1;},   stop:function(){_dR=0;}},
+      {r:0,c:1, icon:'▲',  tip:'Vue haut', start:function(){_dPhi=-1;}, stop:function(){_dPhi=0;}},
+      {r:1,c:0, icon:'◄',  tip:'Gauche',  start:function(){_dTheta=-1;},stop:function(){_dTheta=0;}},
+      {r:1,c:2, icon:'►',  tip:'Droite',  start:function(){_dTheta=1;}, stop:function(){_dTheta=0;}},
+      {r:2,c:0, icon:'－', tip:'Zoom -',   start:function(){_dR=1;},    stop:function(){_dR=0;}},
+      {r:2,c:1, icon:'▼',  tip:'Vue bas',  start:function(){_dPhi=1;},  stop:function(){_dPhi=0;}},
+    ];
+
+    btns.forEach(function(b){
+      var btn = document.createElement('button');
+      btn.textContent = b.icon;
+      btn.title = b.tip;
+      btn.style.cssText = [
+        'grid-row:'+(b.r+1), 'grid-column:'+(b.c+1),
+        'width:34px', 'height:34px',
+        'background:rgba(6,9,18,.42)', 'backdrop-filter:blur(10px)',
+        'border:1px solid rgba(255,255,255,.08)', 'border-radius:8px',
+        'color:rgba(255,255,255,.75)', 'font-size:14px',
+        'cursor:pointer', 'display:flex', 'align-items:center', 'justify-content:center',
+        'transition:background .15s', 'user-select:none',
+        '-webkit-tap-highlight-color:transparent'
+      ].join(';');
+
+      /* Appui continu */
+      var hold = null;
+      function press(){ b.start(); hold = setInterval(function(){}, 16); }
+      function release(){ b.stop(); if(hold){ clearInterval(hold); hold=null; } }
+
+      btn.addEventListener('mousedown',  press);
+      btn.addEventListener('mouseup',    release);
+      btn.addEventListener('mouseleave', release);
+      btn.addEventListener('touchstart', function(e){ e.preventDefault(); press(); }, {passive:false});
+      btn.addEventListener('touchend',   function(e){ e.preventDefault(); release(); }, {passive:false});
+
+      btn.addEventListener('mouseenter', function(){ btn.style.background='rgba(255,255,255,.12)'; });
+      btn.addEventListener('mouseleave', function(){ btn.style.background='rgba(6,9,18,.42)'; });
+
+      ui.appendChild(btn);
+    });
+
+    /* Bouton reset vue */
+    var resetBtn = document.createElement('button');
+    resetBtn.textContent = '⌖';
+    resetBtn.title = 'Reset vue';
+    resetBtn.style.cssText = [
+      'grid-row:1','grid-column:3',
+      'width:34px','height:34px',
+      'background:rgba(225,6,0,.25)','backdrop-filter:blur(10px)',
+      'border:1px solid rgba(225,6,0,.40)','border-radius:8px',
+      'color:rgba(255,180,180,.9)','font-size:16px',
+      'cursor:pointer','display:flex','align-items:center','justify-content:center',
+      '-webkit-tap-highlight-color:transparent'
+    ].join(';');
+    resetBtn.addEventListener('click', function(){
+      _tTheta=0; _tPhi=0.32; _tR=48;
+    });
+    resetBtn.addEventListener('touchend', function(e){
+      e.preventDefault(); _tTheta=0; _tPhi=0.42; _tR=46;
+    },{passive:false});
+    ui.appendChild(resetBtn);
+
+    /* Injecter dans le svg-wrap */
+    var wrap = document.querySelector('.svg-wrap');
+    if(wrap) wrap.appendChild(ui);
+  }
+
+  /* ────────────────────────────────────────────────
+     RESIZE
+  ──────────────────────────────────────────────── */
+  function resize3D(){
+    if(!renderer) return;
+    var wrap = document.querySelector('.svg-wrap');
+    var w = wrap ? wrap.offsetWidth  : 400;
+    var h = wrap ? wrap.offsetHeight : 300;
+    if(!w) w=400; if(!h) h=Math.round(w*.75);
+    renderer.setSize(w, h, false);
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+  }
+
+  /* ────────────────────────────────────────────────
+     LOOP
+  ──────────────────────────────────────────────── */
+  var rafId = null;
+  function loop(){
+    if(!active){ rafId=null; return; }
+    rafId = requestAnimationFrame(loop);
+    updateCam();
+    updateCars();
+    renderer.render(scene, camera);
+  }
+
+  /* ────────────────────────────────────────────────
+     MINI TOWER
+  ──────────────────────────────────────────────── */
+  function buildMiniTower(){
+    var old = document.getElementById('cr3d-tower');
+    if(old) old.parentNode.removeChild(old);
+    var wrap = document.querySelector('.svg-wrap');
+    if(!wrap) return;
+    var tower = document.createElement('div');
+    tower.id = 'cr3d-tower';
+    tower.style.cssText = 'position:absolute;top:10px;left:10px;z-index:20;width:152px;background:rgba(5,8,18,.78);backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.10);border-radius:10px;overflow:hidden;pointer-events:none;font-family:\'Barlow Condensed\',sans-serif;';
+    var head = document.createElement('div');
+    head.style.cssText = 'padding:5px 9px;font-size:8px;font-weight:900;letter-spacing:2px;color:rgba(255,255,255,.35);text-transform:uppercase;border-bottom:1px solid rgba(255,255,255,.07);';
+    head.textContent = 'CLASSEMENT';
+    tower.appendChild(head);
+    var rows = document.createElement('div');
+    rows.id = 'cr3d-tower-rows';
+    tower.appendChild(rows);
+    wrap.appendChild(tower);
+  }
+
+  function updateMiniTower(standings, playerTeamId){
+    var rows = document.getElementById('cr3d-tower-rows');
+    if(!rows || !standings || !standings.length){ return; }
+
+    var playerIdx = -1;
+    standings.forEach(function(car, i){
+      if(playerIdx === -1 && car.driver && car.driver.teamId &&
+         car.driver.teamId.toLowerCase() === playerTeamId) playerIdx = i;
+    });
+    var startIdx = playerIdx >= 0 ? Math.max(0, Math.min(playerIdx-2, standings.length-5)) : 0;
+    var visible  = standings.slice(startIdx, startIdx+5);
+
+    var TC = {mclaren:'#FF8000',ferrari:'#CC0000',redbull:'#1E3A6E',mercedes:'#00D2BE',aston:'#006F62',alpine:'#0090FF',williams:'#005AFF',haas:'#E8002D',sauber:'#BB0000',racingbulls:'#6692FF',cadillac:'#6F6F78'};
+
+    rows.innerHTML = '';
+    visible.forEach(function(car){
+      if(!car || !car.driver) return;
+      var tid3  = (car.driver.teamId || '').toLowerCase();
+      var tCol  = TC[tid3] || '#555555';
+      var isPlayer = tid3 === playerTeamId;
+      var row = document.createElement('div');
+      row.style.cssText = 'display:grid;grid-template-columns:18px 22px 1fr auto;align-items:center;gap:4px;padding:4px 8px;border-bottom:1px solid rgba(255,255,255,.04);' + (isPlayer ? 'background:rgba(255,255,255,.07);border-left:2px solid '+tCol+';' : '');
+
+      var pos = document.createElement('span');
+      pos.style.cssText = 'font-size:9px;font-weight:900;color:rgba(255,255,255,.38);';
+      pos.textContent = car.position || '—';
+      row.appendChild(pos);
+
+      var num = document.createElement('span');
+      num.style.cssText = 'font-size:9px;font-weight:900;text-align:center;padding:1px 3px;border-radius:3px;background:'+tCol+';color:#fff;';
+      num.textContent = car.driver.number || car.driver.id || '?';
+      row.appendChild(num);
+
+      var name = document.createElement('span');
+      name.style.cssText = 'font-size:10px;font-weight:700;color:#e8ecf5;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+      name.textContent = (car.driver.name || car.driver.id || '').toUpperCase().slice(0,3);
+      row.appendChild(name);
+
+      var right = document.createElement('div');
+      right.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;gap:1px;';
+
+      var compound = car.tyre && car.tyre.compound ? car.tyre.compound : (typeof car.tyre==='string' ? car.tyre : 'M');
+      var tyreCode = {SOFT:'S',MEDIUM:'M',HARD:'H',INTER:'I',WET:'W'}[compound] || compound.slice(0,1);
+      var tc = {S:'#e84040',M:'#e8c840',H:'#e8e8e8',I:'#40b0e8',W:'#4080ff'}[tyreCode]||'#888';
+      var cond = car.tyre && car.tyre.condition != null ? Math.round(car.tyre.condition*100)+'%' : '';
+      var tyre = document.createElement('span');
+      tyre.style.cssText = 'font-size:7px;font-weight:900;color:'+tc+';letter-spacing:.5px;';
+      tyre.textContent = tyreCode+(cond?' '+cond:'');
+      right.appendChild(tyre);
+
+      var gap = document.createElement('span');
+      gap.style.cssText = 'font-size:8px;color:rgba(255,255,255,.40);';
+      var gapVal = car.gap != null ? Number(car.gap) : null;
+      if(gapVal===0 || car.position===1){ gap.style.color='#d4a843'; gap.textContent='LED'; }
+      else if(gapVal!=null){ gap.textContent='+'+gapVal.toFixed(1)+'s'; }
+      else { gap.textContent='—'; }
+      right.appendChild(gap);
+      row.appendChild(right);
+      rows.appendChild(row);
+    });
+  }
+
+  /* ────────────────────────────────────────────────
+     API
+  ──────────────────────────────────────────────── */
+  return {
+    init: function(circuitId){
+      if(typeof THREE==='undefined') return;
+      if(!ready) initThree();
+      if(!ready) return;
+      buildTrack(circuitId);
+      buildMiniTower();
+      requestAnimationFrame(function(){
+        resize3D();
+        if(!rafId) loop();
+      });
+    },
+    resize: resize3D
+  };
+
+})();
+
+window.addEventListener('resize', function(){ if(CR3D) CR3D.resize(); });
+</script>
 </body>
 </html>
