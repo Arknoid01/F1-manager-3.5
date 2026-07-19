@@ -4,7 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="css/immersive-theme.css?v=20260509">
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260709">
+<script src="js/icons.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/circuit-viz.js"></script>
 <title>Qualifications — F1 Manager</title>
 <style>
 *{box-sizing:border-box}
@@ -113,10 +116,14 @@
 /* Toast */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:8px;padding:10px 16px;font-family:var(--fh);font-size:13px;z-index:300;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1}
+
+/* Aperçu 3D quali */
+.quali-viz-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:12px}
+.quali-viz-panel .panel-head{margin:0}
 </style>
 </head>
 <body>
-<div class="topbar">
+<div class="topbar topbar--glass">
   <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
   <div class="top-pills" id="topPills"></div>
 </div>
@@ -230,6 +237,22 @@ myDrivers.forEach(d => {
   state.playerRuns[d.id]  = state.playerRuns[d.id] || 0;
 });
 
+// ── ÉVOLUTION DE LA PISTE ────────────────────────────────
+// Le gommage améliore le grip : Q3 est plus rapide que Q1, et la fin
+// de session plus rapide que le début. Sous la pluie, pas d'évolution.
+function trackEvolutionBonus() {
+  if (weather !== 'dry') return 0;
+  const phaseBase = state.phase === 'Q3' ? 0.55 : state.phase === 'Q2' ? 0.35 : 0;
+  const dur = state.phase === 'Q1' ? 18*60 : state.phase === 'Q2' ? 15*60 : 12*60;
+  const elapsed = Math.max(0, Math.min(1, 1 - state.timer / dur));
+  return phaseBase + elapsed * 0.25;
+}
+
+function trackGripPercent() {
+  // 0.80s de gain max sur tout le week-end → affiché 88-100%
+  return Math.round(88 + (trackEvolutionBonus() / 0.80) * 12);
+}
+
 // ── CALCUL TEMPS ─────────────────────────────────────────
 function calcQualiTime(driver, variance = true, mode = 'normal') {
   const team = F1Data.teams.find(t => t.id === driver.teamId);
@@ -245,6 +268,9 @@ function calcQualiTime(driver, variance = true, mode = 'normal') {
   const compound = weather === 'heavy_rain' ? 'WET' : weather === 'light_rain' ? 'INTER' : 'SOFT';
   const tyreState = { compound, condition: 1.0, age: 0 };
   let t = Engine.calcLapTime(driver, team, circuit, tyreState, 0, weather, 1, 'attack');
+
+  // Évolution de la piste : le gommage rend la piste plus rapide
+  t -= trackEvolutionBonus();
 
   // Bonus trait
   if (driver.trait === 'qualifier')  t -= 0.30;
@@ -301,7 +327,7 @@ function consumeRunTime(lapReference) {
   const el = document.getElementById('sessionTimer');
   if (el) {
     el.textContent = fmtTimer(state.timer);
-    el.className = `sh-timer${state.timer < 120 ? ' critical' : ''}`;
+    el.className = `bt-timer${state.timer < 120 ? ' critical' : ''}`;
   }
   return used;
 }
@@ -410,27 +436,28 @@ function renderLeaderboard(board, cutAt, phaseLabel) {
     const pc    = pos === 1 ? 'p1' : pos === 2 ? 'p2' : pos === 3 ? 'p3' : '';
     const elim  = entry.eliminated;
     const danger = cutAt && pos > cutAt && !elim;
-    const cls   = `lb-row${entry.isPlayer?' player':''}${elim?' eliminated':''}${danger?' danger':''}${entry.improving?' improved':''}`;
+    const cls   = `lb-row${entry.isPlayer?' player is-player':''}${elim?' eliminated is-dnf':''}${danger?' danger':''}${entry.improving?' improved':''}${pos===1?' is-leader':''}`;
 
     let status = '';
     if (elim)         status = `<span class="lb-status out">ÉLIM</span>`;
     else if (pos <= 10 && cutAt === 10) status = `<span class="lb-status q3">Q3</span>`;
-    else if (entry.improving) status = `<span class="lb-status improving">⬆</span>`;
+    else if (entry.improving) status = `<span class="lb-status improving" style="color:var(--live)">▼</span>`;
 
+    const posCls = pc ? `lb-pos ${pc} ds-pos ${pc}` : 'lb-pos ds-pos';
     return `<div class="${cls}" id="row_${entry.driver.id}">
-      <div class="lb-teambar" style="background:${color}"></div>
-      <div class="lb-pos ${pc}">${pos}</div>
-      <div class="lb-num">${entry.driver.number||'?'}</div>
+      <div class="lb-teambar ds-bar" style="background:${color}"></div>
+      <div class="${posCls}">${pos}</div>
+      <div class="lb-num ds-num">${entry.driver.number||'?'}</div>
       <div>
-        <div class="lb-name${entry.isPlayer?' player-name':''}">${entry.driver.firstName||''} ${entry.driver.name||'?'}</div>
-        <div class="lb-team">${team?.shortName||''}</div>
+        <div class="lb-name ds-name${entry.isPlayer?' player-name':''}">${entry.driver.firstName||''} ${entry.driver.name||'?'}</div>
+        <div class="lb-team ds-meta">${team?.shortName||''}</div>
       </div>
       <div style="flex:1"></div>
       ${status}
-      <div class="lb-time" style="color:${entry.isPlayer?'var(--gold)':entry.bestTime?color:'var(--muted)'}">
+      <div class="lb-time ds-lap" style="color:${entry.isPlayer?'var(--podium-gold)':entry.bestTime?color:'var(--muted)'}">
         ${entry.bestTime ? fmtTime(entry.bestTime) : '<span style="font-size:10px;color:var(--muted)">—</span>'}
       </div>
-      <div class="lb-gap">${entry.bestTime&&pos>1?fmtGap(pole,entry.bestTime):''}</div>
+      <div class="lb-gap ds-gap">${entry.bestTime&&pos>1?fmtGap(pole,entry.bestTime):''}</div>
     </div>`;
   }).join('');
 
@@ -455,14 +482,42 @@ function renderRadio() {
 }
 
 // ── TIMER ────────────────────────────────────────────────
+function updateSessionSub() {
+  const subEl = document.getElementById('sessionSub');
+  if (!subEl) return;
+  const cond = weather==='dry' ? 'Piste sèche' : weather==='light_rain' ? 'Piste humide' : 'Pluie forte';
+  const grip = weather==='dry' ? ` · Grip ${trackGripPercent()}%` : '';
+  subEl.textContent = cond + grip;
+}
+
 function startTimer() {
   state.timerInterval = setInterval(() => {
     state.timer = Math.max(0, state.timer - 1);
     const el = document.getElementById('sessionTimer');
     if (el) {
       el.textContent = fmtTimer(state.timer);
-      el.className = `sh-timer${state.timer < 120 ? ' critical' : ''}`;
+      el.className = `bt-timer${state.timer < 120 ? ' critical' : ''}`;
     }
+    if (state.timer % 15 === 0) updateSessionSub();
+
+    // Activité des rivaux : ils retournent en piste au fil de la
+    // séance et profitent de l'évolution du grip (classement vivant)
+    if (state.timer > 0 && state.timer % 30 === 0 && !state.runInProgress) {
+      const drivers = getCurrentDrivers();
+      let improved = false;
+      drivers.filter(d => d.teamId !== playerTeamId).forEach(d => {
+        if (Math.random() < 0.35) { simRun(d); improved = true; }
+      });
+      if (improved) {
+        const board = buildLeaderboard(drivers);
+        const cutAt = state.phase === 'Q1' ? 15 : state.phase === 'Q2' ? 10 : null;
+        renderLeaderboard(board, cutAt, state.phase === 'Q1' ? 'ÉLIMINÉS Q1' : 'ÉLIMINÉS Q2');
+        updatePlayerStatus();
+        checkDangerZone(board, drivers);
+        setTimeout(() => { Object.values(state.drivers).forEach(ds => ds.improving = false); }, 800);
+      }
+    }
+
     if (state.timer === 0) endPhase();
   }, 1000);
 }
@@ -522,32 +577,34 @@ function renderPhase(phase, drivers, board) {
   const phaseColors = { Q1:'q1', Q2:'q2', Q3:'q3' };
 
   document.getElementById('content').innerHTML = `
-    <div class="session-header">
-      <div>
-        <div class="sh-phase" style="color:${phase==='Q3'?'var(--gold)':phase==='Q2'?'#ff8800':'#64a0ff'}">${phase}</div>
-        <div style="font-family:var(--fh);font-size:10px;color:var(--muted)">${drivers.length} pilotes</div>
+    <div class="broadcast-ticker">
+      <div class="bt-live">Live</div>
+      <div class="bt-phase" style="color:${phase==='Q3'?'var(--podium-gold)':phase==='Q2'?'var(--warn)':'var(--info)'}">${phase}</div>
+      <div class="bt-info">
+        <div class="bt-circuit">${circuit.name||'Circuit'}</div>
+        <div class="bt-sub" id="sessionSub"></div>
       </div>
-      <div class="sh-info">
-        <div class="sh-circuit">${circuit.name||'Circuit'}</div>
-        <div class="sh-sub" id="sessionSub"></div>
-      </div>
-      <div>
-        <div class="sh-timer" id="sessionTimer">${fmtTimer(state.timer)}</div>
-        <div style="font-family:var(--fh);font-size:9px;color:var(--muted);text-align:right">RESTANT</div>
-      </div>
+      <div class="bt-timer" id="sessionTimer">${fmtTimer(state.timer)}</div>
+      <div class="bt-chip">${drivers.length} pilotes</div>
+    </div>
+
+    <div class="quali-viz-panel ds-panel">
+      <div class="ds-panel-head"><span class="ds-dot"></span>Aperçu circuit — Monaco 3D</div>
+      <div class="circuit-viz-wrap" id="qualiCircuitViz"></div>
     </div>
 
     <div class="quali-live">
-      <section class="quali-main quali-card">
-        <div class="panel-head"><span class="dot"></span>Classement live</div>
+      <section class="quali-main quali-card ds-panel">
+        <div class="ds-panel-head"><span class="ds-dot"></span>Classement live</div>
         <div class="quali-card-body">
           <div class="leaderboard" id="leaderboard"></div>
         </div>
       </section>
 
       <aside class="quali-side">
-        <div class="player-controls">
-          <div class="pc-title">🎮 Mur des stands</div>
+        <div class="player-controls ds-panel">
+          <div class="ds-panel-head"><span class="ds-dot"></span>Mur des stands</div>
+          <div style="padding:10px 12px">
           <div class="pc-drivers" id="playerControls">
             ${myDrivers.filter(d => !state.eliminated.includes(d.id) && drivers.find(x=>x.id===d.id)).map(d => `
               <div class="pc-driver">
@@ -567,20 +624,39 @@ function renderPhase(phase, drivers, board) {
               <div class="mini"><span>Retour</span><b>1 tour</b></div>
             </div>
           </div>
+          </div>
         </div>
-        <div class="quali-card">
-          <div class="panel-head"><span class="dot"></span>Radio</div>
-          <div class="radio-feed" id="radioFeed"></div>
+        <div class="quali-card ds-panel">
+          <div class="ds-panel-head"><span class="ds-dot"></span>Radio</div>
+          <div class="radio-feed" id="radioFeed" style="border:none;border-radius:0"></div>
         </div>
       </aside>
     </div>
   `;
 
-  const subEl = document.getElementById('sessionSub');
-  if (subEl) subEl.textContent = (weather==='dry'?'Piste seche':weather==='light_rain'?'Piste humide':'Pluie forte') + ' · ' + (phase==='Q1'?'18':phase==='Q2'?'15':'12') + ' min';
+  updateSessionSub();
   renderLeaderboard(board, cutAt, cutLabel);
   renderRadio();
   updatePlayerStatus();
+  initQualiViz();
+}
+
+function initQualiViz() {
+  if (typeof CircuitViz === 'undefined') return;
+  const team = F1Data.teams.find(t => t.id === playerTeamId);
+  requestAnimationFrame(() => {
+    CircuitViz.init({ container: '#qualiCircuitViz', mode: 'quali', color: team?.color || '#e8003d' });
+  });
+}
+
+function triggerQualiVizRun() {
+  if (typeof CircuitViz === 'undefined') return;
+  const team = F1Data.teams.find(t => t.id === playerTeamId);
+  const colors = myDrivers
+    .filter(d => !state.eliminated.includes(d.id))
+    .map(() => team?.color || '#e8003d');
+  if (!colors.length) colors.push(team?.color || '#e8003d');
+  CircuitViz.animateLap({ colors, duration: 2600 });
 }
 
 function setMode(driverId, mode) {
@@ -622,6 +698,8 @@ function doPlayerRun() {
 
   const btn = document.getElementById('btnRun');
   if (btn) { btn.disabled = true; btn.textContent = '🔄 Run en cours...'; }
+
+  triggerQualiVizRun();
 
   const currentDrivers = getCurrentDrivers();
 

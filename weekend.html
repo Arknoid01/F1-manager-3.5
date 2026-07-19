@@ -224,7 +224,8 @@ input[type=number],input[type=text]{background:var(--surface);color:var(--text);
 .flow-list strong{color:var(--text)}
 .flow-cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 </style>
-<link rel="stylesheet" href="css/immersive-theme.css">
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260709">
+<script src="js/icons.js"></script>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#07070d">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -232,21 +233,20 @@ input[type=number],input[type=text]{background:var(--surface);color:var(--text);
   <meta name="apple-mobile-web-app-title" content="F1 Manager">
 </head>
 <body>
-<div class="topbar">
+<div class="topbar topbar--glass">
   <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></div>
   <a href="index.html" class="back-home">← Accueil</a>
-  <div class="top-pills">
+  <div class="top-pills tb-right">
     <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-gold" id="raceBadge" style="color:var(--podium-gold)">—</div>
     <div class="pill pill-gold" id="budgetBadge">—</div>
   </div>
 </div>
-    <div class="pill" id="raceBadge" style="color:var(--gold)">—</div>
-  </div>
 
 <div class="page">
 
-  <!-- PHASES DU WEEKEND -->
-  <div class="phases" id="phasesBar"></div>
+  <!-- TIMELINE WEEK-END -->
+  <div class="wk-timeline" id="phasesBar"></div>
 
   <!-- CONTENU DYNAMIQUE -->
   <div id="weekendContent"></div>
@@ -418,27 +418,48 @@ function buildPaddockEventCard() {
 //  PHASES BAR
 // ══════════════════════════════════════════════════════════
 function renderPhases() {
+  const pendingSocial = (save.socialEvents || []).filter(e => !e.resolved).length;
   const phases = [
-    { id:'fp',            icon:'🔧', label:'Essais Libres', done: save.weekendFPDone >= 3 },
-    { id:'quali',         icon:'⚡', label:'Qualifications', done: save.weekendQualiDone },
-    { id:'race_briefing', icon:'🏁', label:'Course',        done: false },
+    { id:'briefing',      icon:'briefing', label:'Briefing', done: (save.weekendFPDone || 0) > 0 },
+    { id:'fp',            icon:'fp',       label:'Essais',   done: save.weekendFPDone >= 3 },
+    { id:'quali',         icon:'quali',    label:'Quali',    done: save.weekendQualiDone },
+    { id:'race_briefing', icon:'race',     label:'Course',   done: false },
+    { id:'social',        icon:'social',   label:'Social',   done: pendingSocial === 0 && (save.socialHistory || []).some(h => h.race === save.race), badge: pendingSocial },
   ];
 
   document.getElementById('phasesBar').innerHTML = phases.map(p => {
     const isDone   = p.done;
-    const isActive = p.id === phase;
-    const isLocked = (p.id === 'quali' && save.weekendFPDone < 3) || (p.id === 'race_briefing' && !save.weekendQualiDone);
-    const cls = isDone ? 'done' : isActive ? 'active' : isLocked ? 'locked' : '';
-    return `<div class="phase ${cls}" onclick="goPhase('${p.id}')">
-      <span class="phase-icon">${isDone ? '✅' : p.icon}</span>${p.label}
+    const isActive = (p.id === 'briefing' && phase === 'fp' && (save.weekendFPDone || 0) === 0)
+                  || (p.id !== 'briefing' && p.id !== 'social' && p.id === phase);
+    const isLocked = (p.id === 'quali' && save.weekendFPDone < 3)
+                  || (p.id === 'race_briefing' && !save.weekendQualiDone)
+                  || (p.id === 'social' && !save.weekendQualiDone);
+    const cls = [
+      'wk-step',
+      isDone ? 'done' : '',
+      isActive ? 'active' : '',
+      isLocked ? 'locked' : '',
+      !isDone && !isActive && !isLocked ? 'pending' : '',
+    ].filter(Boolean).join(' ');
+    const iconHtml = isDone
+      ? (typeof F1Icons !== 'undefined' ? F1Icons.svg('check', 'ds-icon--sm') : '✓')
+      : isLocked
+        ? (typeof F1Icons !== 'undefined' ? F1Icons.svg('lock', 'ds-icon--sm') : '🔒')
+        : (typeof F1Icons !== 'undefined' ? F1Icons.svg(p.icon, 'ds-icon--sm') : '●');
+    const badge = p.badge ? `<span style="position:absolute;top:4px;right:4px;background:var(--danger);color:#fff;font-size:9px;font-weight:900;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center">${p.badge}</span>` : '';
+    return `<div class="${cls}" onclick="goPhase('${p.id}')" style="position:relative">
+      <div class="wk-dot">${iconHtml}</div>
+      <div class="wk-label">${p.label}</div>
+      ${badge}
     </div>`;
   }).join('');
 }
 
 function goPhase(p) {
+  if (p === 'social') { location.href = 'social.html'; return; }
+  if (p === 'briefing') { phase = 'fp'; renderPhases(); renderContent(); return; }
   if (p === 'quali' && save.weekendFPDone < 3) { toast('❌ Termine les 3 séances d\'essais libres d\'abord !', true); return; }
   if (p === 'race_briefing' && !save.weekendQualiDone) { toast('❌ Fais les qualifications d\'abord !', true); return; }
-  // Redirection vers les pages briefing
   if (p === 'quali') { location.href = 'quali-briefing.html'; return; }
   if (p === 'race_briefing') { location.href = 'race-briefing.html'; return; }
   phase = p;
@@ -476,21 +497,32 @@ function buildCircuitHero() {
   const w     = save.weekendWeather || 'dry';
   const wText = w === 'heavy_rain' ? '⛈️ Forte pluie' : w === 'light_rain' ? '🌧️ Pluie légère' : '☀️ Sec';
   const wCls  = w === 'heavy_rain' ? 'w-heavy' : w === 'light_rain' ? 'w-rain' : 'w-dry';
+  const heroColors = {
+    street: ['#1a0812', '#050508'],
+    power: ['#0a1228', '#050508'],
+    high_speed: ['#0a1820', '#050508'],
+    technical: ['#0a140a', '#050508'],
+    balanced: ['#12000e', '#07070d'],
+  };
+  const [c1, c2] = heroColors[circuit.circuitType] || heroColors.balanced;
 
   const el = document.createElement('div');
-  el.className = 'panel';
+  el.className = 'wk-hero';
+  el.style.setProperty('--hero-c1', c1);
+  el.style.setProperty('--hero-c2', c2);
   el.innerHTML = `
-    <div class="circuit-hero">
-      <div class="circuit-flag">${flag}</div>
+    <div class="wk-hero-bg"></div>
+    <div class="wk-hero-body">
       <div>
-        <div class="circuit-name">${circuit.fullName || circuit.name}</div>
-        <div class="circuit-full">Grand Prix de ${circuit.name} · Saison ${save.season || 2025}</div>
-        <div class="circuit-stats">
-          <div class="cstat">🔄 <span>${circuit.laps}</span> tours</div>
-          <div class="cstat">📏 <span>${circuit.lapDistance}</span> km/tour</div>
-          <div class="cstat">⏱ <span>${Weekend.fmtTime(circuit.baseLapTime)}</span> ref.</div>
-          <div class="cstat">🏎️ DRS <span>${circuit.drsZones}</span> zones</div>
-          <div class="cstat">🔧 Pit <span>${circuit.pitLoss}s</span></div>
+        <div class="wk-hero-flag">${flag}</div>
+        <div class="wk-hero-title">${circuit.fullName || circuit.name}</div>
+        <div class="wk-hero-sub">Grand Prix de ${circuit.name} · Saison ${save.season || 2025}</div>
+        <div class="wk-hero-stats">
+          <div class="wk-hero-stat">🔄 <span>${circuit.laps}</span> tours</div>
+          <div class="wk-hero-stat">📏 <span>${circuit.lapDistance}</span> km/tour</div>
+          <div class="wk-hero-stat">⏱ <span>${Weekend.fmtTime(circuit.baseLapTime)}</span> ref.</div>
+          <div class="wk-hero-stat">🏎️ DRS <span>${circuit.drsZones}</span> zones</div>
+          <div class="wk-hero-stat">🔧 Pit <span>${circuit.pitLoss}s</span></div>
         </div>
       </div>
       <div class="weather-badge ${wCls}">${wText}</div>

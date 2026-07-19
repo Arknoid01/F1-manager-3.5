@@ -520,6 +520,23 @@ const Save = {
       operatingCost: gpOperatingCost, baseReward: reward, sponsorBonus, tokens, save } : null;
   },
 
+  // Pilotes actifs de l'équipe joueur (driverStates prioritaire)
+  getPlayerDrivers(save, playerTeamId) {
+    if (typeof F1Data === 'undefined' || !playerTeamId) return [];
+    this.applyDriverStates(save);
+
+    const fromStates = Object.entries(save?.driverStates || {})
+      .filter(([, v]) => v.teamId && v.teamId !== 'free_agent' && v.teamId === playerTeamId && !v.retired)
+      .map(([id]) => F1Data.drivers.find(d => d.id === id))
+      .filter(Boolean);
+
+    if (fromStates.length) return fromStates;
+
+    return F1Data.drivers.filter(d =>
+      d.teamId && d.teamId !== 'free_agent' && d.teamId === playerTeamId && !d.retired
+    );
+  },
+
   // -- GENERATION DISCUSSIONS SOCIALES POST-COURSE --
   // Appele une seule fois par recordRaceResults — genere 3-5 discussions structurees
   generatePostRaceSocial(save, results, playerTeamId) {
@@ -528,12 +545,11 @@ const Save = {
     // Ne pas regenerer si deja fait pour ce GP
     const gpKey = `social_generated_gp_${save.race||0}_${save.season||2025}`;
     if (save[gpKey]) return;
-    save[gpKey] = true;
 
     // Nettoyer les anciens events resolus pour ne garder que les non traites
     save.socialEvents = (save.socialEvents||[]).filter(e => !e.resolved);
 
-    const drivers    = F1Data.drivers.filter(d => d.teamId && d.teamId && d.teamId !== 'free_agent' && d.teamId === playerTeamId && !d.retired);
+    const drivers    = this.getPlayerDrivers(save, playerTeamId);
     const circuits   = F1Data.circuits || [];
     const nextCirc   = circuits[(save.race||0) % Math.max(1, circuits.length)];
     const race       = save.race || 0;
@@ -615,7 +631,7 @@ const Save = {
       ],
       // Progresser
       progress_neu: [
-        "P${pos} c'est correct. On a encore de la marge pour progresser.",
+        "Bon résultat. On a encore de la marge pour progresser.",
         "On avance dans la bonne direction. Ce résultat nous dit où on en est.",
         "Pas mal. Maintenant on sait sur quoi travailler pour le prochain GP.",
         "C'est un bon indicateur. On n'est pas encore au maximum de notre potentiel.",
@@ -663,7 +679,7 @@ const Save = {
       ],
       // Pas parfait mais ok
       ok_neu: [
-        "P${pos}. Pas parfait mais on avance. On en parle demain.",
+        "Pas parfait mais on avance. On en parle demain.",
         "C'est dans la boîte. Pas la meilleure course mais on a des éléments à exploiter.",
         "On prend ce que la course nous donne. On verra ce qu'on peut faire mieux.",
         "C'est une bonne base de travail. On va analyser ça cette semaine.",
@@ -999,6 +1015,54 @@ const Save = {
         save.socialEvents.push({...ev, read: false, resolved: false});
       }
     });
+
+    // Marquer comme généré seulement si des events ont bien été créés
+    if (events.length > 0) {
+      save[gpKey] = true;
+    }
+  },
+
+  // Répare les sauvegardes où la génération a échoué (flag posé mais 0 message)
+  repairSocialIfMissing(save) {
+    if (!save?.playerTeamId || !save.lastGpSummary) return save;
+    const raceIdx = Number(save.race) || 0;
+    if (raceIdx <= 0) return save;
+
+    const gpKey = `social_generated_gp_${raceIdx}_${save.season||2025}`;
+    const pending = (save.socialEvents || []).filter(e => !e.resolved);
+    const hasEventsForGp = pending.some(e =>
+      String(e.id || '').endsWith(`_${raceIdx}`) ||
+      String(e.id || '').includes(`_${raceIdx}_`)
+    );
+
+    if (pending.length > 0 && hasEventsForGp) return save;
+    if (!save[gpKey] && pending.length > 0) return save;
+
+    // Flag bloquant sans messages → on régénère depuis le dernier GP
+    delete save[gpKey];
+
+    const summary = save.lastGpSummary;
+    const results = (summary.results || summary.playerResults || []).map(r => ({
+      position: r.position || 20,
+      status: r.status || 'finished',
+      points: r.points || 0,
+      driver: r.driverId ? F1Data.drivers.find(d => d.id === r.driverId) : null,
+      driverId: r.driverId || null,
+      team: F1Data.teams.find(t => t.id === (r.teamId || save.playerTeamId)),
+      teamId: r.teamId || null,
+    })).filter(r => r.driver || r.driverId);
+
+    if (!results.length) return save;
+
+    try {
+      this.generatePostRaceSocial(save, results, save.playerTeamId);
+      if ((save.socialEvents || []).some(e => !e.resolved)) {
+        this.save(save);
+      }
+    } catch (e) {
+      console.warn('[Save] repairSocialIfMissing:', e);
+    }
+    return save;
   },
 
   // ── RESTAURATION STATS EQUIPES IA ────────────────────────

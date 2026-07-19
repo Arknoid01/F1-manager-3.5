@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
 <title>F1 Manager — QG</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Orbitron:wght@700;900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/design-system.css?v=20260709"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{
@@ -118,6 +119,7 @@ html,body{
 
 /* Tête + label inline */
 .pin-head{
+  position:relative;
   width:auto;height:26px;border-radius:13px;
   display:flex;align-items:center;gap:5px;
   padding:0 9px;
@@ -127,7 +129,7 @@ html,body{
   background:rgba(7,7,13,.82);
   backdrop-filter:blur(8px);
   box-shadow:0 3px 14px rgba(0,0,0,.55);
-  position:relative;flex-shrink:0;
+  flex-shrink:0;
   transition:transform .15s;
   white-space:nowrap;
 }
@@ -185,6 +187,52 @@ html,body{
   display:none;
 }
 .btn-go.on{display:block;}
+/* ── NOTIFICATIONS SOCIAL ── */
+.hq-notif-wrap{position:fixed;top:50px;left:0;right:0;z-index:28;padding:6px 12px 0;pointer-events:none;display:flex;justify-content:center;}
+.hq-notif-banner{
+  display:flex;align-items:center;gap:10px;
+  max-width:480px;width:100%;
+  padding:9px 13px;
+  background:rgba(10,10,18,.86);
+  border:1px solid rgba(255,255,255,.12);
+  border-left:3px solid #e8003d;
+  border-radius:12px;
+  backdrop-filter:blur(16px);
+  text-decoration:none;color:inherit;
+  pointer-events:auto;
+  box-shadow:0 8px 28px rgba(0,0,0,.5);
+  transition:transform .15s;
+}
+.hq-notif-banner:active{transform:scale(.98);}
+.hq-notif-banner.urgent{border-left-color:#f5c842;animation:notif-pulse 2s ease-in-out infinite;}
+@keyframes notif-pulse{0%,100%{box-shadow:0 8px 28px rgba(0,0,0,.5)}50%{box-shadow:0 8px 32px rgba(232,0,61,.3)}}
+.hq-notif-icon{font-size:19px;flex-shrink:0;}
+.hq-notif-body{flex:1;min-width:0;}
+.hq-notif-title{display:block;font-weight:900;font-size:12px;letter-spacing:.5px;color:#fff;}
+.hq-notif-chips{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;}
+.hq-notif-chip{
+  font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);
+  color:rgba(255,255,255,.5);white-space:nowrap;max-width:150px;
+  overflow:hidden;text-overflow:ellipsis;
+}
+.hq-notif-chip.urgent{color:#f5c842;border-color:rgba(245,200,66,.3);}
+.hq-notif-more{font-size:9px;color:rgba(255,255,255,.4);padding:2px 4px;}
+.hq-notif-arrow{font-weight:900;font-size:14px;color:#e8003d;flex-shrink:0;}
+.pin-notif-badge{
+  position:absolute;top:-7px;right:-7px;
+  min-width:16px;height:16px;padding:0 4px;border-radius:8px;
+  background:#e8003d;color:#fff;
+  font-size:9px;font-weight:900;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(7,7,13,.9);
+  box-shadow:0 2px 8px rgba(232,0,61,.5);
+  z-index:2;
+}
+.pin-has-notif .pin-head{border-color:#e8003d;}
+.pin-urgent .pin-notif-badge{background:#f5c842;color:#111;animation:badge-pulse 1.5s ease-in-out infinite;}
+@keyframes badge-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+
 /* ── PWA INSTALL BTN ── */
 .pwa-btn{
   width:28px;height:24px;border-radius:20px;
@@ -257,6 +305,8 @@ html,body{
   </div>
 </div>
 
+<div class="hq-notif-wrap" id="hqNotifBanner" style="display:none"></div>
+
 <div class="pins-layer" id="pins"></div>
 <div class="legend"      id="leg"></div>
 
@@ -281,9 +331,12 @@ html,body{
   <button class="btn-go" id="btnGo">Entrer au QG →</button>
 </div>
 
+<script src="js/icons.js"></script>
 <script src="js/data.js"></script>
 <script src="js/save.js"></script>
 <script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/social-notifications.js"></script>
 <script>
 
 /* ── Force paysage ── */
@@ -314,18 +367,18 @@ html,body{
 
 /* Pins positionnés sur les bâtiments de la photo */
 var PINS = [
-  {x:12,y:32,cat:'race', icon:'🏎', name:'Circuit',      sub:'Weekend · FP · Course',   href:'weekend.html'},
-  {x:18,y:52,cat:'mgmt', icon:'🔧', name:'Staff',         sub:'Ingénieurs & mécaniciens',href:'staff.html'},
-  {x:30,y:65,cat:'tech', icon:'🏭', name:'R&D',           sub:'Développement voiture',   href:'rd.html'},
-  {x:45,y:32,cat:'mgmt', icon:'💪', name:'Entraînement',  sub:'Performance pilotes',     href:'training.html'},
-  {x:52,y:52,cat:'race', icon:'❓', name:'Aide',          sub:'Guide & tutoriel',        href:'aide.html'},
-  {x:62,y:72,cat:'mgmt', icon:'👨‍✈️',name:'Pilotes',      sub:'Effectif & contrats',    href:'drivers.html'},
-  {x:68,y:25,cat:'biz',  icon:'💼', name:'Sponsors',      sub:'Partenariats & budget',   href:'sponsors.html'},
-  {x:75,y:45,cat:'biz',  icon:'📊', name:'Direction',     sub:'Conseil & finances',      href:'board.html'},
-  {x:82,y:28,cat:'media',icon:'📰', name:'Actualités',    sub:'News F1 & équipe',        href:'news.html'},
-  {x:90,y:45,cat:'media',icon:'📲', name:'Social',        sub:'Image & réputation',      href:'social.html'},
-  {x:85,y:65,cat:'media',icon:'📓', name:'Journal',       sub:'Historique saison',       href:'gp-journal.html'},
-  {x:50,y:18,cat:'qg',   icon:'🏢', name:'QG',            sub:'Quartier Général',        href:'qg.html'},
+  {x:12,y:32,cat:'race', icon:'circuit', name:'Circuit',      sub:'Weekend · FP · Course',   href:'weekend.html'},
+  {x:18,y:52,cat:'mgmt', icon:'staff',   name:'Staff',         sub:'Ingénieurs & mécaniciens',href:'staff.html'},
+  {x:30,y:65,cat:'tech', icon:'factory', name:'R&D',           sub:'Développement voiture',   href:'rd.html'},
+  {x:45,y:32,cat:'mgmt', icon:'training',name:'Entraînement',  sub:'Performance pilotes',     href:'training.html'},
+  {x:52,y:52,cat:'race', icon:'help',    name:'Aide',          sub:'Guide & tutoriel',        href:'aide.html'},
+  {x:62,y:72,cat:'mgmt', icon:'drivers', name:'Pilotes',       sub:'Effectif & contrats',     href:'drivers.html'},
+  {x:68,y:25,cat:'biz',  icon:'sponsors',name:'Sponsors',      sub:'Partenariats & budget',   href:'sponsors.html'},
+  {x:75,y:45,cat:'biz',  icon:'board',   name:'Direction',     sub:'Conseil & finances',      href:'board.html'},
+  {x:82,y:28,cat:'media',icon:'news',    name:'Actualités',    sub:'News F1 & équipe',        href:'news.html'},
+  {x:90,y:45,cat:'media',icon:'social',  name:'Social',        sub:'Image & réputation',      href:'social.html'},
+  {x:85,y:65,cat:'media',icon:'journal', name:'Journal',       sub:'Historique saison',       href:'gp-journal.html'},
+  {x:50,y:18,cat:'qg',   icon:'hq',      name:'QG',            sub:'Quartier Général',        href:'qg.html'},
 ];
 
 var CAT={
@@ -361,6 +414,9 @@ if(!save||!save.playerTeamId){
     if(!sel) return;
     var s=Save.load()||{};
     s.playerTeamId=sel.id; s.season=s.season||2025; s.race=s.race||0; s.budget=s.budget||sel.budget;
+    s.socialEvents = s.socialEvents || [];
+    if (typeof Save.persistDriverStates === 'function') Save.persistDriverStates(s);
+    if (typeof Career !== 'undefined' && Career.ensureContractSystem) Career.ensureContractSystem(s);
     Save.save(s); selEl.classList.add('gone'); initHQ();
   });
 } else {
@@ -378,6 +434,13 @@ function initHQ(){
   }
   document.getElementById('pS').textContent='S.'+(s.season||2025)+' · GP'+(s.race||0);
   document.getElementById('pG').textContent=(s.budget!=null?Math.round(s.budget):'—')+'M€';
+
+  if (typeof SocialNotifications !== 'undefined') SocialNotifications.applyToHome(s);
+  if (typeof Save.repairSocialIfMissing === 'function') {
+    s = Save.repairSocialIfMissing(s) || s;
+    s = Save.load() || s;
+    SocialNotifications.applyToHome(s);
+  }
 
   /* Attend que l'image soit chargée pour calculer les positions exactes */
   var img = document.querySelector('.hq-img');
@@ -432,16 +495,17 @@ function buildPins(){
 
     a.style.cssText = 'left:'+px+'px;top:'+py+'px;--c:'+col+';position:absolute;';
 
+    var iconHtml = (typeof F1Icons !== 'undefined') ? F1Icons.svg(p.icon, 'ds-icon--md') : '';
     var tid='t'+i;
     a.innerHTML=
       '<div class="pin-tip" id="'+tid+'">'+
-        '<div class="tt-icon">'+p.icon+'</div>'+
+        '<div class="tt-icon">'+iconHtml+'</div>'+
         '<div class="tt-name">'+p.name+'</div>'+
         '<div class="tt-sub">'+p.sub+'</div>'+
         '<div class="tt-go">ACCÉDER →</div>'+
       '</div>'+
       '<div class="pin-head">'+
-        '<span class="pin-icon">'+p.icon+'</span>'+
+        '<span class="pin-icon-svg">'+iconHtml+'</span>'+
         '<span class="pin-label">'+p.name+'</span>'+
       '</div>'+
       '<div class="pin-leg"></div>';
@@ -465,6 +529,11 @@ function buildPins(){
     layer.appendChild(a);
   });
 
+  if (typeof SocialNotifications !== 'undefined') {
+    const s = (typeof Save !== 'undefined') ? Save.load() : {};
+    SocialNotifications.applyToHome(s);
+  }
+
   /* Recalcule si la fenêtre change (rotation) */
   window.removeEventListener('resize', buildPins);
   window.addEventListener('resize', function(){
@@ -482,6 +551,13 @@ function buildLeg(){
     el.appendChild(i);
   });
 }
+
+document.addEventListener('visibilitychange', function(){
+  if (document.visibilityState === 'visible' && typeof SocialNotifications !== 'undefined') {
+    const s = (typeof Save !== 'undefined') ? Save.load() : {};
+    SocialNotifications.applyToHome(s);
+  }
+});
 
 })();
 </script>

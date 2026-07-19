@@ -224,9 +224,21 @@ const Race = {
       s.safetyCar.remainingLaps--;
       if (s.safetyCar.remainingLaps <= 0) {
         s.safetyCar.active = false;
+        s._scEndLap = lap;
         lapEvents.push({ lap, type: 'safety_car_end', message: '🟢 Safety Car rentre aux stands !' });
       }
     }
+
+    // ── DRS — règle réelle : interdit les 2 premiers tours ────
+    // et pendant le tour qui suit une relance de Safety Car
+    const drsEnabled = lap >= 3
+      && !s.safetyCar.active
+      && (!s._scEndLap || lap > s._scEndLap + 1);
+    if (drsEnabled && !s._drsAnnounced) {
+      s._drsAnnounced = true;
+      lapEvents.push({ lap, type: 'info', message: '📢 DRS activé !' });
+    }
+    if (!drsEnabled) s._drsAnnounced = false;
 
     // ── Calcul chaque voiture ─────────────────────────────────
     let someoneJustPitted = false;
@@ -451,9 +463,11 @@ const Race = {
       }
 
       // ── Temps au tour ─────────────────────────────────────────
-      // Pas de fuel load — en F1 moderne c'est calculé avant la course
+      // Fuel load réel : voiture lourde en début de course, chronos
+      // qui tombent au fil des tours (allègement + gommage piste)
+      const fuelLoad = Engine.calcFuelLoad(cir, lap);
       let lapTime = Engine.calcLapTime(
-        car.driver, car.team, cir, car.tyre, 0, s.weather, lap, car.orderMode || 'normal'
+        car.driver, car.team, cir, car.tyre, fuelLoad, s.weather, lap, car.orderMode || 'normal'
       );
 
       // Safety Car : tout le monde roule au même rythme lent
@@ -461,9 +475,12 @@ const Race = {
         lapTime = cir.baseLapTime * 1.38 + (Math.random() - 0.5) * 0.3;
       }
 
-      // ── Aspiration — effet sillage sur le temps au tour ──
-      // Si une voiture est dans le sillage d'une autre (<1.5s)
-      // elle gagne 0.1 à 0.3s grâce à la réduction de traînée
+      // ── Aspiration vs air sale — dépend du circuit ───────
+      // Dans le sillage (<1.5s) : gain d'aspiration en ligne droite
+      // (fort sur les circuits à dépassements type Monza), mais perte
+      // d'appui dans les virages (dominant sur Monaco/Hongrie).
+      // L'air sale surchauffe aussi les pneus (usure accrue).
+      let followingClose = false;
       if (!s.safetyCar.active && car.gap !== null && car.gap > 0) {
         const carAhead = s.grid.find(c =>
           c.status !== 'dnf' && c.position === car.position - 1
@@ -471,12 +488,34 @@ const Race = {
         if (carAhead && carAhead.gap !== null) {
           const gapToAhead = car.gap - carAhead.gap;
           if (gapToAhead > 0 && gapToAhead < 1.5) {
-            // Plus on est proche, plus le sillage est fort
-            const slipEffect = 0.25 * (1 - gapToAhead / 1.5);
-            // Modifié par le nombre de zones DRS du circuit
-            const drsMultiplier = 1 + (cir.drsZones - 1) * 0.15;
-            lapTime -= slipEffect * drsMultiplier;
+            const proximity = 1 - gapToAhead / 1.5; // 0..1
+            followingClose = gapToAhead < 1.0;
+
+            // Aspiration : forte sur circuits ouverts + zones DRS
+            const drsFactor = drsEnabled ? 1 + (cir.drsZones - 1) * 0.15 : 0.55;
+            const slipGain = 0.28 * proximity
+              * (1 - cir.overtakingDifficulty * 0.6)
+              * drsFactor;
+
+            // Air sale : perte d'appui, dominante sur circuits sinueux
+            const dirtyAirLoss = 0.22 * proximity * cir.overtakingDifficulty;
+
+            lapTime += dirtyAirLoss - slipGain;
           }
+        }
+      }
+
+      // ── Départ (tour 1) : réaction au feu vert ───────────
+      // Un bon départ peut faire gagner 2-3 places, un mauvais en coûte autant
+      if (lap === 1) {
+        const reaction = (Math.random() - 0.5) * 1.1
+          - ((car.driver.consistency || 70) - 70) * 0.005;
+        lapTime += reaction;
+        const isPlayer = car.driver.teamId?.toLowerCase() === (s.playerTeamId||'').toLowerCase();
+        if (reaction < -0.46) {
+          lapEvents.push({ lap, type:'info', message:`🚀 Excellent envol de ${car.driver.firstName} ${car.driver.name} au départ !` });
+        } else if (reaction > 0.42 && isPlayer) {
+          lapEvents.push({ lap, type:'info', message:`⚠️ Départ manqué pour ${car.driver.firstName} ${car.driver.name} — patinage au feu vert` });
         }
       }
 
@@ -488,6 +527,10 @@ const Race = {
 
       if (!car.pitThisLap) {
         car.tyre = Engine.degradeTyre(car.tyre, cir, car.driver, s.weather, car.orderMode || 'normal');
+        // Air sale : pneus surchauffés quand on suit de près en piste sèche
+        if (followingClose && s.weather === 'dry') {
+          car.tyre.condition = Math.max(0, car.tyre.condition - 0.0022 * cir.tyreDegradation);
+        }
       }
     });
 
@@ -523,7 +566,8 @@ const Race = {
         .sort((a, b) => a.totalTime - b.totalTime);
 
       // Bonus DRS : plus de zones = dépassements plus faciles
-      const drsBonus = Math.min(0.25, (cir.drsZones || 1) * 0.08);
+      // (nul si DRS pas encore activé — début de course / relance SC)
+      const drsBonus = drsEnabled ? Math.min(0.25, (cir.drsZones || 1) * 0.08) : 0;
 
       for (let i = 1; i < racing.length; i++) {
         const attacker = racing[i];
@@ -535,7 +579,11 @@ const Race = {
 
         // Tentative de dépassement via engine.js
         // On passe un circuit modifié avec le bonus DRS
-        const circuitWithDRS = { ...cir, overtakingDifficulty: Math.max(0.05, cir.overtakingDifficulty - drsBonus) };
+        const circuitWithDRS = {
+          ...cir,
+          overtakingDifficulty: Math.max(0.05, cir.overtakingDifficulty - drsBonus),
+          drsZones: drsEnabled ? cir.drsZones : 0,
+        };
         const overtook = Engine.attemptOvertake(attacker, defender, circuitWithDRS);
 
         if (overtook) {

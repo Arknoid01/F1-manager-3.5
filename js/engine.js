@@ -21,8 +21,8 @@ const Engine = {
   },
 
   // ── CALCUL TEMPS AU TOUR ──────────────────────────────────
-  calcLapTime(driver, team, circuit, tyreState, _fuelLoad, weather='dry', lap=1, orderMode='normal') {
-    // _fuelLoad ignoré — géré avant la course en F1 moderne
+  // fuelLoad en kg : > 0 uniquement en course (0 en quali / tour lancé)
+  calcLapTime(driver, team, circuit, tyreState, fuelLoad = 0, weather='dry', lap=1, orderMode='normal') {
     const tyre  = F1Data.tyres[tyreState.compound];
     const trait = this.getTrait(driver);
 
@@ -79,6 +79,21 @@ const Engine = {
     if (driver.trait === 'technical') {
       const aeroBonus = Math.max(0, (team.aero - 75)) * 0.002;
       lapTime -= aeroBonus;
+    }
+
+    // ── 3b. Poids carburant ───────────────────────────────
+    // ~0.032s/kg par tour : une voiture pleine (~100kg) perd ~3s
+    // par rapport à un réservoir vide. Identique pour tous, mais
+    // rend la dynamique de course réaliste (chronos qui tombent).
+    if (fuelLoad > 0) {
+      lapTime += fuelLoad * 0.032;
+    }
+
+    // ── 3c. Évolution de la piste (course) ────────────────
+    // Le gommage améliore le grip au fil des tours (~0.4s au total)
+    if (fuelLoad > 0 && weather === 'dry' && circuit.laps) {
+      const rubberIn = Math.min(1, lap / (circuit.laps * 0.6));
+      lapTime -= rubberIn * 0.40;
     }
 
     // ── 4. Pneus — grip de base ───────────────────────────
@@ -333,7 +348,8 @@ const Engine = {
 
     // ── DRS — selon le nombre de zones du circuit ──────────
     // 1 zone → +8%, 2 zones → +16%, 3 zones → +25%
-    const drsZones  = circuit.drsZones || 1;
+    // drsZones peut valoir 0 (DRS désactivé : début de course, relance SC)
+    const drsZones  = circuit.drsZones ?? 1;
     const drsBonus  = drsZones * 0.08;
 
     // ── Aspiration (slipstream) ────────────────────────────

@@ -4,7 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="css/immersive-theme.css?v=20260509">
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260709">
+<script src="js/icons.js"></script>
 <title>Social — F1 Manager</title>
 <style>
 *{box-sizing:border-box}
@@ -13,20 +14,9 @@
 .phase-icon{font-size:22px}
 .phase-label{font-family:var(--fh);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
 .phase-line{flex:1;height:1px;background:var(--border)}
-.conv-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;transition:opacity .3s,transform .3s}
-.conv-card.urgent{border-color:rgba(232,0,61,.4)}
-.conv-head{display:flex;align-items:center;gap:12px;padding:14px 16px 10px}
-.conv-avatar{width:42px;height:42px;border-radius:50%;background:var(--surface2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.conv-who{flex:1}
-.conv-name{font-family:var(--fh);font-weight:900;font-size:15px}
-.conv-role{font-family:var(--fh);font-size:10px;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-top:1px}
-.conv-tag{font-family:var(--fh);font-size:10px;padding:2px 8px;border-radius:4px;border:1px solid rgba(232,0,61,.3);color:var(--accent)}
-.conv-body{padding:0 16px 14px}
-.conv-text{font-size:13px;line-height:1.7;color:#ddd}
-.conv-sep{height:1px;background:var(--border);margin:0 16px 12px}
-.conv-choices{padding:0 12px 14px;display:flex;flex-direction:column;gap:7px}
-.choice-btn{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:10px 16px;cursor:pointer;font-size:13px;color:var(--text);text-align:left;line-height:1.45;transition:all .15s;-webkit-tap-highlight-color:transparent;width:100%}
-.choice-btn:active{opacity:.65;transform:scale(.98)}
+.conv-card{background:transparent;border:none;border-radius:0;overflow:visible;margin-bottom:0}
+.conv-card.urgent .chat-bubble{border-color:rgba(232,0,61,.45)}
+.conv-head,.conv-body,.conv-sep,.conv-choices{display:none}
 .empty-state{text-align:center;padding:50px 20px}
 .empty-icon{font-size:48px;margin-bottom:12px}
 .empty-title{font-family:var(--fh);font-weight:900;font-size:18px;margin-bottom:6px}
@@ -58,7 +48,7 @@
 
 </head>
 <body>
-<div class="topbar" style="overflow:visible">
+<div class="topbar topbar--glass" style="overflow:visible">
   <span class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#ffffff !important">Manager</span></span>
   <a href="index.html" class="nav-back">← Accueil</a>
   <div class="top-pills" id="topPills"></div>
@@ -69,8 +59,13 @@
 <script src="js/save.js"></script>
 <script src="js/topbar.js"></script>
 <script src="js/theme.js"></script>
+<script src="js/social-notifications.js"></script>
 <script>
 let save = Save.load();
+if (save && typeof Save.repairSocialIfMissing === 'function') {
+  save = Save.repairSocialIfMissing(save) || save;
+  save = Save.load() || save;
+}
 
   // Appliquer driverStates sur TOUS les pilotes F1Data (y compris GAS, COL etc.)
   // pour refléter les changements d'équipe en cours de saison
@@ -157,25 +152,36 @@ function applyChoice(event, choice) {
 function renderConv(ev) {
   const isEng = ev.type === 'engineer' || ev.type === 'engineer2';
   const d = isEng ? null : F1Data.drivers.find(x => x.id === ev.driverId);
-  const name = isEng ? 'Ingenieur de piste' : (d ? `${d.firstName} ${d.name}` : 'Votre pilote');
+  const name = isEng ? 'Ingénieur de piste' : (d ? `${d.firstName} ${d.name}` : 'Votre pilote');
   const flag = isEng ? '🔧' : (d?.flag || '🏁');
-  const role = isEng ? 'Equipe technique' : (d ? `#${d.number} · ${d.age} ans` : '');
+  const role = isEng ? 'Équipe technique' : (d ? `#${d.number} · ${d.age} ans` : '');
   const accent = (d && F1Data.teams.find(t=>t.id===d.teamId)?.color) || (isEng ? '#4488ff' : 'var(--accent)');
   const shuffled = shuffle(ev.choices || []);
 
+  const choicesHtml = shuffled.map(c => {
+    const ct = c.choiceType || 'neutral';
+    const icon = (typeof F1Icons !== 'undefined') ? F1Icons.choiceIcon(ct) : '';
+    const idx = ev.choices.indexOf(c);
+    return `<button type="button" class="choice-card ${ct}" onclick="handleChoice('${ev.id}',${idx})">
+      <span class="cc-icon">${icon}</span>
+      <span>${c.text}</span>
+    </button>`;
+  }).join('');
+
   return `<div class="conv-card${ev.urgent?' urgent':''}" id="card_${ev.id}">
-    <div class="conv-head">
-      <div class="conv-avatar" style="border-color:${accent}60">${flag}</div>
-      <div class="conv-who">
-        <div class="conv-name" style="color:${accent}">${name}</div>
-        <div class="conv-role">${role}</div>
+    <div class="chat-thread">
+      <div class="chat-bubble-wrap">
+        <div class="chat-avatar" style="border-color:${accent}60">
+          ${flag}
+          <span class="chat-team-dot" style="background:${accent}"></span>
+        </div>
+        <div class="chat-bubble">
+          <div class="chat-from" style="color:${accent}">${name}${ev.urgent ? ' <span style="color:var(--danger);font-size:9px;margin-left:6px">URGENT</span>' : ''}</div>
+          <div class="chat-trigger">${ev.trigger || 'Message'}${role ? ' · ' + role : ''}</div>
+          <div class="chat-text">${ev.text}</div>
+        </div>
       </div>
-      ${ev.urgent?'<span class="conv-tag">⚠️ Urgent</span>':''}
-    </div>
-    <div class="conv-body"><div class="conv-text">${ev.text}</div></div>
-    <div class="conv-sep"></div>
-    <div class="conv-choices">
-      ${shuffled.map(c => `<button class="choice-btn" onclick="handleChoice('${ev.id}',${ev.choices.indexOf(c)})">${c.text}</button>`).join('')}
+      <div class="chat-choices">${choicesHtml}</div>
     </div>
   </div>`;
 }
@@ -203,15 +209,15 @@ function render() {
     .filter(([,v]) => v.teamId && v.teamId !== 'free_agent' && v.teamId === save.playerTeamId && !v.retired)
     .map(([k]) => k);
   const engIds = ['engineer', 'engineer2'];
-  const pending = (save.socialEvents||[]).filter(e => {
+  const pending = (typeof SocialNotifications !== 'undefined')
+    ? SocialNotifications.getPending(save)
+    : (save.socialEvents||[]).filter(e => {
     if (e.resolved) return false;
     if (engIds.includes(e.driverId)) return true;
     if (activeDriverIds2.length === 0) return true;
     if (activeDriverIds2.includes(e.driverId)) return true;
-    // Vérifier aussi dans F1Data (pilotes standards non dans driverStates)
     const d = F1Data.drivers.find(x => x.id === e.driverId);
     if (d && d.teamId && d.teamId !== 'free_agent' && d.teamId === save.playerTeamId) return true;
-    // Exclure si explicitement free_agent
     const st = save.driverStates?.[e.driverId];
     if (st?.teamId === 'free_agent') return false;
     return false;
