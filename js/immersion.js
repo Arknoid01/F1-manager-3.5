@@ -475,8 +475,10 @@ const Immersion = {
       cost:1+Math.floor(Math.random()*4), progress:5+Math.floor(Math.random()*26),
       note:['À évaluer en F3','Bon retour simulateur','Potentiel brut intéressant','Travailleur discret','Très bon feeling sous pluie'][Math.floor(Math.random()*5)]
     };
-    if (typeof Feeder !== 'undefined' && Feeder.setDevPlan) {
-      try { Feeder.setDevPlan(save, id, 'pace'); } catch (_) { /* feeder optional at gen time */ }
+    if (typeof Feeder !== 'undefined') {
+      save.feeder = save.feeder || {};
+      save.feeder.devPlans = save.feeder.devPlans || {};
+      save.feeder.devPlans[id] = 'pace';
     }
     return junior;
   },

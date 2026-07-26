@@ -643,7 +643,10 @@ const Feeder = {
   },
 
   initSeries(save, series) {
-    this.ensure(save);
+    if (!save) return null;
+    if (!save.feeder) save.feeder = {};
+    const f = save.feeder;
+    if (!f[series]) f[series] = this.emptySeries(series, save);
     const teams = (series === 'f3' ? this.F3_TEAMS : this.F2_TEAMS).map(t => ({ ...t }));
     const academyIdx = teams.findIndex(t => t.id === 'academy');
     const academyName = this.playerAcademyTeamName(save);
