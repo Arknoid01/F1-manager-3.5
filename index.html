@@ -162,6 +162,34 @@ html,body{
 .leg-i{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.42);}
 .leg-d{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 
+/* ── Tuile accès rapide ── */
+.hq-quick{
+  position:fixed;left:12px;bottom:48px;z-index:25;
+  display:flex;flex-direction:column;gap:8px;
+  max-width:min(220px,calc(100vw - 24px));
+  pointer-events:none;
+}
+.hq-quick-tile{
+  pointer-events:all;
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;
+  background:rgba(7,7,13,.88);
+  border:1px solid rgba(245,200,66,.28);
+  border-left:3px solid #f5c842;
+  border-radius:10px;
+  backdrop-filter:blur(14px);
+  text-decoration:none;color:inherit;
+  box-shadow:0 8px 24px rgba(0,0,0,.5);
+  transition:transform .15s,border-color .15s;
+}
+.hq-quick-tile:active{transform:scale(.97);}
+.hq-quick-tile:hover{border-color:rgba(245,200,66,.45);}
+.hq-quick-icon{display:flex;align-items:center;justify-content:center;color:#f5c842;flex-shrink:0;}
+.hq-quick-body{flex:1;min-width:0;}
+.hq-quick-title{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:13px;color:#f5c842;letter-spacing:.5px;}
+.hq-quick-sub{font-size:10px;color:rgba(255,255,255,.42);margin-top:2px;line-height:1.35;}
+.hq-quick-go{font-size:11px;font-weight:900;color:#f5c842;flex-shrink:0;}
+
 /* ── TEAM SELECT ── */
 .sel{
   position:fixed;inset:0;z-index:100;
@@ -308,6 +336,7 @@ html,body{
 <div class="hq-notif-wrap" id="hqNotifBanner" style="display:none"></div>
 
 <div class="pins-layer" id="pins"></div>
+<div class="hq-quick" id="hqQuick"></div>
 <div class="legend"      id="leg"></div>
 
 <!-- Bannière portrait -->
@@ -380,7 +409,7 @@ var PINS = [
   {x:90,y:45,cat:'media',icon:'social',  name:'Social',        sub:'Image & réputation',      href:'social.html'},
   {x:85,y:65,cat:'media',icon:'journal', name:'Journal',       sub:'Historique saison',       href:'gp-journal.html'},
   {x:50,y:18,cat:'qg',   icon:'hq',      name:'QG',            sub:'Quartier Général',        href:'qg.html'},
-  {x:38,y:78,cat:'mgmt', icon:'training',name:'Académie',      sub:'F3 · F2 · Réserve',       href:'academy.html'},
+  {x:28,y:68,cat:'academy', icon:'academy', name:'Académie', sub:'F3 · F2 · Réserve', href:'academy.html'},
 ];
 
 var CAT={
@@ -390,6 +419,7 @@ var CAT={
   biz:  {c:'#f5c842',l:'Business'},
   media:{c:'#00d97e',l:'Médias'},
   qg:   {c:'#ff8c42',l:'QG'},
+  academy:{c:'#f5c842',l:'Académie'},
 };
 
 /* ── Save / Team select ── */
@@ -472,6 +502,30 @@ function initHQ(){
     img.addEventListener('load', buildPins);
   }
   buildLeg();
+  buildQuickTiles(s);
+}
+
+function buildQuickTiles(saveData){
+  var el=document.getElementById('hqQuick');
+  if(!el||!saveData||!saveData.playerTeamId) return;
+
+  var sub='F3 · F2 · Équipe réserve · Bonus passifs';
+  if(saveData.feeder&&saveData.feeder.f2){
+    var r=saveData.feeder.f2.round||0;
+    var t=saveData.feeder.f2.totalRounds||14;
+    sub='F2 R'+r+'/'+t+' · F3 · Réserve · Bonus passifs';
+  }
+
+  var iconHtml=(typeof F1Icons!=='undefined')?F1Icons.svg('academy','ds-icon--md'):'🎓';
+  el.innerHTML=
+    '<a href="academy.html" class="hq-quick-tile" aria-label="Académie et Feeder Series">'+
+      '<span class="hq-quick-icon">'+iconHtml+'</span>'+
+      '<div class="hq-quick-body">'+
+        '<div class="hq-quick-title">Académie</div>'+
+        '<div class="hq-quick-sub">'+sub+'</div>'+
+      '</div>'+
+      '<span class="hq-quick-go">→</span>'+
+    '</a>';
 }
 
 function buildPins(){
