@@ -120,12 +120,12 @@
   </div>
 </div>
 
-<script src="js/data.js"></script>
-<script src="js/save.js"></script>
-<script src="js/career.js"></script>
-<script src="js/immersion.js"></script>
-<script src="js/feeder.js"></script>
-<script src="js/theme.js"></script>
+<script src="js/data.js?v=20260726"></script>
+<script src="js/save.js?v=20260726"></script>
+<script src="js/career.js?v=20260726"></script>
+<script src="js/immersion.js?v=20260726"></script>
+<script src="js/feeder.js?v=20260726"></script>
+<script src="js/theme.js?v=20260726"></script>
 <script>
 let save = Save.load();
 if (!save?.playerTeamId) location.href = 'index.html';
@@ -147,7 +147,21 @@ function bootstrapAcademyPage() {
     return false;
   }
   try {
-    Feeder.bootstrapAcademy(save);
+    if (typeof Feeder.bootstrapAcademy === 'function') {
+      Feeder.bootstrapAcademy(save);
+    } else {
+      // Compat : ancien feeder.js encore en cache PWA
+      if (typeof Immersion !== 'undefined') {
+        Immersion.ensure(save);
+        if (!save.immersion?.juniorAcademy?.length) {
+          save.immersion.juniorAcademy = Immersion.defaultJuniors(save);
+        }
+      }
+      Feeder.ensure(save);
+      if (!save.feeder?.f3?.drivers?.length && Feeder.initSeries) Feeder.initSeries(save, 'f3');
+      if (!save.feeder?.f2?.drivers?.length && Feeder.initSeries) Feeder.initSeries(save, 'f2');
+      Save.save(save);
+    }
     save = Save.load();
     if (typeof Save.restoreRivalStats === 'function') Save.restoreRivalStats(save);
     return true;
