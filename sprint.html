@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260711">
+<script src="js/icons.js"></script>
+<title>Sprint Shootout — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:720px;margin:0 auto;padding:8px 6px 48px}
+.leaderboard{display:flex;flex-direction:column;gap:3px}
+.lb-row{display:flex;align-items:center;gap:5px;padding:6px;background:var(--surface);border:1px solid var(--border);border-radius:7px}
+.lb-row.player{border-color:var(--gold);background:rgba(245,200,66,.06)}
+.lb-teambar{width:3px;height:28px;border-radius:2px;flex-shrink:0}
+.lb-pos{font-family:var(--fh);font-weight:900;font-size:16px;width:24px;text-align:center}
+.lb-pos.p1{color:var(--gold)}
+.lb-name{font-family:var(--fh);font-weight:700;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-time{font-family:var(--fh);font-weight:900;font-size:13px}
+.lb-gap{font-family:var(--fh);font-size:11px;color:var(--muted);width:52px;text-align:right}
+.radio-feed{max-height:200px;overflow-y:auto;padding:8px 10px}
+.radio-msg{font-size:12px;color:#ccc;padding:3px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.btn-run{display:block;width:100%;background:var(--accent);color:#fff;font-family:var(--fh);font-weight:900;font-size:14px;padding:13px;border:none;border-radius:8px;cursor:pointer;margin-top:8px}
+.btn-run:disabled{opacity:.4}
+.btn-run.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.pc-btn{font-family:var(--fh);font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;margin-right:4px}
+.pc-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.parc-banner{background:linear-gradient(135deg,#12000e,#0a0a14);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:12px;color:#ccc;line-height:1.55}
+</style>
+</head>
+<body>
+<div class="topbar topbar--glass">
+  <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#fff">Manager</span></div>
+  <a href="weekend.html" class="nav-back">← Week-end</a>
+</div>
+<div class="wrap"><div id="content"></div></div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/weekend.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+if (!save?.playerTeamId) location.href = 'index.html';
+if ((save.weekendFPDone || 0) < 3) location.href = 'weekend.html';
+if (save.weekendSprintSQDone) location.href = 'weekend.html';
+
+const circuit = F1Data.circuits.find(c => c.id === save.weekendCircuit) || F1Data.circuits[0];
+if (!Weekend.isSprintWeekend(circuit.id)) location.href = 'weekend.html';
+
+const weather = save.weekendWeather || 'dry';
+const playerTeamId = save.playerTeamId;
+const allDrivers = F1Data.drivers.filter(d => d.teamId && d.teamId !== 'free_agent' && !d.retired);
+const myDrivers = allDrivers.filter(d => d.teamId === playerTeamId);
+const SHOOTOUT_TIMER = 12 * 60;
+
+const state = {
+  running: false,
+  timer: SHOOTOUT_TIMER,
+  timerInterval: null,
+  rivalInterval: null,
+  times: {},
+  playerModes: {},
+  radio: [],
+  runInProgress: false,
+};
+
+allDrivers.forEach(d => {
+  state.times[d.id] = null;
+  state.playerModes[d.id] = 'push';
+});
+
+function fmtTime(t) {
+  if (t == null || !isFinite(t)) return '—';
+  const m = Math.floor(t / 60);
+  const s = (t - m * 60).toFixed(3);
+  return m > 0 ? `${m}:${s.padStart(6, '0')}` : s;
+}
+function fmtTimer(sec) {
+  return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, '0')}`;
+}
+function fmtGap(leader, t) {
+  if (t == null || leader == null) return '—';
+  const g = t - leader;
+  return g < 0.001 ? 'POLE' : '+' + g.toFixed(3);
+}
+function addRadio(text) {
+  state.radio.unshift({ time: fmtTimer(SHOOTOUT_TIMER - state.timer), text });
+  if (state.radio.length > 30) state.radio.pop();
+  const el = document.getElementById('radioFeed');
+  if (el) el.innerHTML = state.radio.map(r => `<div class="radio-msg">[${r.time}] ${r.text}</div>`).join('');
+}
+
+function calcLap(driver, mode) {
+  const team = F1Data.teams.find(t => t.id === driver.teamId);
+  const compound = weather === 'heavy_rain' ? 'WET' : weather === 'light_rain' ? 'INTER' : 'SOFT';
+  let t = Engine.calcLapTime(driver, team, circuit, { compound, condition: 1, age: 0 }, 0, weather, 1, mode === 'push' ? 'attack' : 'normal');
+  if (driver.trait === 'qualifier') t -= 0.22;
+  t += (Math.random() - 0.5) * 0.2;
+  if (Math.random() < 0.12) t += 0.3 + Math.random() * 0.35;
+  return parseFloat(t.toFixed(3));
+}
+
+function getBoard() {
+  return allDrivers
+    .map(d => ({ driver: d, time: state.times[d.id] }))
+    .filter(x => x.time != null)
+    .sort((a, b) => a.time - b.time);
+}
+
+function rivalRun() {
+  if (!state.running || state.runInProgress) return;
+  const rivals = allDrivers.filter(d => d.teamId !== playerTeamId);
+  const d = rivals[Math.floor(Math.random() * rivals.length)];
+  const t = calcLap(d, Math.random() < 0.5 ? 'push' : 'normal');
+  if (state.times[d.id] == null || t < state.times[d.id]) state.times[d.id] = t;
+  renderBoard();
+}
+
+function setMode(id, mode) { state.playerModes[id] = mode; renderControls(); }
+
+function playerRun() {
+  if (!state.running || state.runInProgress) return;
+  state.runInProgress = true;
+  document.getElementById('btnRun').disabled = true;
+  myDrivers.forEach((d, i) => {
+    setTimeout(() => {
+      const mode = state.playerModes[d.id] || 'push';
+      const t = calcLap(d, mode);
+      const improved = state.times[d.id] == null || t < state.times[d.id];
+      if (improved) {
+        state.times[d.id] = t;
+        addRadio(`${d.name} — ${fmtTime(t)}${improved ? ' · amélioration !' : ''}`);
+      }
+      if (i === myDrivers.length - 1) {
+        state.runInProgress = false;
+        document.getElementById('btnRun').disabled = false;
+        renderBoard();
+      }
+    }, i * 800);
+  });
+}
+
+function startShootout() {
+  state.running = true;
+  addRadio('Sprint Shootout — feu vert, un tour pour tout donner.');
+  state.timerInterval = setInterval(() => {
+    state.timer--;
+    const el = document.getElementById('sessionTimer');
+    if (el) el.textContent = fmtTimer(state.timer);
+    if (state.timer <= 0) finishShootout();
+  }, 1000);
+  state.rivalInterval = setInterval(rivalRun, 3200);
+  document.getElementById('btnStart').style.display = 'none';
+  document.getElementById('btnRun').style.display = 'block';
+  document.getElementById('btnEnd').style.display = 'block';
+}
+
+function finishShootout() {
+  clearInterval(state.timerInterval);
+  clearInterval(state.rivalInterval);
+  allDrivers.forEach(d => {
+    if (state.times[d.id] == null) state.times[d.id] = calcLap(d, 'normal');
+  });
+  const grid = getBoard().map((row, i) => ({
+    driverId: row.driver.id,
+    teamId: row.driver.teamId,
+    gridPos: i + 1,
+    qualiTime: row.time,
+  }));
+  save.sprintGrid = grid;
+  save.weekendSprintSQDone = true;
+  save.parcFermeLocked = true;
+  Save.save(save);
+  addRadio('Fin du Sprint Shootout — parc fermé activé jusqu\'à la course sprint.');
+  document.getElementById('content').innerHTML = `
+    <div class="parc-banner">
+      <div style="font-family:var(--fh);font-weight:900;color:var(--gold);margin-bottom:6px">🔒 Parc fermé — Règle F1</div>
+      Setup verrouillé après le shootout. Seuls les réglages mineurs (balance, ailerons) sont autorisés avant la course sprint.
+    </div>
+    <div class="ds-panel"><div class="ds-panel-head"><span class="ds-dot"></span>Grille sprint</div>
+    <div style="padding:8px">${grid.slice(0, 10).map(g => {
+      const dr = F1Data.drivers.find(d => d.id === g.driverId);
+      return `<div class="lb-row${dr?.teamId === playerTeamId ? ' player' : ''}"><div class="lb-pos${g.gridPos <= 3 ? ' p' + g.gridPos : ''}">${g.gridPos}</div><div class="lb-name">${dr?.firstName} ${dr?.name}</div><div class="lb-gap">${fmtGap(grid[0].qualiTime, g.qualiTime)}</div><div class="lb-time">${fmtTime(g.qualiTime)}</div></div>`;
+    }).join('')}</div></div>
+    <button class="btn-run" onclick="location.href='race.html?sprint=1'">🏁 Lancer la course sprint →</button>
+    <button class="btn-run secondary" onclick="location.href='weekend.html'">Retour week-end</button>
+  `;
+}
+
+function renderBoard() {
+  const board = getBoard();
+  const leader = board[0]?.time;
+  const el = document.getElementById('leaderboard');
+  if (!el) return;
+  el.innerHTML = board.map((row, i) => {
+    const d = row.driver;
+    const team = F1Data.teams.find(t => t.id === d.teamId);
+    return `<div class="lb-row${d.teamId === playerTeamId ? ' player' : ''}">
+      <div class="lb-teambar" style="background:${team?.color || '#888'}"></div>
+      <div class="lb-pos${i < 3 ? ' p' + (i + 1) : ''}">${i + 1}</div>
+      <div class="lb-name">${d.firstName} ${d.name}</div>
+      <div class="lb-gap">${fmtGap(leader, row.time)}</div>
+      <div class="lb-time">${fmtTime(row.time)}</div>
+    </div>`;
+  }).join('') || '<div style="padding:10px;color:var(--muted);font-size:12px;text-align:center">En attente des premiers temps</div>';
+}
+
+function renderControls() {
+  const el = document.getElementById('playerControls');
+  if (!el) return;
+  el.innerHTML = myDrivers.map(d => {
+    const m = state.playerModes[d.id] || 'push';
+    return `<div style="margin-bottom:8px"><span style="font-family:var(--fh);font-weight:700;font-size:13px">${d.name}</span>
+      <button class="pc-btn${m === 'push' ? ' active' : ''}" onclick="setMode('${d.id}','push')">⚡ Push</button>
+      <button class="pc-btn${m === 'normal' ? ' active' : ''}" onclick="setMode('${d.id}','normal')">🎯 Normal</button></div>`;
+  }).join('');
+}
+
+document.getElementById('content').innerHTML = `
+  <div class="parc-banner">Format sprint F1 : <strong>Sprint Shootout</strong> (1 tour chrono) → grille pour la course sprint (~33% distance) → qualifications en parc fermé → Grand Prix.</div>
+  <div class="broadcast-ticker">
+    <div class="bt-live">Live</div>
+    <div class="bt-phase" style="color:var(--podium-gold)">SQ</div>
+    <div class="bt-info"><div class="bt-circuit">${circuit.name}</div><div class="bt-sub">Sprint Shootout · Soft obligatoire</div></div>
+    <div class="bt-timer" id="sessionTimer">${fmtTimer(state.timer)}</div>
+  </div>
+  <div class="ds-panel" style="margin-top:8px"><div class="ds-panel-head"><span class="ds-dot"></span>Classement shootout</div><div style="padding:8px"><div class="leaderboard" id="leaderboard"></div></div></div>
+  <div class="ds-panel"><div class="ds-panel-head"><span class="ds-dot"></span>Mur des stands</div>
+    <div style="padding:10px 12px"><div id="playerControls"></div>
+      <button class="btn-run" id="btnStart" onclick="startShootout()">🚦 Ouvrir la piste</button>
+      <button class="btn-run" id="btnRun" onclick="playerRun()" style="display:none">🏎️ Lancer un run</button>
+      <button class="btn-run secondary" id="btnEnd" onclick="finishShootout()" style="display:none">⏭ Clôturer le shootout</button>
+    </div>
+  </div>
+  <div class="ds-panel"><div class="ds-panel-head"><span class="ds-dot"></span>Radio</div><div class="radio-feed" id="radioFeed"></div></div>
+`;
+renderControls();
+renderBoard();
+</script>
+</body>
+</html>

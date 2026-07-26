@@ -406,6 +406,7 @@
       <div id="weatherPopupContent"><div style="color:var(--muted);font-family:var(--fh);font-size:12px">Lance une course pour voir les prévisions.</div></div>
     </div>
     <div id="scPill" class="sc-pill">🟡 SC</div>
+    <div id="vscPill" class="sc-pill vsc-pill">🟡 VSC</div>
   </div>
 </div>
 
@@ -421,6 +422,15 @@
     </div>
     <div class="bt-timer" id="btLap">L0</div>
     <div class="bt-chip" id="btGrip">GRIP —</div>
+  </div>
+
+  <div class="tactical-bar" id="tacticalBar" style="display:none">
+    <div class="tactical-alerts" id="tacticalAlerts"></div>
+    <div class="tactical-actions">
+      <button type="button" class="tactical-btn" onclick="teamHold()">🔒 Hold</button>
+      <button type="button" class="tactical-btn" onclick="teamSwap()">↔ Swap</button>
+      <button type="button" class="tactical-btn tactical-btn--push" onclick="teamPush()">⚡ Push</button>
+    </div>
   </div>
 
   <!-- CONTROLS -->
@@ -835,7 +845,9 @@ function syncLapUI(forceLap) {
     if (btSub) {
       const w = Race.state.weather || 'dry';
       const wTxt = w === 'heavy_rain' ? 'Pluie forte' : w === 'light_rain' ? 'Piste humide' : 'Piste sèche';
-      btSub.textContent = wTxt + (Race.state.safetyCar?.active ? ' · SC' : '');
+      btSub.textContent = wTxt
+        + (Race.state.safetyCar?.active ? ' · SC' : '')
+        + (Race.state.virtualSafetyCar?.active ? ' · VSC' : '');
     }
   }
 }
@@ -1281,7 +1293,24 @@ function startRace() {
   }
 
   console.log('[3] Race.init');
+  const urlParams = new URLSearchParams(location.search);
+  const isSprintRace = urlParams.get('sprint') === '1' || wSave?.raceMode === 'sprint';
   Race.init(cid, weather, strategies);
+
+  if (isSprintRace && Race.state) {
+    Race.state.isSprint = true;
+    Race.state.totalLaps = Math.max(8, Math.min(17, Math.ceil(Race.state.circuit.laps / 3)));
+    const sprintGrid = wSave?.sprintGrid;
+    if (sprintGrid?.length) {
+      sprintGrid.forEach(q => {
+        const car = Race.state.grid.find(c => c.driver.id === q.driverId);
+        if (car) { car.position = q.gridPos; car.totalTime = (q.gridPos - 1) * 0.8; }
+      });
+      Race.state.grid.sort((a, b) => a.position - b.position);
+    }
+    const btPhase = document.getElementById('btPhase');
+    if (btPhase) btPhase.textContent = 'SPRINT';
+  }
 
   console.log('[4] Weather');
   if (typeof Weather !== 'undefined' && Race.state) {
@@ -1301,7 +1330,7 @@ function startRace() {
   }
 
   console.log('[6] Reset weekend');
-  if (wSave && (wSave.weekendQualiDone || wSave.raceStrategies)) {
+  if (wSave && !isSprintRace && (wSave.weekendQualiDone || wSave.raceStrategies)) {
     ['weekendWeather','weekendCircuit','weekendFPDone','weekendQualiDone',
      'weekendFPResults','qualiGrid','raceQualiGrid','raceStrategies'].forEach(k => delete wSave[k]);
     Save.save(wSave);
@@ -1309,8 +1338,8 @@ function startRace() {
 
   console.log('[7] DOM');
   const cir = Race.state.circuit;
-  document.getElementById('tTotal').textContent   = cir.laps;
-  document.getElementById('svgTotal').textContent = cir.laps;
+  document.getElementById('tTotal').textContent   = Race.state.totalLaps;
+  document.getElementById('svgTotal').textContent = Race.state.totalLaps;
   document.getElementById('circLabel').textContent= cir.name.toUpperCase();
   const btCircuit = document.getElementById('btCircuit');
   if (btCircuit) btCircuit.textContent = (cir.name || 'Circuit').toUpperCase();
@@ -1428,6 +1457,75 @@ function updateWeather() {
   if (w==='light_rain') { b.classList.add('w-rain');  b.textContent='🌧️ PLUIE'; }
   if (w==='heavy_rain') { b.classList.add('w-heavy'); b.textContent='⛈️ FORT'; }
   document.getElementById('scPill').classList.toggle('on', Race.state.safetyCar.active);
+  const vscEl = document.getElementById('vscPill');
+  if (vscEl) vscEl.classList.toggle('on', Race.state.virtualSafetyCar?.active);
+  updateTacticalBar();
+}
+
+function updateTacticalBar() {
+  const bar = document.getElementById('tacticalBar');
+  const alerts = document.getElementById('tacticalAlerts');
+  if (!bar || !alerts || !Race.state) return;
+  bar.style.display = started ? '' : 'none';
+  const chips = [];
+
+  if (Race.state.virtualSafetyCar?.active) {
+    chips.push('<span class="tactical-chip alert-vsc">🟡 VSC — delta +40%</span>');
+  } else if (Race.state.safetyCar?.active) {
+    chips.push('<span class="tactical-chip alert-vsc">🟡 Safety Car</span>');
+  }
+
+  const sv = Save.load();
+  const pid = sv?.playerTeamId;
+  const standings = Race.getStandings();
+  const playerCars = standings.filter(c => c.driver.teamId === pid && c.status === 'racing');
+
+  playerCars.forEach(pc => {
+    const ahead = standings.find(c => c.position === pc.position - 1 && c.status === 'racing');
+    if (ahead && (ahead.pitThisLap || Race.state.events.slice(-6).some(e => e.type === 'pit' && e.driverId === ahead.driver.id))) {
+      chips.push(`<span class="tactical-chip alert-undercut">🔧 Fenêtre undercut vs ${ahead.driver.name}</span>`);
+    }
+  });
+
+  if (typeof raceWeatherData !== 'undefined' && raceWeatherData?.forecast?.length) {
+    const lap = Race.state.currentLap || 0;
+    const upcoming = raceWeatherData.forecast.find(f => f.lap >= lap && f.lap <= lap + 4 && f.humidity >= 35);
+    if (upcoming) {
+      const kind = upcoming.humidity > 70 ? 'Pluie forte' : 'Piste humide';
+      chips.push(`<span class="tactical-chip alert-weather">🌧 ${kind} ~T${upcoming.lap}</span>`);
+    }
+  }
+
+  if (!chips.length) chips.push('<span class="tactical-chip">📡 Situation stable</span>');
+  alerts.innerHTML = chips.join('');
+}
+
+function teamHold() {
+  if (!Race.state) return;
+  Race.setTeamHold();
+  addEvents(Race.state.events.slice(-1));
+  syncOrdersTab();
+  updateTacticalBar();
+}
+
+function teamSwap() {
+  if (!Race.state) return;
+  if (Race.swapTeamPositions()) {
+    addEvents(Race.state.events.slice(-1));
+    renderStandings();
+    syncOrdersTab();
+    updateTacticalBar();
+  }
+}
+
+function teamPush() {
+  if (!Race.state) return;
+  const sv = Save.load();
+  Race.state.grid.filter(c => c.driver.teamId === sv?.playerTeamId && c.status === 'racing')
+    .forEach(c => Race.setDriverMode(c.driver.id, 'attack'));
+  addEvents(Race.state.events.slice(-2));
+  syncOrdersTab();
+  updateTacticalBar();
 }
 
 function renderStandings() {
@@ -1458,6 +1556,10 @@ function renderStandings() {
     const lastLap = car.lapTimes.length > 0 ? car.lapTimes[car.lapTimes.length - 1] : null;
     const prevLap = car.lapTimes.length > 1 ? car.lapTimes[car.lapTimes.length - 2] : null;
     const last   = lastLap != null ? fmtLap(lastLap) : '—';
+    const lapDelta = (lastLap != null && prevLap != null) ? (lastLap - prevLap) : null;
+    const deltaStr = lapDelta != null && Math.abs(lapDelta) > 0.001
+      ? `<span class="lap-delta ${lapDelta < 0 ? 'pos' : 'neg'}">${lapDelta < 0 ? '' : '+'}${lapDelta.toFixed(2)}</span>`
+      : '';
     let lapCls = '';
     if (lastLap != null && prevLap != null) {
       lapCls = lastLap < prevLap - 0.001 ? ' faster' : lastLap > prevLap + 0.001 ? ' slower' : '';
@@ -1496,7 +1598,7 @@ function renderStandings() {
           ${interval ? `<div style="font-family:var(--fh);font-size:9px;color:var(--muted);margin-top:1px">? ${interval}</div>` : ''}
         </div>
       </div>
-      <div class="last-cell ds-lap${lapCls}">${last}</div>
+      <div class="last-cell ds-lap${lapCls}">${last}${deltaStr}</div>
     `;
     body.appendChild(row);
   });
@@ -1888,6 +1990,8 @@ function buildRaceNarrative(res) {
     }
     if (ev.type === 'safety_car')     msgs.push(lapEvent(lap, 'engineer', NarrativePool.pick(NarrativePool.safetyCarIn)));
     if (ev.type === 'safety_car_end') msgs.push(lapEvent(lap, 'broadcast', NarrativePool.pick(NarrativePool.safetyCarOut)));
+    if (ev.type === 'vsc')            msgs.push(lapEvent(lap, 'engineer', '📻 Virtual Safety Car — on maintient le delta, pas de dépassement.'));
+    if (ev.type === 'vsc_end')        msgs.push(lapEvent(lap, 'broadcast', '📢 Fin du VSC — les dépassements sont à nouveau autorisés.'));
     if (ev.type === 'weather')        msgs.push(lapEvent(lap, 'engineer', NarrativePool.pick(NarrativePool.weatherChange)));
     if (ev.type === 'dnf')            msgs.push(lapEvent(lap, 'broadcast', NarrativePool.pick(NarrativePool.dnf)));
   });
@@ -1923,7 +2027,7 @@ function addPostRaceBroadcast(results) {
 function bfClass(type) {
   const map = {
     pit: 'bf-pit', dnf: 'bf-dnf', weather: 'bf-weather',
-    safety_car: 'bf-sc', safety_car_end: 'bf-sc', overtake: 'bf-overtake',
+    safety_car: 'bf-sc', safety_car_end: 'bf-sc', vsc: 'bf-vsc', vsc_end: 'bf-vsc', overtake: 'bf-overtake',
     finish: 'bf-overtake', penalty: 'bf-dnf', podium: 'bf-overtake',
     broadcast: '', radio: '', engineer: '', strategy: '', grid: ''
   };
@@ -2164,8 +2268,28 @@ function showResults() {
   try { CR.stopAnim(); } catch(e) { console.warn(e); }
   let results = [];
   try { results = Race.assignPoints(); } catch(e) { console.error('[Race] Erreur assignPoints', e); }
+
+  const isSprint = Race.state?.isSprint;
   let careerReward = null;
-  try { careerReward = persistRaceResults(results); } catch(e) { console.error('[Race] Erreur sauvegarde résultats', e); }
+
+  if (isSprint) {
+    try {
+      const sv = Save.load();
+      if (sv) {
+        sv.weekendSprintRaceDone = true;
+        sv.sprintRaceResults = results.map(r => ({
+          position: r.position,
+          driverId: r.driver?.id,
+          teamId: r.team?.id,
+          points: [8, 7, 6, 5, 4, 3, 2, 1][r.position - 1] || 0,
+        }));
+        delete sv.raceMode;
+        Save.save(sv);
+      }
+    } catch(e) { console.warn('[Race] sprint save:', e); }
+  } else {
+    try { careerReward = persistRaceResults(results); } catch(e) { console.error('[Race] Erreur sauvegarde résultats', e); }
+  }
   // Déclencher événement post-course
   try {
     const sv2 = Save.load();
@@ -2176,7 +2300,10 @@ function showResults() {
   } catch(e) { console.warn('[Race] triggerPostRace:', e); }
   careerReward = careerReward || Race.state?._careerReward;
   try { saveLastGpSummary(results, careerReward); } catch(e) { console.warn('[Race] sauvegarde résumé GP:', e); }
-  document.getElementById('resSub').textContent = `Grand Prix de ${Race.state.circuit.name}` + (careerReward ? ` · Gains ééquipe : +${careerReward.reward}M € · Frais GP : -${careerReward.operatingCost || 0}M € · +${careerReward.tokens} token${careerReward.tokens > 1 ? 's' : ''}` : '');
+  document.getElementById('resSub').textContent = (Race.state.isSprint ? 'Course sprint — ' : 'Grand Prix de ')
+    + Race.state.circuit.name
+    + (careerReward ? ` · Gains équipe : +${careerReward.reward}M € · Frais GP : -${careerReward.operatingCost || 0}M € · +${careerReward.tokens} token${careerReward.tokens > 1 ? 's' : ''}` : '')
+    + (isSprint ? ' · Retour au week-end pour les qualifications' : '');
   const body = document.getElementById('resBody');
   body.innerHTML = '';
   results.forEach((r,i) => {

@@ -264,6 +264,8 @@ input[type=number],input[type=text]{background:var(--surface);color:var(--text);
 <script src="js/engine.js"></script>
 <script src="js/events.js"></script>
 <script src="js/career.js"></script>
+<script src="js/immersion.js"></script>
+<script src="js/feeder.js"></script>
 <script src="js/weekend.js"></script>
 <script>
 
@@ -372,9 +374,17 @@ function init() {
   qualiResult = save.qualiGrid ? { grid: save.qualiGrid, poleTime: save.qualiGrid[0]?.qualiTime } : null;
 
   // Déterminer la phase courante
-  if (save.weekendQualiDone) phase = 'race_briefing';
-  else if (save.weekendFPDone >= 3) phase = 'quali';
-  else phase = 'fp';
+  function detectWeekendPhase() {
+    if (save.weekendQualiDone) return 'race_briefing';
+    const isSprint = Weekend.isSprintWeekend(circuit.id);
+    if (isSprint && save.weekendFPDone >= 3) {
+      if (!save.weekendSprintSQDone) return 'sprint';
+      if (!save.weekendSprintRaceDone) return 'sprint_race';
+    }
+    if (save.weekendFPDone >= 3) return 'quali';
+    return 'fp';
+  }
+  phase = detectWeekendPhase();
 
   document.getElementById('seasonBadge').textContent = `Saison ${save.season || 2025}`;
   document.getElementById('raceBadge').textContent   = `GP ${(save.race || 0) + 1} — ${circuit.name}`;
@@ -427,19 +437,29 @@ function buildPaddockEventCard() {
 // ══════════════════════════════════════════════════════════
 function renderPhases() {
   const pendingSocial = (save.socialEvents || []).filter(e => !e.resolved).length;
+  const isSprint = Weekend.isSprintWeekend(circuit.id);
   const phases = [
     { id:'briefing',      icon:'briefing', label:'Briefing', done: (save.weekendFPDone || 0) > 0 },
     { id:'fp',            icon:'fp',       label:'Essais',   done: save.weekendFPDone >= 3 },
+  ];
+  if (isSprint) {
+    phases.push({ id:'sprint', icon:'quali', label:'Shootout', done: save.weekendSprintSQDone });
+    phases.push({ id:'sprint_race', icon:'race', label:'Sprint', done: save.weekendSprintRaceDone });
+  }
+  phases.push(
     { id:'quali',         icon:'quali',    label:'Quali',    done: save.weekendQualiDone },
     { id:'race_briefing', icon:'race',     label:'Course',   done: false },
     { id:'social',        icon:'social',   label:'Social',   done: pendingSocial === 0 && (save.socialHistory || []).some(h => h.race === save.race), badge: pendingSocial },
-  ];
+  );
 
   document.getElementById('phasesBar').innerHTML = phases.map(p => {
     const isDone   = p.done;
     const isActive = (p.id === 'briefing' && phase === 'fp' && (save.weekendFPDone || 0) === 0)
                   || (p.id !== 'briefing' && p.id !== 'social' && p.id === phase);
     const isLocked = (p.id === 'quali' && save.weekendFPDone < 3)
+                  || (p.id === 'quali' && isSprint && !save.weekendSprintRaceDone)
+                  || (p.id === 'sprint' && save.weekendFPDone < 3)
+                  || (p.id === 'sprint_race' && !save.weekendSprintSQDone)
                   || (p.id === 'race_briefing' && !save.weekendQualiDone)
                   || (p.id === 'social' && !save.weekendQualiDone);
     const cls = [
@@ -466,7 +486,23 @@ function renderPhases() {
 function goPhase(p) {
   if (p === 'social') { location.href = 'social.html'; return; }
   if (p === 'briefing') { phase = 'fp'; renderPhases(); renderContent(); return; }
+  if (p === 'sprint') {
+    if (save.weekendFPDone < 3) { toast('❌ Termine les essais libres d\'abord !', true); return; }
+    location.href = 'sprint.html';
+    return;
+  }
+  if (p === 'sprint_race') {
+    if (!save.weekendSprintSQDone) { toast('❌ Fais le Sprint Shootout d\'abord !', true); return; }
+    save.raceMode = 'sprint';
+    Save.save(save);
+    location.href = 'race.html?sprint=1';
+    return;
+  }
   if (p === 'quali' && save.weekendFPDone < 3) { toast('❌ Termine les 3 séances d\'essais libres d\'abord !', true); return; }
+  if (p === 'quali' && Weekend.isSprintWeekend(circuit.id) && !save.weekendSprintRaceDone) {
+    toast('❌ Termine la course sprint avant les qualifications !', true);
+    return;
+  }
   if (p === 'race_briefing' && !save.weekendQualiDone) { toast('❌ Fais les qualifications d\'abord !', true); return; }
   if (p === 'quali') { location.href = 'quali-briefing.html'; return; }
   if (p === 'race_briefing') { location.href = 'race-briefing.html'; return; }
@@ -502,6 +538,8 @@ function renderContent() {
   if (phase === 'race_briefing') content.appendChild(buildQualiStoryCard());
 
   if (phase === 'fp')            content.appendChild(buildFPSection());
+  else if (phase === 'sprint')   content.appendChild(buildSprintSection());
+  else if (phase === 'sprint_race') content.appendChild(buildSprintRaceSection());
   else if (phase === 'quali')    content.appendChild(buildQualiSection());
   else                           content.appendChild(buildRaceBriefing());
 }
@@ -720,17 +758,24 @@ function buildFPSection() {
 }
 
 function getAvailableJuniors() {
-  // Retourne les juniors promouvables qui ont encore des sessions EL disponibles cette saison
   const im = save?.immersion;
-  if (!im || !Array.isArray(im.juniorAcademy)) return [];
+  const list = [];
   const maxFP = (typeof Immersion !== 'undefined' && Immersion.FP_PER_SEASON) ? Immersion.FP_PER_SEASON : 2;
   const currentSeason = save.season || 2025;
-  return im.juniorAcademy.filter(j => {
-    if (!j.promotable || j.promoted) return false;
-    const sameYear   = (j.fpSeasonYear||0) === currentSeason;
-    const usedSess   = sameYear ? (j.fpSeasonCount||0) : 0;
-    return true; // on les montre tous, avec leur quota restant
-  });
+
+  if (im && Array.isArray(im.juniorAcademy)) {
+    im.juniorAcademy.filter(j => j.promotable && !j.promoted).forEach(j => {
+      list.push({ type: 'academy', id: j.id, label: `${j.flag || '🏁'} ${j.firstName} ${j.name} (académie)`, j });
+    });
+  }
+
+  if (typeof Feeder !== 'undefined') {
+    Feeder.ensure(save);
+    Feeder.getReserveDrivers(save).forEach(d => {
+      list.push({ type: 'reserve', id: d.id, label: `${d.flag || '🏁'} ${d.firstName} ${d.name} (réserve)`, driver: d });
+    });
+  }
+  return list;
 }
 
 function buildFPConfig() {
@@ -740,20 +785,23 @@ function buildFPConfig() {
   const currentSeason = save.season || 2025;
 
   // Construire les options junior pour le select
-  const juniorOptions = juniors.map(j => {
-    const sameYear  = (j.fpSeasonYear||0) === currentSeason;
-    const usedSess  = sameYear ? (j.fpSeasonCount||0) : 0;
-    const sessLeft  = Math.max(0, maxFP - usedSess);
-    const disabled  = sessLeft <= 0 ? 'disabled' : '';
-    const label     = `${j.flag} ${j.firstName} ${j.name} · Potentiel ${j.potential} · ${sessLeft}/${maxFP} EL restante${sessLeft!==1?'s':''}`;
-    return `<option value="${j.id}" ${disabled}>${label}</option>`;
+  const juniorOptions = juniors.map(entry => {
+    if (entry.type === 'academy') {
+      const j = entry.j;
+      const sameYear = (j.fpSeasonYear || 0) === currentSeason;
+      const usedSess = sameYear ? (j.fpSeasonCount || 0) : 0;
+      const sessLeft = Math.max(0, maxFP - usedSess);
+      const disabled = sessLeft <= 0 ? 'disabled' : '';
+      return `<option value="academy:${j.id}" ${disabled}>${entry.label} · ${sessLeft}/${maxFP} EL</option>`;
+    }
+    return `<option value="reserve:${entry.id}">${entry.label}</option>`;
   }).join('');
 
   const juniorBlock = juniors.length ? `
     <div style="margin-bottom:12px;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:6px">
-      <div style="font-family:var(--fh);font-weight:700;font-size:12px;color:var(--gold);margin-bottom:8px">🌱 JUNIOR EN ESSAIS LIBRES (max ${maxFP}/saison)</div>
+      <div style="font-family:var(--fh);font-weight:700;font-size:12px;color:var(--gold);margin-bottom:8px">🌱 PILOTE EL — Académie / Réserve (max ${maxFP}/saison junior)</div>
       <div style="font-family:var(--fh);font-size:11px;color:var(--muted);margin-bottom:8px">
-        Sélectionne un junior promouvable pour qu'il conduise à la place d'un de tes titulaires lors de cette session.
+        Junior promouvable ou pilote réserve : il roule à la place d'un titulaire pendant cette session.
       </div>
       <div class="select-row" style="margin-bottom:6px">
         <span class="lbl">Junior</span>
@@ -813,7 +861,8 @@ function buildFPConfig() {
           race_mode:  '🏁 +0.05s/tour MAIS -10% dégradation. Idéal pour stratégie 2 arrêts ou pluie.',
         })[save.weekendSetup] || '⚖️ Neutre — aucun bonus ni malus.'}
       </div>
-      <button class="btn btn-red" onclick="runFP()">🚦 Lancer la séance</button>
+      <button class="btn btn-red" onclick="goFPLive()">🏎️ Séance interactive (live)</button>
+      <button class="btn btn-sec" onclick="runFP()" style="margin-top:6px">⚡ Simuler rapidement</button>
     </div>
   `;
 }
@@ -869,6 +918,35 @@ function buildFPSummary() {
 }
 
 let _fpRunning = false;
+
+function parseFpJuniorSelection(raw) {
+  if (!raw) return null;
+  if (raw.startsWith('academy:')) return { type: 'academy', id: raw.slice(8) };
+  if (raw.startsWith('reserve:')) return { type: 'reserve', id: raw.slice(8) };
+  return { type: 'academy', id: raw };
+}
+
+function goFPLive() {
+  if (_fpRunning) return;
+  save = Save.load();
+  if (save.weekendFPDone >= 3) { toast('Les 3 séances sont déjà terminées !', true); return; }
+
+  const setup = document.getElementById('fp-setup')?.value || 'balanced';
+  const config = { setup, drivers: {}, juniorId: '', replaceId: '' };
+  myDrivers.forEach(driver => {
+    config.drivers[driver.id] = {
+      compound: document.getElementById(`fp-compound-${driver.id}`)?.value || 'MEDIUM',
+      program: document.getElementById(`fp-program-${driver.id}`)?.value || 'quali_sim',
+    };
+  });
+  config.juniorId = document.getElementById('fp-junior-select')?.value || '';
+  config.replaceId = document.getElementById('fp-junior-replace')?.value || '';
+  save.fpLiveConfig = config;
+  save.weekendSetup = setup;
+  Save.save(save);
+  location.href = 'fp-live.html';
+}
+
 function runFP() {
   if (_fpRunning) return; // anti double-clic
   _fpRunning = true;
@@ -881,20 +959,30 @@ function runFP() {
 
   const sessionResults = [];
 
-  // Vérifier si un junior est sélectionné pour cette session
-  const juniorId      = document.getElementById('fp-junior-select')?.value || '';
+  // Vérifier si un junior / réserve est sélectionné pour cette session
+  const fpPick        = parseFpJuniorSelection(document.getElementById('fp-junior-select')?.value || '');
   const replaceId     = document.getElementById('fp-junior-replace')?.value || '';
   let juniorResult    = null;
 
-  if(juniorId && replaceId){
-    // Lancer la session junior via Immersion (limite 2/saison vérifiée là-bas)
-    const sessionName = ['fp1','fp2','fp3'][save.weekendFPDone] || 'fp1';
-    juniorResult = (typeof Immersion !== 'undefined') ? Immersion.juniorFP(save, juniorId, sessionName) : null;
-    if(juniorResult && !juniorResult.ok){
-      toast(`⚠️ ${juniorResult.msg}`, true);
-      return;
+  if (fpPick && replaceId) {
+    const sessionName = ['fp1', 'fp2', 'fp3'][save.weekendFPDone] || 'fp1';
+    if (fpPick.type === 'academy') {
+      juniorResult = (typeof Immersion !== 'undefined') ? Immersion.juniorFP(save, fpPick.id, sessionName) : null;
+      if (juniorResult && !juniorResult.ok) {
+        toast(`⚠️ ${juniorResult.msg}`, true);
+        return;
+      }
+    } else if (fpPick.type === 'reserve') {
+      const reserveDriver = F1Data.drivers.find(d => d.id === fpPick.id);
+      if (reserveDriver) {
+        const compound = document.getElementById(`fp-compound-${replaceId}`)?.value || 'MEDIUM';
+        const program  = document.getElementById(`fp-program-${replaceId}`)?.value || 'quali_sim';
+        const result   = Weekend.simulateFP(save, circuit, reserveDriver, compound, program, setup);
+        if (result) sessionResults.push(result);
+        toast(`🔵 ${reserveDriver.firstName} ${reserveDriver.name} — session EL réserve effectuée`);
+      }
     }
-    if(juniorResult?.ok){
+    if (fpPick.type === 'academy' && juniorResult?.ok) {
       // Afficher une notification de résultat junior
       const notif = document.createElement('div');
       notif.style.cssText='position:fixed;bottom:60px;right:16px;background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:6px;padding:10px 14px;font-family:var(--fh);font-size:13px;z-index:200;max-width:300px';
@@ -909,8 +997,7 @@ function runFP() {
 
   // Sessions des titulaires (ou du titulaire non remplacé)
   myDrivers.forEach(driver => {
-    // Si ce pilote est remplacé par le junior, on saute sa session normale
-    if(juniorId && replaceId === driver.id) return;
+    if (fpPick && replaceId === driver.id) return;
     const compound = document.getElementById(`fp-compound-${driver.id}`)?.value || 'MEDIUM';
     const program  = document.getElementById(`fp-program-${driver.id}`)?.value  || 'quali_sim';
     const result   = Weekend.simulateFP(save, circuit, driver, compound, program, setup);
@@ -922,13 +1009,53 @@ function runFP() {
   save.weekendFPDone    = (save.weekendFPDone || 0) + 1;
   Save.save(save);
 
-  const sessionLabel = juniorId && replaceId && juniorResult?.ok
-    ? `✅ Séance EL${save.weekendFPDone} terminée avec junior en piste !`
+  const sessionLabel = fpPick && replaceId && (juniorResult?.ok || fpPick.type === 'reserve')
+    ? `✅ Séance EL${save.weekendFPDone} terminée avec pilote développement !`
     : `✅ Séance EL${save.weekendFPDone} terminée !`;
   toast(sessionLabel);
 
   renderPhases();
   renderContent();
+}
+
+// ══════════════════════════════════════════════════════════
+//  SPRINT WEEK-END
+// ══════════════════════════════════════════════════════════
+function buildSprintSection() {
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="panel">
+      <div class="ph"><div class="dot"></div>⚡ Sprint Shootout — Format F1</div>
+      <div class="content">
+        <div style="font-family:var(--fb);font-size:13px;color:#ccc;line-height:1.6;margin-bottom:12px">
+          Week-end sprint : un tour chrono pour la grille sprint, puis course à ~33% de la distance.
+          Le <strong style="color:var(--gold)">parc fermé</strong> s'active après le shootout — setup verrouillé jusqu'à la course principale.
+        </div>
+        <button class="btn btn-red" onclick="goPhase('sprint')">🏁 Lancer le Sprint Shootout →</button>
+      </div>
+    </div>`;
+  return el;
+}
+
+function buildSprintRaceSection() {
+  const grid = save.sprintGrid || [];
+  const el = document.createElement('div');
+  el.innerHTML = `
+    <div class="panel" style="margin-bottom:10px">
+      <div class="ph"><div class="dot"></div>🏁 Course sprint · ${Math.max(8, Math.min(17, Math.ceil((circuit.laps||50)/3)))} tours</div>
+      <div class="content">
+        <div style="font-family:var(--fh);font-size:12px;color:var(--muted);margin-bottom:10px">
+          Points sprint : 8-7-6-5-4-3-2-1 pour le top 8. Pas d'impact sur le championnat principal des constructeurs au-delà du moral d'équipe.
+        </div>
+        ${save.parcFermeLocked ? `<div style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-left:3px solid var(--gold);border-radius:6px;padding:10px 12px;font-size:12px;color:#ccc;margin-bottom:10px">🔒 <strong style="color:var(--gold)">Parc fermé actif</strong> — modifications majeures interdites avant les qualifications.</div>` : ''}
+        ${grid.slice(0, 5).map(g => {
+          const dr = F1Data.drivers.find(d => d.id === g.driverId);
+          return `<div style="font-family:var(--fh);font-size:12px;padding:4px 0;border-bottom:1px solid var(--border)">P${g.gridPos} ${dr?.firstName||''} ${dr?.name||'?'}</div>`;
+        }).join('')}
+        <button class="btn btn-red" style="margin-top:12px" onclick="goPhase('sprint_race')">▶ Lancer la course sprint</button>
+      </div>
+    </div>`;
+  return el;
 }
 
 // ══════════════════════════════════════════════════════════
@@ -942,6 +1069,11 @@ function buildQualiSection() {
   if (!save.weekendQualiDone) {
     // Config qualifications
     el.innerHTML = `
+      ${save.parcFermeLocked ? `<div class="panel" style="margin-bottom:10px"><div class="content" style="padding:12px 14px">
+        <div style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-left:3px solid var(--gold);border-radius:6px;padding:10px 12px;font-size:12px;color:#ccc;line-height:1.55">
+          🔒 <strong style="color:var(--gold)">Parc fermé FIA</strong> — Setup verrouillé depuis le Sprint Shootout. Seuls les réglages mineurs (balance, ailerons) sont autorisés. Les ingénieurs travaillent sur la stratégie et les temps de pit.
+        </div>
+      </div></div>` : ''}
       <div class="panel" style="margin-bottom:10px">
         <div class="ph"><div class="dot"></div>⚡ Qualifications — Configuration</div>
         <div class="content">

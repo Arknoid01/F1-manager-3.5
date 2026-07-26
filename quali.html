@@ -4,10 +4,8 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
-<link rel="stylesheet" href="css/immersive-theme.css?v=20260709">
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260711">
 <script src="js/icons.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="js/circuit-viz.js"></script>
 <title>Qualifications — F1 Manager</title>
 <style>
 *{box-sizing:border-box}
@@ -588,11 +586,6 @@ function renderPhase(phase, drivers, board) {
       <div class="bt-chip">${drivers.length} pilotes</div>
     </div>
 
-    <div class="quali-viz-panel ds-panel">
-      <div class="ds-panel-head"><span class="ds-dot"></span>Aperçu circuit — Monaco 3D</div>
-      <div class="circuit-viz-wrap" id="qualiCircuitViz"></div>
-    </div>
-
     <div class="quali-live">
       <section class="quali-main quali-card ds-panel">
         <div class="ds-panel-head"><span class="ds-dot"></span>Classement live</div>
@@ -638,25 +631,6 @@ function renderPhase(phase, drivers, board) {
   renderLeaderboard(board, cutAt, cutLabel);
   renderRadio();
   updatePlayerStatus();
-  initQualiViz();
-}
-
-function initQualiViz() {
-  if (typeof CircuitViz === 'undefined') return;
-  const team = F1Data.teams.find(t => t.id === playerTeamId);
-  requestAnimationFrame(() => {
-    CircuitViz.init({ container: '#qualiCircuitViz', mode: 'quali', color: team?.color || '#e8003d' });
-  });
-}
-
-function triggerQualiVizRun() {
-  if (typeof CircuitViz === 'undefined') return;
-  const team = F1Data.teams.find(t => t.id === playerTeamId);
-  const colors = myDrivers
-    .filter(d => !state.eliminated.includes(d.id))
-    .map(() => team?.color || '#e8003d');
-  if (!colors.length) colors.push(team?.color || '#e8003d');
-  CircuitViz.animateLap({ colors, duration: 2600 });
 }
 
 function setMode(driverId, mode) {
@@ -699,7 +673,6 @@ function doPlayerRun() {
   const btn = document.getElementById('btnRun');
   if (btn) { btn.disabled = true; btn.textContent = '🔄 Run en cours...'; }
 
-  triggerQualiVizRun();
 
   const currentDrivers = getCurrentDrivers();
 
@@ -902,6 +875,7 @@ function showFinalResult(q3Board) {
 
   save.qualiGrid        = finalGrid;
   save.weekendQualiDone = true;
+  save.parcFermeLocked  = true;
   Save.save(save);
 
   const pole     = allBoard[0];

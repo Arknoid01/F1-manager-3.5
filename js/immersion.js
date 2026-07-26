@@ -73,6 +73,7 @@ const Immersion = {
     this.generatePaddockNews(save, gp, results, player, teamPts, dnf, sc, wet);
     this.generateInterview(save, gp, results, player, teamPts, dnf, sc, wet);
     this.progressJuniors(save);
+    if (typeof Feeder !== 'undefined' && Feeder.afterRace) Feeder.afterRace(save);
     return save;
   },
 
@@ -239,9 +240,10 @@ const Immersion = {
     this.ensure(save);
     const im = save.immersion;
     im.juniorAcademy.forEach(j=>{
+      const boost = typeof Feeder !== 'undefined' ? Feeder.getAcademyBoost(save) : 0;
       const base = 1 + Math.floor(Math.random()*3);
       const prev = j.progress||0;
-      j.progress = Math.min(100, prev + base);
+      j.progress = Math.min(100, prev + Math.round(base * (1 + boost)));
       j.age = j.age || 17;
 
       if(j.progress >= 100 && prev < 100){
@@ -464,13 +466,18 @@ const Immersion = {
     const flags = ['🇫🇷','🇩🇪','🇮🇹','🇬🇧','🇯🇵','🇪🇸','🇧🇷','🇳🇱','🇧🇪','🇨🇭'];
     const i = Math.floor(Math.random()*first.length);
     const id = `jr_${save.season||2025}_${Date.now()}_${Math.floor(Math.random()*999)}_${idx??0}`;
-    return {
+    const junior = {
       id, firstName:first[i], name:last[Math.floor(Math.random()*last.length)], flag:flags[Math.floor(Math.random()*flags.length)],
       age:16+Math.floor(Math.random()*3), potential:70+Math.floor(Math.random()*20),
       racecraft:54+Math.floor(Math.random()*24), focus:52+Math.floor(Math.random()*26),
       cost:1+Math.floor(Math.random()*4), progress:5+Math.floor(Math.random()*26),
       note:['À évaluer en F3','Bon retour simulateur','Potentiel brut intéressant','Travailleur discret','Très bon feeling sous pluie'][Math.floor(Math.random()*5)]
     };
+    if (typeof Feeder !== 'undefined') {
+      Feeder.ensure(save);
+      Feeder.setDevPlan(save, id, 'pace');
+    }
+    return junior;
   },
 
   evolvePromotedJuniors(save){

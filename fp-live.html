@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=Barlow:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260711">
+<script src="js/icons.js"></script>
+<title>Essais libres — F1 Manager</title>
+<style>
+*{box-sizing:border-box}
+.wrap{max-width:720px;margin:0 auto;padding:8px 6px 48px}
+.fp-live{display:flex;flex-direction:column;gap:8px}
+.fp-main{width:100%;min-width:0}
+.fp-side{width:100%;display:flex;flex-direction:column;gap:8px}
+@media(min-width:760px){
+  .fp-live{flex-direction:row;align-items:flex-start}
+  .fp-main{flex:1}
+  .fp-side{width:270px;flex-shrink:0}
+}
+.leaderboard{display:flex;flex-direction:column;gap:3px}
+.lb-row{display:flex;align-items:center;gap:5px;padding:6px;background:var(--surface);border:1px solid var(--border);border-radius:7px;min-width:0}
+.lb-row.player{border-color:var(--gold);background:rgba(245,200,66,.06)}
+.lb-row.improved{animation:flash-green .5s}
+@keyframes flash-green{0%{background:rgba(0,200,120,.25)}100%{background:var(--surface)}}
+.lb-teambar{width:3px;height:28px;border-radius:2px;flex-shrink:0}
+.lb-pos{font-family:var(--fh);font-weight:900;font-size:16px;width:24px;text-align:center;flex-shrink:0}
+.lb-pos.p1{color:var(--gold)}.lb-pos.p2{color:#c0c0c0}.lb-pos.p3{color:#cd7f32}
+.lb-num{font-family:var(--fh);font-size:12px;color:var(--muted);width:24px;flex-shrink:0}
+.lb-name{font-family:var(--fh);font-weight:700;font-size:13px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-time{font-family:var(--fh);font-weight:900;font-size:13px;text-align:right;flex-shrink:0}
+.lb-gap{font-family:var(--fh);font-size:11px;color:var(--muted);width:52px;text-align:right;flex-shrink:0}
+.lb-runs{font-family:var(--fh);font-size:10px;color:var(--muted);width:28px;text-align:center;flex-shrink:0}
+.radio-feed{max-height:240px;overflow-y:auto;padding:8px 10px}
+.radio-msg{font-size:12px;color:#ccc;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.04);display:flex;gap:8px}
+.radio-msg:last-child{border:none;color:var(--gold)}
+.radio-time{font-family:var(--fh);font-size:10px;color:var(--muted);flex-shrink:0;width:36px}
+.player-controls{padding:10px 12px}
+.pc-driver{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.pc-name{font-family:var(--fh);font-weight:700;font-size:13px;flex:1;min-width:120px}
+.pc-btn{font-family:var(--fh);font-size:11px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer}
+.pc-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-run{display:block;width:100%;background:var(--accent);color:#fff;font-family:var(--fh);font-weight:900;font-size:14px;letter-spacing:1px;padding:13px;border:none;border-radius:8px;cursor:pointer;margin-top:8px}
+.btn-run:disabled{opacity:.4;cursor:not-allowed}
+.btn-run.secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);margin-top:6px}
+.run-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:8px}
+.run-meta .mini{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:7px;font-family:var(--fh)}
+.run-meta .mini b{display:block;font-size:14px}.run-meta .mini span{font-size:9px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.grip-bar{height:4px;background:var(--surface2);border-radius:2px;margin-top:6px;overflow:hidden}
+.grip-fill{height:100%;background:linear-gradient(90deg,var(--info),var(--green));transition:width .4s}
+.traffic-pill{font-family:var(--fh);font-size:10px;padding:3px 8px;border-radius:999px;background:rgba(232,0,61,.15);color:var(--accent);border:1px solid rgba(232,0,61,.3)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(60px);background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:6px;padding:10px 18px;font-family:var(--fh);font-size:13px;z-index:500;transition:transform .3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="topbar topbar--glass">
+  <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#fff">Manager</span></div>
+  <a href="weekend.html" class="nav-back">← Week-end</a>
+</div>
+<div class="wrap"><div id="content"></div></div>
+<div class="toast" id="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/weekend.js"></script>
+<script src="js/immersion.js"></script>
+<script src="js/feeder.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+if (!save?.playerTeamId) location.href = 'index.html';
+if ((save.weekendFPDone || 0) >= 3) location.href = 'weekend.html';
+
+const circuit = F1Data.circuits.find(c => c.id === save.weekendCircuit) || F1Data.circuits[0];
+const weather = save.weekendWeather || 'dry';
+const playerTeamId = save.playerTeamId;
+const config = save.fpLiveConfig || { setup: save.weekendSetup || 'balanced', drivers: {} };
+const sessionIdx = save.weekendFPDone || 0;
+const sessionNames = ['EL1', 'EL2', 'EL3'];
+const SESSION_TIMER = 12 * 60;
+
+function parseFpJuniorSelection(raw) {
+  if (!raw) return null;
+  if (raw.startsWith('academy:')) return { type: 'academy', id: raw.slice(8) };
+  if (raw.startsWith('reserve:')) return { type: 'reserve', id: raw.slice(8) };
+  return { type: 'academy', id: raw };
+}
+
+const allDrivers = F1Data.drivers.filter(d => d.teamId && d.teamId !== 'free_agent' && !d.retired);
+const myDrivers = allDrivers.filter(d => d.teamId === playerTeamId);
+
+if (save.driverStates) {
+  F1Data.drivers.forEach(d => {
+    const st = save.driverStates[d.id];
+    if (!st) return;
+    ['pace','consistency','wetSkill','overtaking','defending'].forEach(k => { if (st[k] !== undefined) d[k] = st[k]; });
+    if (st.teamId !== undefined) d.teamId = st.teamId;
+    if (st.retired !== undefined) d.retired = st.retired;
+  });
+}
+
+const state = {
+  running: false,
+  timer: SESSION_TIMER,
+  timerInterval: null,
+  rivalInterval: null,
+  drivers: {},
+  playerModes: {},
+  playerRuns: {},
+  playerBestResult: {},
+  radio: [],
+  runInProgress: false,
+  trafficActive: false,
+  sessionResults: [],
+};
+
+allDrivers.forEach(d => {
+  state.drivers[d.id] = { bestLap: null, runs: 0, inRun: false, program: 'quali_sim', compound: 'MEDIUM' };
+  state.playerModes[d.id] = 'normal';
+  state.playerRuns[d.id] = 0;
+});
+
+myDrivers.forEach(d => {
+  const cfg = config.drivers?.[d.id] || {};
+  state.drivers[d.id].compound = cfg.compound || 'MEDIUM';
+  state.drivers[d.id].program = cfg.program || 'quali_sim';
+  state.playerModes[d.id] = 'normal';
+});
+
+const RADIO_FP = {
+  start: ['Feu vert — la piste est ouverte pour les essais.', 'Les stands libèrent les voitures, c\'est parti pour la séance.', 'Premiers tours de reconnaissance en cours au paddock.'],
+  push: ['Mode push activé — attention au trafic en sortie de stands.', 'Le pilote demande du grip, on pousse le programme.', 'Run quali sim en push, le chronomètre va parler.'],
+  traffic: ['Trafic en sector 2 — tour gâché, on refera un run.', 'Voiture lente devant — impossible d\'améliorer.', 'Peloton dense en piste, le muret annule le run.', 'Bottleneck au dernier secteur, temps perdu.'],
+  improve: ['Nouveau meilleur temps ! La piste évolue bien.', 'Amélioration au tableau — setup qui fonctionne.', 'Personal best — les ingénieurs prennent des notes.'],
+  rival: ['Rival en piste — temps de référence en baisse.', 'Une McLaren vient de signer un gros chrono.', 'Le peloton se resserre, la concurrence est féroce.'],
+  end: ['Drapeau à damiers — fin de séance, retour aux stands.', 'Séance clôturée. Débrief technique dans 10 minutes.'],
+};
+
+function toast(msg, err) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!err);
+  t.style.borderLeftColor = err ? 'var(--accent)' : 'var(--green)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function fmtTime(t) {
+  if (t == null || !isFinite(t)) return '—';
+  const m = Math.floor(t / 60);
+  const s = (t - m * 60).toFixed(3);
+  return m > 0 ? `${m}:${s.padStart(6, '0')}` : s;
+}
+
+function fmtTimer(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+function fmtGap(leader, t) {
+  if (t == null || leader == null) return '—';
+  const g = t - leader;
+  if (g < 0.001) return 'LEADER';
+  return '+' + g.toFixed(3);
+}
+
+function trackEvolutionBonus() {
+  if (weather !== 'dry') return 0;
+  const elapsed = Math.max(0, Math.min(1, 1 - state.timer / SESSION_TIMER));
+  return 0.15 + elapsed * 0.35;
+}
+
+function trackGripPercent() {
+  return Math.round(88 + (trackEvolutionBonus() / 0.50) * 12);
+}
+
+function addRadio(text, icon) {
+  const elapsed = SESSION_TIMER - state.timer;
+  const m = Math.floor(elapsed / 60);
+  const s = elapsed % 60;
+  state.radio.unshift({ time: `${m}:${String(s).padStart(2, '0')}`, text, icon: icon || '📻' });
+  if (state.radio.length > 40) state.radio.pop();
+  renderRadio();
+}
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+function runForDriver(driver, compound, program, setup, mode, isPlayer) {
+  let result = Weekend.simulateFP(save, circuit, driver, compound, program, setup);
+  if (!result) return null;
+
+  result.bestLap -= trackEvolutionBonus();
+
+  if (mode === 'push') {
+    result.bestLap -= 0.06 + Math.random() * 0.04;
+    result.lapTimes = result.lapTimes.map(t => parseFloat((t - 0.05).toFixed(3)));
+  } else if (mode === 'wait') {
+    result.bestLap += 0.12 + Math.random() * 0.08;
+  }
+
+  if (Math.random() < (isPlayer ? 0.18 : 0.08)) {
+    const penalty = 0.2 + Math.random() * 0.45;
+    result.bestLap += penalty;
+    if (isPlayer) {
+      state.trafficActive = true;
+      addRadio(pick(RADIO_FP.traffic), '🚦');
+      setTimeout(() => { state.trafficActive = false; renderHeader(); }, 4000);
+    }
+  }
+
+  result.bestLap = parseFloat(result.bestLap.toFixed(3));
+  return result;
+}
+
+function getLeaderboard() {
+  return allDrivers
+    .map(d => ({ driver: d, ...state.drivers[d.id] }))
+    .filter(x => x.bestLap != null)
+    .sort((a, b) => a.bestLap - b.bestLap);
+}
+
+function updateDriverBest(driverId, result) {
+  const ds = state.drivers[driverId];
+  if (!ds || !result) return false;
+  ds.runs++;
+  const improved = ds.bestLap == null || result.bestLap < ds.bestLap - 0.001;
+  if (improved) ds.bestLap = result.bestLap;
+  return improved;
+}
+
+function simulateRivalRun() {
+  if (!state.running || state.runInProgress) return;
+  const rivals = allDrivers.filter(d => d.teamId !== playerTeamId);
+  if (!rivals.length) return;
+  const driver = rivals[Math.floor(Math.random() * rivals.length)];
+  const ds = state.drivers[driver.id];
+  const programs = ['quali_sim', 'long_run', 'setup_work'];
+  const compounds = weather === 'dry' ? ['SOFT', 'MEDIUM', 'HARD'] : ['INTER', 'WET'];
+  const program = programs[Math.floor(Math.random() * programs.length)];
+  const compound = compounds[Math.floor(Math.random() * compounds.length)];
+  const result = runForDriver(driver, compound, program, config.setup || 'balanced', Math.random() < 0.3 ? 'push' : 'normal', false);
+  if (result && updateDriverBest(driver.id, result)) {
+    if (Math.random() < 0.35) addRadio(pick(RADIO_FP.rival), '🏎️');
+    renderLeaderboard();
+  }
+}
+
+function setMode(id, mode) {
+  state.playerModes[id] = mode;
+  if (mode === 'push') addRadio(pick(RADIO_FP.push), '⚡');
+  renderControls();
+}
+
+function doPlayerRun() {
+  if (!state.running || state.runInProgress) return;
+  state.runInProgress = true;
+  document.getElementById('btnRun').disabled = true;
+
+  const setup = config.setup || 'balanced';
+  let anyImproved = false;
+
+  myDrivers.forEach((driver, i) => {
+    setTimeout(() => {
+      const ds = state.drivers[driver.id];
+      const mode = state.playerModes[driver.id] || 'normal';
+      const result = runForDriver(driver, ds.compound, ds.program, setup, mode, true);
+      if (result) {
+        state.playerRuns[driver.id]++;
+        const improved = updateDriverBest(driver.id, result);
+        if (improved) {
+          anyImproved = true;
+          state.playerBestResult[driver.id] = result;
+          addRadio(`${driver.name} — ${fmtTime(result.bestLap)}${improved ? ' · ' + pick(RADIO_FP.improve) : ''}`, '🏁');
+        }
+      }
+      if (i === myDrivers.length - 1) {
+        state.runInProgress = false;
+        document.getElementById('btnRun').disabled = false;
+        renderLeaderboard();
+        renderControls();
+      }
+    }, i * 900);
+  });
+}
+
+function startSession() {
+  if (state.running) return;
+  state.running = true;
+  addRadio(pick(RADIO_FP.start), '🟢');
+  state.timerInterval = setInterval(() => {
+    state.timer--;
+    if (state.timer <= 0) { finishSession(); return; }
+    updateTimerUI();
+  }, 1000);
+  state.rivalInterval = setInterval(simulateRivalRun, 3800 + Math.random() * 2000);
+  renderAll();
+}
+
+function finishSession() {
+  if (state._finishing) return;
+  state._finishing = true;
+  clearInterval(state.timerInterval);
+  clearInterval(state.rivalInterval);
+  state.running = false;
+  addRadio(pick(RADIO_FP.end), '🏁');
+
+  allDrivers.forEach(d => {
+    if (state.drivers[d.id].bestLap == null) {
+      const result = runForDriver(d, 'MEDIUM', 'quali_sim', config.setup || 'balanced', 'normal', false);
+      if (result) updateDriverBest(d.id, result);
+    }
+  });
+
+  const sessionResults = [];
+  myDrivers.forEach(driver => {
+    if (config.juniorId && config.replaceId === driver.id) return;
+    const stored = state.playerBestResult[driver.id];
+    const ds = state.drivers[driver.id];
+    if (stored) {
+      sessionResults.push(stored);
+    } else {
+      const result = runForDriver(driver, ds.compound, ds.program, config.setup || 'balanced', 'normal', true);
+      if (result) sessionResults.push(result);
+    }
+  });
+
+  if (config.juniorId && config.replaceId && typeof Immersion !== 'undefined') {
+    const sessionName = ['fp1', 'fp2', 'fp3'][sessionIdx] || 'fp1';
+    const fpPick = parseFpJuniorSelection(config.juniorId);
+    if (fpPick?.type === 'academy') {
+      Immersion.juniorFP(save, fpPick.id, sessionName);
+    } else if (fpPick?.type === 'reserve') {
+      const reserveDriver = F1Data.drivers.find(d => d.id === fpPick.id);
+      const titular = myDrivers.find(d => d.id === config.replaceId);
+      if (reserveDriver && titular) {
+        const ds = state.drivers[config.replaceId] || {};
+        const compound = ds.compound || 'MEDIUM';
+        const program = ds.program || 'quali_sim';
+        runForDriver(reserveDriver, compound, program, config.setup || 'balanced', 'normal', true);
+      }
+    }
+  }
+
+  save.weekendSetup = config.setup || save.weekendSetup || 'balanced';
+  save.weekendFPResults = [...(save.weekendFPResults || []), ...sessionResults];
+  save.weekendFPDone = (save.weekendFPDone || 0) + 1;
+  delete save.fpLiveConfig;
+  Save.save(save);
+
+  toast(`✅ ${sessionNames[sessionIdx]} terminée — retour au week-end`);
+  setTimeout(() => { location.href = 'weekend.html'; }, 1400);
+}
+
+function updateTimerUI() {
+  const el = document.getElementById('sessionTimer');
+  if (el) {
+    el.textContent = fmtTimer(state.timer);
+    el.classList.toggle('critical', state.timer <= 120);
+  }
+  const grip = document.getElementById('gripPct');
+  const fill = document.getElementById('gripFill');
+  if (grip) grip.textContent = trackGripPercent() + '%';
+  if (fill) fill.style.width = trackGripPercent() + '%';
+}
+
+function renderLeaderboard() {
+  const board = getLeaderboard();
+  const leader = board[0]?.bestLap;
+  const el = document.getElementById('leaderboard');
+  if (!el) return;
+
+  el.innerHTML = board.map((row, i) => {
+    const d = row.driver;
+    const team = F1Data.teams.find(t => t.id === d.teamId);
+    const isPlayer = d.teamId === playerTeamId;
+    const pos = i + 1;
+    const pc = pos <= 3 ? `p${pos}` : '';
+    return `<div class="lb-row${isPlayer ? ' player' : ''}">
+      <div class="lb-teambar" style="background:${team?.color || '#888'}"></div>
+      <div class="lb-pos ${pc}">${pos}</div>
+      <div class="lb-num">${d.number || ''}</div>
+      <div class="lb-name">${d.firstName} ${d.name}</div>
+      <div class="lb-runs">${row.runs || 0}R</div>
+      <div class="lb-gap">${fmtGap(leader, row.bestLap)}</div>
+      <div class="lb-time">${fmtTime(row.bestLap)}</div>
+    </div>`;
+  }).join('') || '<div style="padding:12px;color:var(--muted);font-size:12px;text-align:center">Aucun temps — lance un run</div>';
+}
+
+function renderRadio() {
+  const el = document.getElementById('radioFeed');
+  if (!el) return;
+  el.innerHTML = state.radio.map(r =>
+    `<div class="radio-msg"><span class="radio-time">${r.time}</span><span>${r.icon || '📻'} ${r.text}</span></div>`
+  ).join('') || '<div style="color:var(--muted);font-size:11px;padding:8px">Radio en attente…</div>';
+}
+
+function renderControls() {
+  const el = document.getElementById('playerControls');
+  if (!el) return;
+  el.innerHTML = myDrivers.map(d => {
+    const mode = state.playerModes[d.id] || 'normal';
+    const runs = state.playerRuns[d.id] || 0;
+    const ds = state.drivers[d.id];
+    const prog = Weekend.PROGRAM_OPTIONS.find(p => p.id === ds.program);
+    return `<div class="pc-driver">
+      <div class="pc-name">${d.firstName} ${d.name}<br><span style="font-size:10px;color:var(--muted)">${prog?.label || ds.program} · ${runs} run(s)</span></div>
+      <button class="pc-btn${mode === 'push' ? ' active' : ''}" onclick="setMode('${d.id}','push')">⚡ Push</button>
+      <button class="pc-btn${mode === 'normal' ? ' active' : ''}" onclick="setMode('${d.id}','normal')">🎯 Normal</button>
+      <button class="pc-btn${mode === 'wait' ? ' active' : ''}" onclick="setMode('${d.id}','wait')">⏸ Attente</button>
+    </div>`;
+  }).join('');
+}
+
+function renderHeader() {
+  const sub = document.getElementById('sessionSub');
+  if (sub) {
+    const w = weather === 'heavy_rain' ? 'Pluie forte' : weather === 'light_rain' ? 'Piste humide' : 'Piste sèche';
+    sub.textContent = `${circuit.name} · ${w}${state.trafficActive ? ' · TRAFIC' : ''}`;
+  }
+}
+
+function renderAll() {
+  renderHeader();
+  renderLeaderboard();
+  renderControls();
+  renderRadio();
+  updateTimerUI();
+  const btnStart = document.getElementById('btnStart');
+  const btnRun = document.getElementById('btnRun');
+  const btnEnd = document.getElementById('btnEnd');
+  if (btnStart) btnStart.style.display = state.running ? 'none' : 'block';
+  if (btnRun) btnRun.style.display = state.running ? 'block' : 'none';
+  if (btnEnd) btnEnd.style.display = state.running ? 'block' : 'none';
+}
+
+function renderStart() {
+  document.getElementById('content').innerHTML = `
+    <div class="broadcast-ticker">
+      <div class="bt-live">Live</div>
+      <div class="bt-phase">${sessionNames[sessionIdx]}</div>
+      <div class="bt-info">
+        <div class="bt-circuit">${circuit.name}</div>
+        <div class="bt-sub" id="sessionSub">Configuration chargée — prêt à rouler</div>
+      </div>
+      <div class="bt-timer" id="sessionTimer">${fmtTimer(state.timer)}</div>
+      <div class="bt-chip" id="gripPct">${trackGripPercent()}% grip</div>
+    </div>
+    <div class="grip-bar"><div class="grip-fill" id="gripFill" style="width:${trackGripPercent()}%"></div></div>
+    ${state.trafficActive ? '<div style="margin:6px 0"><span class="traffic-pill">🚦 Trafic en piste</span></div>' : ''}
+
+    <div class="fp-live">
+      <section class="fp-main ds-panel">
+        <div class="ds-panel-head"><span class="ds-dot"></span>Classement essais</div>
+        <div style="padding:8px"><div class="leaderboard" id="leaderboard"></div></div>
+      </section>
+      <aside class="fp-side">
+        <div class="ds-panel">
+          <div class="ds-panel-head"><span class="ds-dot"></span>Mur des stands</div>
+          <div class="player-controls">
+            <div id="playerControls"></div>
+            <button class="btn-run" id="btnStart" onclick="startSession()">🚦 Ouvrir la piste</button>
+            <button class="btn-run" id="btnRun" onclick="doPlayerRun()" style="display:none">🏎️ Lancer un run</button>
+            <button class="btn-run secondary" id="btnEnd" onclick="finishSession()" style="display:none">⏭ Clôturer la séance</button>
+            <div class="run-meta">
+              <div class="mini"><span>Durée</span><b>12 min</b></div>
+              <div class="mini"><span>Évolution</span><b id="gripMini">${trackGripPercent()}%</b></div>
+              <div class="mini"><span>Rivaux</span><b>Auto</b></div>
+            </div>
+          </div>
+        </div>
+        <div class="ds-panel">
+          <div class="ds-panel-head"><span class="ds-dot"></span>Radio / Feed</div>
+          <div class="radio-feed" id="radioFeed"></div>
+        </div>
+      </aside>
+    </div>
+  `;
+  renderAll();
+}
+
+renderStart();
+</script>
+</body>
+</html>

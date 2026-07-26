@@ -615,4 +615,64 @@
   .ds-data-row { grid-template-columns: 24px 22px 3px 1fr auto; }
   .ds-data-row .ds-lap { display: none; }
   .chat-choices { padding-left: 0; }
+  .tactical-bar { grid-template-columns: 1fr; }
+  .tactical-actions { justify-content: stretch; }
+  .tactical-btn { flex: 1; }
 }
+
+/* ── Panneau tactique course ── */
+.tactical-bar {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, rgba(18, 0, 14, 0.95), rgba(7, 7, 13, 0.98));
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  border-radius: 8px;
+}
+.tactical-alerts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+.tactical-chip {
+  font-family: var(--fh);
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tactical-chip.alert-undercut { border-color: var(--warn); color: var(--warn); background: rgba(255, 200, 0, 0.06); }
+.tactical-chip.alert-weather { border-color: var(--info); color: var(--info); background: rgba(100, 160, 255, 0.08); }
+.tactical-chip.alert-vsc { border-color: var(--podium-gold); color: var(--podium-gold); background: rgba(245, 200, 66, 0.08); }
+.tactical-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.tactical-btn {
+  font-family: var(--fh);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.tactical-btn:hover { border-color: var(--gold); color: var(--gold); }
+.tactical-btn--push { border-color: rgba(232, 0, 61, 0.4); color: var(--accent); }
+.lap-delta { font-family: var(--fh); font-size: 9px; margin-left: 3px; }
+.lap-delta.pos { color: var(--green); }
+.lap-delta.neg { color: var(--danger); }
+.sc-pill.vsc-pill.on { background: rgba(245, 200, 66, 0.2); border-color: var(--podium-gold); color: var(--podium-gold); }
+.broadcast-feed .bf-item.bf-vsc { border-left-color: var(--podium-gold); }

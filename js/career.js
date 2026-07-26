@@ -286,6 +286,7 @@ const Career = {
       newTalents: [],
       released:   [],
       academy:    null,
+      feeder:     null,
     };
 
     if (!save) return report;
@@ -338,6 +339,10 @@ const Career = {
     // puis un nouveau talent arrive. Les autres restent à l'académie et ne saturent pas le marché.
     if (typeof Immersion !== 'undefined' && Immersion.academyEndOfSeason) {
       report.academy = Immersion.academyEndOfSeason(save);
+    }
+
+    if (typeof Feeder !== 'undefined' && Feeder.endOfSeason) {
+      report.feeder = Feeder.endOfSeason(save);
     }
 
     // 4. Remplir les sièges vides (IA) AVANT de persister les états pilotes.
@@ -797,6 +802,7 @@ const Career = {
     chance += Math.max(-18, 12 - teamRank * 3);
     if (role === 'pilote1') chance += 11;
     if (role === 'egal') chance += 5;
+    if (role === 'reserve') chance += 6;
     if (years >= 3) chance += 4;
     if (years <= 1) chance -= 5;
     chance -= Math.max(0, score - 82) * 1.4;
@@ -842,7 +848,8 @@ const Career = {
 
     const playerTeamId = save.playerTeamId;
     // Exclure le pilote entrant du comptage pour eviter faux positif
-    const teamDrivers = F1Data.drivers.filter(x => x.teamId && x.teamId && x.teamId !== 'free_agent' && x.teamId === playerTeamId && !x.retired && x.id !== incomingDriver.id);
+    const teamDrivers = F1Data.drivers.filter(x => x.teamId && x.teamId !== 'free_agent' && x.teamId === playerTeamId && !x.retired && x.id !== incomingDriver.id
+      && (save.contracts?.[x.id]?.status || 'pilote2') !== 'reserve');
     let replaced = null;
 
     // Si l'équipe a déjà 2 pilotes, le joueur doit choisir le siège à remplacer.

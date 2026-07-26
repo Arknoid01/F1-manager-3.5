@@ -182,7 +182,8 @@ const Race = {
       currentLap: 0,
       totalLaps:  circuit.laps,
       grid,
-      safetyCar:  { active: false, remainingLaps: 0 },
+      safetyCar:  { active: false, remainingLaps: 0, lapsDeployed: 0 },
+      virtualSafetyCar: { active: false, remainingLaps: 0, lapsDeployed: 0 },
       finished:   false,
       events:     [],
       playerTeamId: (typeof Save !== 'undefined' && Save.load && Save.load()) ? Save.load().playerTeamId : null,
@@ -229,11 +230,24 @@ const Race = {
       }
     }
 
+    // ── Virtual Safety Car ────────────────────────────────────
+    if (s.virtualSafetyCar.active) {
+      s.virtualSafetyCar.remainingLaps--;
+      if (s.virtualSafetyCar.remainingLaps <= 0) {
+        s.virtualSafetyCar.active = false;
+        s._vscEndLap = lap;
+        lapEvents.push({ lap, type: 'vsc_end', message: '🟢 Virtual Safety Car — reprise des dépassements autorisés' });
+      }
+    }
+
+    const neutralized = s.safetyCar.active || s.virtualSafetyCar.active;
+
     // ── DRS — règle réelle : interdit les 2 premiers tours ────
-    // et pendant le tour qui suit une relance de Safety Car
+    // et pendant le tour qui suit une relance de Safety Car / VSC
     const drsEnabled = lap >= 3
-      && !s.safetyCar.active
-      && (!s._scEndLap || lap > s._scEndLap + 1);
+      && !neutralized
+      && (!s._scEndLap || lap > s._scEndLap + 1)
+      && (!s._vscEndLap || lap > s._vscEndLap + 1);
     if (drsEnabled && !s._drsAnnounced) {
       s._drsAnnounced = true;
       lapEvents.push({ lap, type: 'info', message: '📢 DRS activé !' });
@@ -274,7 +288,7 @@ const Race = {
       const pitsDone     = car.pitStops?.length || 0;
 
       let pitDecision = Engine.shouldPit(
-        car.tyre, lap, s.totalLaps, car.strategy, someoneJustPitted, s.weather, s.safetyCar.active
+        car.tyre, lap, s.totalLaps, car.strategy, someoneJustPitted, s.weather, s.safetyCar.active || s.virtualSafetyCar.active
       );
 
       // Pour le joueur : priorité à la stratégie choisie.
@@ -473,15 +487,14 @@ const Race = {
       // Safety Car : tout le monde roule au même rythme lent
       if (s.safetyCar.active) {
         lapTime = cir.baseLapTime * 1.38 + (Math.random() - 0.5) * 0.3;
+      } else if (s.virtualSafetyCar.active) {
+        // VSC : delta +40% environ, peloton étiré mais pas regroupé comme SC
+        lapTime = cir.baseLapTime * 1.22 + (Math.random() - 0.5) * 0.2;
       }
 
       // ── Aspiration vs air sale — dépend du circuit ───────
-      // Dans le sillage (<1.5s) : gain d'aspiration en ligne droite
-      // (fort sur les circuits à dépassements type Monza), mais perte
-      // d'appui dans les virages (dominant sur Monaco/Hongrie).
-      // L'air sale surchauffe aussi les pneus (usure accrue).
       let followingClose = false;
-      if (!s.safetyCar.active && car.gap !== null && car.gap > 0) {
+      if (!neutralized && car.gap !== null && car.gap > 0) {
         const carAhead = s.grid.find(c =>
           c.status !== 'dnf' && c.position === car.position - 1
         );
@@ -535,8 +548,6 @@ const Race = {
     });
 
     // ── Safety Car : regroupement ─────────────────────────────
-    // Réduit progressivement les écarts — les voitures se rassemblent
-    // derrière la SC. Chaque tour sous SC réduit l'écart de ~40%
     if (s.safetyCar.active) {
       const racing = s.grid
         .filter(c => c.status === 'racing')
@@ -546,12 +557,9 @@ const Race = {
         const leaderTime = racing[0].totalTime;
 
         racing.forEach((car, scIdx) => {
-          if (scIdx === 0) return; // le leader garde son temps
+          if (scIdx === 0) return;
           const currentGap = car.totalTime - leaderTime;
           if (currentGap <= 0) return;
-
-          // Réduire l'écart de 35% par tour de SC (en ~3 tours tout le monde est regroupé)
-          // Mais garder un écart minimum de 0.3s entre voitures (file indienne)
           const minGap     = scIdx * 0.3;
           const targetGap  = Math.max(minGap, currentGap * 0.65);
           car.totalTime    = leaderTime + targetGap;
@@ -559,8 +567,22 @@ const Race = {
       }
     }
 
+    // ── VSC : compression légère des écarts (~15% par tour) ───
+    if (s.virtualSafetyCar.active && !s.safetyCar.active) {
+      const racing = s.grid.filter(c => c.status === 'racing').sort((a, b) => a.totalTime - b.totalTime);
+      if (racing.length > 1) {
+        const leaderTime = racing[0].totalTime;
+        racing.forEach((car, idx) => {
+          if (idx === 0) return;
+          const currentGap = car.totalTime - leaderTime;
+          if (currentGap <= 0) return;
+          car.totalTime = leaderTime + Math.max(idx * 0.5, currentGap * 0.85);
+        });
+      }
+    }
+
     // ── Dépassements actifs ───────────────────────────────────
-    if (!s.safetyCar.active) {
+    if (!neutralized) {
       const racing = s.grid
         .filter(c => c.status === 'racing')
         .sort((a, b) => a.totalTime - b.totalTime);
@@ -602,11 +624,24 @@ const Race = {
       }
     }
 
-    // Safety Car aléatoire
+    // Safety Car / VSC aléatoire
     const scRoll = Engine.rollSafetyCar(lap, s.totalLaps, []);
-    if (scRoll.active && !s.safetyCar.active) {
-      s.safetyCar = { active: true, remainingLaps: 3 + Math.floor(Math.random() * 2) }; // 3-4 tours
-      lapEvents.push({ lap, type: 'safety_car', message: '🟡 Safety Car déployée !' });
+    if (scRoll.active && !s.safetyCar.active && !s.virtualSafetyCar.active) {
+      if (Math.random() < 0.42) {
+        s.virtualSafetyCar = {
+          active: true,
+          remainingLaps: 2 + Math.floor(Math.random() * 2),
+          lapsDeployed: (s.virtualSafetyCar.lapsDeployed || 0) + 1,
+        };
+        lapEvents.push({ lap, type: 'vsc', message: '🟡 Virtual Safety Car — delta +40%, dépassements interdits' });
+      } else {
+        s.safetyCar = {
+          active: true,
+          remainingLaps: 3 + Math.floor(Math.random() * 2),
+          lapsDeployed: (s.safetyCar.lapsDeployed || 0) + 1,
+        };
+        lapEvents.push({ lap, type: 'safety_car', message: '🟡 Safety Car déployée !' });
+      }
     }
 
     // Classement
@@ -678,6 +713,40 @@ const Race = {
     car.forcePit = true;
     car.requestedCompound = compound;
     this.state.events.push({ lap: this.state.currentLap, type: 'team_order', message: `📻 ${car.driver.firstName} ${car.driver.name} appelé aux stands pour ${F1Data.tyres[compound]?.name || compound}` });
+    return true;
+  },
+
+  setTeamHold() {
+    if (!this.state) return false;
+    const pid = this.state.playerTeamId;
+    this.state.grid
+      .filter(c => c.driver.teamId === pid && c.status === 'racing')
+      .forEach(c => { c.orderMode = 'save'; });
+    this.state.events.push({
+      lap: this.state.currentLap,
+      type: 'team_order',
+      message: '📻 Consigne équipe : maintenir les positions — pas de prise de risque',
+    });
+    return true;
+  },
+
+  swapTeamPositions() {
+    if (!this.state) return false;
+    const pid = this.state.playerTeamId;
+    const team = this.state.grid
+      .filter(c => c.driver.teamId === pid && c.status === 'racing')
+      .sort((a, b) => a.position - b.position);
+    if (team.length < 2) return false;
+    const [a, b] = team;
+    const tmp = a.totalTime;
+    a.totalTime = b.totalTime;
+    b.totalTime = tmp;
+    this.updateStandings();
+    this.state.events.push({
+      lap: this.state.currentLap,
+      type: 'team_order',
+      message: `📻 Team orders : ${a.driver.firstName} ${a.driver.name} ↔ ${b.driver.firstName} ${b.driver.name}`,
+    });
     return true;
   },
 

@@ -1,4 +1,4 @@
-const CACHE = 'F1-manager-3.5 -v28';
+const CACHE = 'F1-manager-3.5 -v33';
 
 // Seulement les fichiers essentiels qui existent avec certitude
 const ASSETS = [
@@ -17,6 +17,10 @@ const ASSETS = [
   '/F1-manager-3.5/js/icons.js',
   '/F1-manager-3.5/preseason.html',
   '/F1-manager-3.5/team-intro.html',
+  '/F1-manager-3.5/fp-live.html',
+  '/F1-manager-3.5/sprint.html',
+  '/F1-manager-3.5/academy.html',
+  '/F1-manager-3.5/js/feeder.js',
 ];
 
 // Installation : on ignore les erreurs individuelles

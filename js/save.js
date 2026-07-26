@@ -65,6 +65,13 @@ const Save = {
     save.weekendPaddockEvent = null;
     save.raceStrategies = null;
     save.raceQualiGrid = null;
+    save.weekendSprintSQDone = false;
+    save.weekendSprintRaceDone = false;
+    save.sprintGrid = null;
+    save.sprintRaceResults = null;
+    save.parcFermeLocked = false;
+    save.fpLiveConfig = null;
+    save.raceMode = null;
   },
 
   migrateCareerPhase(save) {

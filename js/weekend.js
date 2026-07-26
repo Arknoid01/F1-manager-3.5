@@ -5,6 +5,13 @@
 
 const Weekend = {
 
+  // Circuits format sprint (6 par saison environ)
+  SPRINT_CIRCUITS: ['bahrain', 'monaco', 'silverstone', 'cota', 'brazil', 'qatar', 'spa', 'austria'],
+
+  isSprintWeekend(circuitId) {
+    return this.SPRINT_CIRCUITS.includes(circuitId);
+  },
+
   // ── CONSTANTES ────────────────────────────────────────────
   SETUP_OPTIONS: [
     { id:'balanced',   label:'Équilibré',      desc:'Setup polyvalent — bon partout',             aeroBonus:0,    tyreBonus:0,     setupBonus:0  },

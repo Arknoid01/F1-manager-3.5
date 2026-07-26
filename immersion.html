@@ -160,8 +160,8 @@ function renderAcademy(im){
     <span>✅ ${promoted} en F1</span>
   </div>`;
   const intro = `<div class="tile-sub" style="margin-bottom:12px">
-    Chaque junior progresse à chaque GP. À 3 paliers ou potentiel ≥ 88, il devient promouvable et une fiche complète est générée.
-    Lance-le en essais libres avant de le promouvoir en titulaire.
+    Chaque junior progresse à chaque GP. Pipeline F3 → F2 → Réserve → F1.
+    <a href="academy.html" style="color:var(--gold);font-weight:700">Ouvrir le hub Académie & Feeder →</a>
   </div>`;
   const cards = juniors.map(j=>renderJuniorCard(j)).join('');
   return panel('🌱 Académie Junior', intro+cards, extra);
@@ -211,8 +211,28 @@ if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStat
 function doRelease(juniorId, juniorName){
   if(!confirm(`Libérer ${juniorName} de l'académie ?\n\nIl deviendra agent libre et pourra être recruté par n'importe quelle équipe. Cette action est irréversible.`)) return;
   const im = save.immersion;
+  const j = im.juniorAcademy.find(x => x.id === juniorId);
+  if (j) {
+    if (!j.profile && j.promotable) j.profile = Immersion.generateJuniorProfile(j, save);
+    const stats = j.profile?.stats || {};
+    const ovr = Math.min(77, Math.round(j.profile?.ovr || 66));
+    const freeDriver = {
+      id: `FA_${j.id}_${save.season || 2025}`, name: j.name, firstName: j.firstName, flag: j.flag,
+      teamId: 'free_agent', number: 10 + Math.floor(Math.random() * 89), age: j.age || 18,
+      potential: j.potential || 78, trait: j.profile?.traits?.[0] || 'prodigy', retired: false,
+      generated: true, fromAcademy: true, academyReleased: true,
+      pace: Math.min(77, stats.pace || 66), consistency: Math.min(77, stats.consistency || 64),
+      wetSkill: Math.min(77, stats.wetSkill || 63), overtaking: Math.min(77, stats.overtaking || 63),
+      defending: Math.min(77, stats.defending || 62),
+      salary: Math.max(1, Math.min(3, Math.round(ovr * 0.035))), contractYears: 0, seasons: 0,
+    };
+    F1Data.drivers.push(freeDriver);
+    save.generatedDrivers = save.generatedDrivers || [];
+    save.generatedDrivers.push({ ...freeDriver });
+    save.contracts = save.contracts || {};
+    save.contracts[freeDriver.id] = { years: 0, salary: freeDriver.salary, status: 'agent libre', satisfaction: 50 };
+  }
   im.juniorAcademy = im.juniorAcademy.filter(j => j.id !== juniorId);
-  // Ajouter une news paddock
   Immersion.addNews(save, '🚪', 'Académie — Départ', `${juniorName} quitte votre centre de formation. Il est désormais agent libre sur le marché des transferts.`, 'junior');
   Save.save(save);
   save = Save.load();
