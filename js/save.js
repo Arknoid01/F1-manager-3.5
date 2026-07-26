@@ -43,7 +43,98 @@ const Save = {
         current: null,  // stats actuelles
         nextYear: null, // budget alloué N+1
       },
+
+      // Parcours carrière : intro → preseason → season
+      careerPhase: null,
+      _onboardingDone: false,
+      _introMeetingSeen: false,
+      arrivalBriefingPending: false,
     };
+  },
+
+  resetWeekendState(save) {
+    if (!save) return;
+    save.weekendFPDone = 0;
+    save.weekendQualiDone = false;
+    save.weekendWeather = null;
+    save.weekendCircuit = null;
+    save.weekendSetup = 'balanced';
+    save.weekendFPResults = [];
+    save.qualiGrid = null;
+    save.qualiStrategy = {};
+    save.weekendPaddockEvent = null;
+    save.raceStrategies = null;
+    save.raceQualiGrid = null;
+  },
+
+  migrateCareerPhase(save) {
+    if (!save || !save.playerTeamId) return;
+    if (save._onboardingDone === undefined) {
+      const started = (save.race || 0) > 0 || (save.raceResults || []).length > 0;
+      save._onboardingDone = started;
+    }
+    if (!save.careerPhase) {
+      if (!save._onboardingDone) save.careerPhase = 'intro';
+      else if ((save.race || 0) === 0 && !(save.raceResults || []).length) save.careerPhase = 'preseason';
+      else save.careerPhase = 'season';
+    }
+  },
+
+  createNewCareer(teamId) {
+    const team = typeof F1Data !== 'undefined' ? F1Data.teams.find(t => t.id === teamId) : null;
+    const s = { ...this.defaultSave(), playerTeamId: teamId };
+    s.season = 2025;
+    s.race = 0;
+    s.budget = team?.budget ?? 100;
+    s.careerPhase = 'intro';
+    s._onboardingDone = false;
+    s._introMeetingSeen = false;
+    s._introMeetingOnlyAtCreation = true;
+    s.socialEvents = [];
+    s.driverStandings = {};
+    s.teamStandings = {};
+    s.raceResults = [];
+    s.dataVersion = typeof F1Data !== 'undefined' ? (F1Data.DATA_VERSION || 1) : 1;
+    this.resetWeekendState(s);
+    s.arrivalBriefingPending = true;
+    const currentDataVersion = typeof F1Data !== 'undefined' ? (F1Data.DATA_VERSION || 1) : 1;
+    if ((s.dataVersion || 0) <= currentDataVersion) {
+      this.migrateBaseData(s, currentDataVersion);
+    }
+    this.persistDriverStates(s);
+    if (typeof Career !== 'undefined' && Career.ensureContractSystem) {
+      Career.ensureContractSystem(s);
+    }
+    this.save(s);
+    return s;
+  },
+
+  enterPreseason(save) {
+    if (!save) save = this.load();
+    if (!save) return null;
+    save.careerPhase = 'preseason';
+    save._onboardingDone = true;
+    save._introMeetingSeen = true;
+    save._introMeetingOnlyAtCreation = false;
+    save._indexSocialGeneratedKey = `${save.season || 2025}_${save.race || 0}`;
+    save.socialEvents = save.socialEvents || [];
+    this.resetWeekendState(save);
+    save.arrivalBriefingPending = true;
+    this.save(save);
+    return save;
+  },
+
+  launchSeasonFromPreseason(save) {
+    if (!save) save = this.load();
+    if (!save) return null;
+    save.careerPhase = 'season';
+    save.race = save.race ?? 0;
+    this.resetWeekendState(save);
+    save.arrivalBriefingPending = true;
+    const evKey = `paddock_${save.season}-${save.race}`;
+    delete save[evKey];
+    this.save(save);
+    return save;
   },
 
   // ── SAVE ──────────────────────────────────────────────────
@@ -72,6 +163,7 @@ const Save = {
       }
 
       this.migrateSponsorSeasonProgress(save);
+      this.migrateCareerPhase(save);
       this.applyDriverStates(save);
       this.applyTeamDevelopment(save);
       return save;

@@ -334,6 +334,7 @@ html,body{
 <script src="js/icons.js"></script>
 <script src="js/data.js"></script>
 <script src="js/save.js"></script>
+<script src="js/career.js"></script>
 <script src="js/topbar.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/social-notifications.js"></script>
@@ -412,20 +413,40 @@ if(!save||!save.playerTeamId){
 
   btn.addEventListener('click',function(){
     if(!sel) return;
-    var s=Save.load()||{};
-    s.playerTeamId=sel.id; s.season=s.season||2025; s.race=s.race||0; s.budget=s.budget||sel.budget;
-    s.socialEvents = s.socialEvents || [];
-    if (typeof Save.persistDriverStates === 'function') Save.persistDriverStates(s);
-    if (typeof Career !== 'undefined' && Career.ensureContractSystem) Career.ensureContractSystem(s);
-    Save.save(s); selEl.classList.add('gone'); initHQ();
+    if (typeof Save.createNewCareer === 'function') {
+      Save.createNewCareer(sel.id);
+    } else {
+      var s=Save.load()||{};
+      s.playerTeamId=sel.id; s.season=s.season||2025; s.race=s.race||0; s.budget=s.budget||sel.budget;
+      s.socialEvents = s.socialEvents || [];
+      if (typeof Save.persistDriverStates === 'function') Save.persistDriverStates(s);
+      if (typeof Career !== 'undefined' && Career.ensureContractSystem) Career.ensureContractSystem(s);
+      Save.save(s);
+    }
+    location.href = 'team-intro.html';
   });
 } else {
   document.getElementById('sel').classList.add('gone');
-  initHQ();
+  var bootSave = Save.load();
+  if (bootSave && bootSave.playerTeamId && !bootSave._onboardingDone) {
+    location.href = 'team-intro.html';
+  } else {
+    initHQ();
+  }
 }
 
 function initHQ(){
   var s=(typeof Save!=='undefined')?Save.load():{};
+  if (s && s.playerTeamId && s.careerPhase === 'preseason') {
+    PINS[0].href = 'preseason.html';
+    PINS[0].name = 'Pré-saison';
+    PINS[0].sub = 'Briefing · Préparation GP1';
+    PINS[0].cat = 'race';
+  }
+  if (s && s.playerTeamId && !s._onboardingDone) {
+    location.href = 'team-intro.html';
+    return;
+  }
   var pid=s.playerTeamId||'';
   var team=(typeof F1Data!=='undefined')?F1Data.teams.find(function(t){return t.id===pid;}):null;
   if(team){

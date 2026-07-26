@@ -90,6 +90,7 @@
 
 <script src="js/data.js"></script>
 <script src="js/save.js"></script>
+<script src="js/career.js"></script>
 <script src="js/topbar.js"></script>
 <script src="js/theme.js"></script>
 <script>
@@ -97,6 +98,8 @@ const save = Save.load();
 if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
 const teamId = save?.playerTeamId;
 if (!teamId) location.href = 'index.html';
+if (save._onboardingDone && save.careerPhase === 'preseason') location.href = 'preseason.html';
+if (save.careerPhase === 'season') location.href = 'index.html';
 
 const team    = F1Data.teams.find(t=>t.id===teamId);
 const drivers = F1Data.drivers.filter(d=>d.teamId===teamId&&!d.retired);
@@ -503,7 +506,7 @@ function render() {
 
     <!-- CTA -->
     <button class="btn-start" onclick="startSeason()">
-      🏁 Lancer la saison ${save.season||2025} →
+      🏁 Continuer vers la pré-saison →
     </button>
   `;
 
@@ -514,16 +517,16 @@ function render() {
 }
 
 function startSeason() {
-  // Marquer que l'onboarding a été vu
-  const s = Save.load();
-  s._onboardingDone = true;
-  s._introMeetingOnlyAtCreation = false;
-  s._introMeetingSeen = true;
-  // Empêche la génération du message pilote isolé après l'onboarding.
-  s.socialEvents = s.socialEvents || [];
-  s._indexSocialGeneratedKey = `${s.season || 2025}_${s.race || 0}`;
-  Save.save(s);
-  location.href = 'index.html';
+  if (typeof Save.enterPreseason === 'function') {
+    Save.enterPreseason(Save.load());
+  } else {
+    const s = Save.load();
+    s._onboardingDone = true;
+    s._introMeetingSeen = true;
+    s.careerPhase = 'preseason';
+    Save.save(s);
+  }
+  location.href = 'preseason.html';
 }
 
 // Corriger le rendu des stats pilotes (fix syntaxe template)

@@ -213,7 +213,7 @@ input[type=number],input[type=text]{background:var(--surface);color:var(--text);
 /* FLOW WEEK-END IMMERSIF */
 .flow-card{background:linear-gradient(135deg,#11111d,#090911);border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:8px;margin-bottom:10px;overflow:hidden}
 .flow-head{padding:11px 14px;border-bottom:1px solid var(--border);font-family:var(--fh);font-weight:900;font-size:15px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.flow-
+.flow-body{padding:12px 14px}
 .flow-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
 @media(max-width:700px){.flow-grid{grid-template-columns:1fr}}
 .flow-mini{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:6px;padding:9px}
@@ -304,6 +304,14 @@ function init() {
   }
   if (!save || !save.playerTeamId) {
     document.querySelector('.page').innerHTML = `<div style="padding:40px;text-align:center;color:var(--muted);font-family:var(--fh)"><div style="font-size:22px;margin-bottom:12px">Aucune carrière trouvée</div><a href="index.html" class="btn btn-red">Créer une carrière</a></div>`;
+    return;
+  }
+  if (save.careerPhase === 'preseason') {
+    location.href = 'preseason.html';
+    return;
+  }
+  if (!save._onboardingDone) {
+    location.href = 'team-intro.html';
     return;
   }
 
@@ -477,8 +485,15 @@ function renderContent() {
 
   // Flow immersif : uniquement des cartes de transition qui lisent les vraies données sauvegardées.
   // Elles ne modifient pas la simulation et ne décident jamais des résultats.
-  if (phase === 'fp' && (save.weekendFPDone || 0) === 0) {
+  const showArrival = phase === 'fp' && (
+    (save.weekendFPDone || 0) === 0 || save.arrivalBriefingPending
+  );
+  if (showArrival) {
     content.appendChild(buildArrivalBriefing());
+    if (save.arrivalBriefingPending) {
+      save.arrivalBriefingPending = false;
+      Save.save(save);
+    }
     const pevCard = buildPaddockEventCard();
     if (pevCard) content.appendChild(pevCard);
   }

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Pré-saison — F1 Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/immersive-theme.css?v=20260710"/>
+<script src="js/icons.js"></script>
+<style>
+.page{max-width:720px;margin:0 auto;padding:12px 14px 80px}
+.ps-hero{margin-bottom:16px}
+.ps-steps{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.ps-step{flex:1;min-width:100px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm,8px);padding:10px;text-align:center}
+.ps-step.done{border-color:var(--live);background:var(--live-dim,rgba(0,217,126,.1))}
+.ps-step.active{border-color:var(--accent);box-shadow:0 0 12px rgba(232,0,61,.25)}
+.ps-step-k{font-family:var(--fh);font-size:9px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase}
+.ps-step-v{font-family:var(--fh);font-weight:900;font-size:14px;margin-top:4px}
+.stat-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-family:var(--fh);font-size:13px}
+.stat-row:last-child{border-bottom:none}
+.rival-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)}
+.rival-bar{width:4px;height:22px;border-radius:2px}
+.btn-launch{display:block;width:100%;margin-top:20px;padding:16px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-family:var(--fh);font-weight:900;font-size:17px;letter-spacing:2px;text-transform:uppercase;cursor:pointer}
+.briefing-body{font-family:var(--fb);font-size:13px;line-height:1.65;color:#ccc;padding:12px 14px}
+.briefing-body strong{color:#fff}
+.driver-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-family:var(--fh);font-size:12px;margin:4px 4px 0 0}
+</style>
+</head>
+<body>
+<div class="topbar topbar--glass">
+  <div class="logo"><img src="img/f1.png" style="height:22px;vertical-align:middle;margin-right:4px" alt="F1"><span style="color:#fff !important">Manager</span></div>
+  <a href="index.html" class="back-home">← QG</a>
+  <div class="top-pills tb-right">
+    <div class="pill pill-muted" id="seasonBadge">—</div>
+    <div class="pill pill-gold" id="budgetBadge">—</div>
+  </div>
+</div>
+
+<div class="page" id="app">
+  <div style="padding:30px;text-align:center;color:var(--muted);font-family:var(--fh)">Chargement…</div>
+</div>
+
+<script src="js/data.js"></script>
+<script src="js/save.js"></script>
+<script src="js/career.js"></script>
+<script src="js/topbar.js"></script>
+<script src="js/theme.js"></script>
+<script>
+let save = Save.load();
+if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStats(save);
+
+if (!save?.playerTeamId) location.href = 'index.html';
+if (save._onboardingDone === false) location.href = 'team-intro.html';
+if (save.careerPhase === 'season') location.href = 'weekend.html';
+
+const team = F1Data.teams.find(t => t.id === save.playerTeamId);
+const circuit = F1Data.circuits[save.race || 0];
+const drivers = F1Data.drivers.filter(d => d.teamId === save.playerTeamId && !d.retired);
+const rivals = [...F1Data.teams]
+  .filter(t => t.id !== save.playerTeamId)
+  .sort((a, b) => (b.performance || 0) - (a.performance || 0))
+  .slice(0, 5);
+
+function expectedGoal() {
+  const p = team?.performance || 70;
+  if (p >= 90) return 'jouer la victoire dès le premier week-end';
+  if (p >= 78) return 'viser le podium et un gros score points';
+  if (p >= 65) return 'se battre pour les points';
+  return 'surprendre avec une stratégie propre';
+}
+
+function render() {
+  document.getElementById('seasonBadge').textContent = `Saison ${save.season || 2025}`;
+  document.getElementById('budgetBadge').textContent = `${Math.round(save.budget || 0)}M€`;
+
+  const color = team?.color || '#e8003d';
+  document.documentElement.style.setProperty('--accent', color);
+
+  document.getElementById('app').innerHTML = `
+    <div class="wk-hero ps-hero" style="--hero-c1:#12000e;--hero-c2:#07070d;border-left:3px solid ${color}">
+      <div class="wk-hero-bg"></div>
+      <div class="wk-hero-body">
+        <div>
+          <div class="wk-hero-title" style="color:${color}">${team?.name || 'Écurie'}</div>
+          <div class="wk-hero-sub">Pré-saison ${save.season || 2025} · Préparation GP1</div>
+          <div class="wk-hero-stats">
+            <div class="wk-hero-stat">Budget <span>${team?.budget || save.budget}M€</span></div>
+            <div class="wk-hero-stat">Perf. <span>${team?.performance || '—'}/100</span></div>
+            <div class="wk-hero-stat">Pilotes <span>${drivers.length}</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ps-steps">
+      <div class="ps-step done"><div class="ps-step-k">Étape 1</div><div class="ps-step-v">Écurie</div></div>
+      <div class="ps-step active"><div class="ps-step-k">Étape 2</div><div class="ps-step-v">Pré-saison</div></div>
+      <div class="ps-step"><div class="ps-step-k">Étape 3</div><div class="ps-step-v">GP1</div></div>
+    </div>
+
+    <div class="ds-panel" style="margin-bottom:12px">
+      <div class="ds-panel-head"><span class="ds-dot"></span> Briefing d'arrivée — ${circuit?.name || 'GP1'}</div>
+      <div class="briefing-body">
+        <p>Bienvenue dans le rôle de <strong>Team Principal</strong> chez <strong>${team?.name}</strong>. Avant d'ouvrir le week-end du <strong>${circuit?.fullName || circuit?.name}</strong>, voici le contexte essentiel.</p>
+        <p>Objectif réaliste pour ce début de saison : <strong style="color:var(--podium-gold,#f5c842)">${expectedGoal()}</strong>.</p>
+        <p>Le circuit : <strong>${circuit?.laps || '—'} tours</strong>, ${circuit?.lapDistance || '—'} km/tour, profil <strong>${circuit?.circuitType || 'équilibré'}</strong>. Pit loss estimé : <strong>${circuit?.pitLoss || '—'}s</strong>.</p>
+        <p>Tes pilotes :</p>
+        <div>${drivers.map(d => `<span class="driver-chip"><span style="color:${color}">#${d.number}</span> ${d.firstName} ${d.name}</span>`).join('')}</div>
+      </div>
+    </div>
+
+    <div class="ds-panel" style="margin-bottom:12px">
+      <div class="ds-panel-head"><span class="ds-dot"></span> Fiche technique</div>
+      <div style="padding:12px 14px">
+        ${[
+          ['Aéro', team?.aero],
+          ['Châssis', team?.chassis],
+          ['Moteur', team?.engine],
+          ['Fiabilité', team?.reliability],
+        ].map(([l, v]) => `<div class="stat-row"><span style="color:var(--muted)">${l}</span><strong>${v ?? '—'}</strong></div>`).join('')}
+      </div>
+    </div>
+
+    <div class="ds-panel" style="margin-bottom:12px">
+      <div class="ds-panel-head"><span class="ds-dot"></span> Rivaux à surveiller</div>
+      <div style="padding:8px 14px">
+        ${rivals.map((t, i) => `
+          <div class="rival-row">
+            <span style="font-family:var(--fh);font-weight:900;width:18px;color:var(--muted)">${i + 1}</span>
+            <div class="rival-bar" style="background:${t.color}"></div>
+            <span style="flex:1;font-family:var(--fh);font-weight:700">${t.name}</span>
+            <span style="font-family:var(--fh);color:var(--muted)">${t.performance}/100</span>
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="ds-panel">
+      <div class="ds-panel-head"><span class="ds-dot"></span> Programme pré-saison</div>
+      <div class="briefing-body">
+        <p>• <strong>Essais libres</strong> : 3 séances pour tester les pneus et affiner le setup.<br>
+        • <strong>Qualifications</strong> : grille de départ pour la course.<br>
+        • <strong>Course</strong> : stratégie, pit stops et ordres pilotes en direct.</p>
+        <p style="color:var(--muted);font-size:12px;margin-top:10px">Tu peux encore visiter le QG (R&D, staff, sponsors) avant de lancer le premier week-end.</p>
+      </div>
+    </div>
+
+    <button class="btn-launch" onclick="launchGP1()">🏁 Lancer le week-end — GP1</button>
+    <a href="index.html" style="display:block;text-align:center;margin-top:12px;font-family:var(--fh);font-size:12px;color:var(--muted)">Retour au QG d'abord</a>
+  `;
+}
+
+function launchGP1() {
+  Save.launchSeasonFromPreseason(save);
+  location.href = 'weekend.html';
+}
+
+render();
+</script>
+</body>
+</html>
