@@ -129,9 +129,38 @@
 <script>
 let save = Save.load();
 if (!save?.playerTeamId) location.href = 'index.html';
-Immersion.ensure(save);
-Feeder.ensure(save);
-if (typeof Save.restoreRivalStats === 'function') Save.restoreRivalStats(save);
+
+function showBootstrapError(msg) {
+  const page = document.querySelector('.page');
+  if (page) {
+    page.insertAdjacentHTML('afterbegin',
+      `<div class="round-box" style="border-left:3px solid var(--accent);margin-bottom:10px">
+        <strong style="color:var(--accent)">Chargement académie</strong><br>
+        <span style="font-size:12px;color:#ccc">${msg}</span>
+      </div>`);
+  }
+}
+
+function bootstrapAcademyPage() {
+  if (typeof Feeder === 'undefined') {
+    showBootstrapError('Module js/feeder.js introuvable. Rechargez la page (Ctrl+F5) pour vider le cache PWA.');
+    return false;
+  }
+  try {
+    Feeder.bootstrapAcademy(save);
+    save = Save.load();
+    if (typeof Save.restoreRivalStats === 'function') Save.restoreRivalStats(save);
+    return true;
+  } catch (err) {
+    console.error('[Academy]', err);
+    showBootstrapError('Erreur initialisation : ' + (err.message || err));
+    return false;
+  }
+}
+
+if (!bootstrapAcademyPage()) {
+  document.getElementById('pipeline').innerHTML = '<div class="pipe-step"><b>—</b><span>Init…</span></div>';
+}
 
 const team = F1Data.teams.find(t => t.id === save.playerTeamId);
 let negCtx = null;
@@ -220,8 +249,9 @@ function renderOverview() {
       <strong style="color:var(--gold)">Équipe F2 satellite</strong> — simulée à chaque GP F1, sans micro-gestion obligatoire.<br>
       <span style="font-size:11px;color:var(--muted)">Victoire F2 : +0,45M€ acad. + 0,2M€ F1 · Podium : +0,22M€ acad. · Top 5 équipe fin de saison : prime bonus.</span>
     </div>
-    ${lr3 ? `<div class="round-box">🏁 <strong>F3 — ${esc(lr3.name)}</strong> (R${lr3.round}) · Podium : ${lr3.top3.map(t=>esc(t.name)).join(', ')}</div>` : ''}
-    ${lr2 ? `<div class="round-box">🏎️ <strong>F2 — ${esc(lr2.name)}</strong> (R${lr2.round}) · Podium : ${lr2.top3.map(t=>esc(t.name)).join(', ')}</div>` : ''}
+    ${lr3 ? `<div class="round-box">🏁 <strong>F3 — ${esc(lr3.name)}</strong> (R${lr3.round}) · Podium : ${(lr3.top3 || []).map(t=>esc(t.name)).join(', ') || '—'}</div>` : ''}
+    ${lr2 ? `<div class="round-box">🏎️ <strong>F2 — ${esc(lr2.name)}</strong> (R${lr2.round}) · Podium : ${(lr2.top3 || []).map(t=>esc(t.name)).join(', ') || '—'}</div>` : ''}
+    ${!(lr3 || lr2) && (save.race || 0) === 0 ? `<div class="round-box" style="color:var(--muted)">Aucun round F3/F2 simulé pour l'instant — les championnats avancent <strong>automatiquement après chaque GP F1</strong>. Les grilles ci-dessous sont déjà prêtes.</div>` : ''}
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
       <div class="jr-card"><div class="jr-name" style="margin-bottom:8px">Top 5 F3</div>${miniStandings(f3s)}</div>
       <div class="jr-card"><div class="jr-name" style="margin-bottom:8px">Top 5 F2</div>${miniStandings(f2s)}</div>
@@ -387,14 +417,22 @@ function renderHistory() {
 }
 
 function renderTab(id) {
-  renderPipeline();
-  if (id === 'overview') renderOverview();
-  else if (id === 'academy') renderAcademy();
-  else if (id === 'f3') document.getElementById('tab-f3').innerHTML = seriesTable('f3');
-  else if (id === 'f2') document.getElementById('tab-f2').innerHTML = seriesTable('f2');
-  else if (id === 'reserve') renderReserve();
-  else if (id === 'scout') renderScout();
-  else if (id === 'history') renderHistory();
+  try {
+    renderPipeline();
+    if (id === 'overview') renderOverview();
+    else if (id === 'academy') renderAcademy();
+    else if (id === 'f3') document.getElementById('tab-f3').innerHTML = seriesTable('f3');
+    else if (id === 'f2') document.getElementById('tab-f2').innerHTML = seriesTable('f2');
+    else if (id === 'reserve') renderReserve();
+    else if (id === 'scout') renderScout();
+    else if (id === 'history') renderHistory();
+  } catch (err) {
+    console.error('[Academy render]', err);
+    const pane = document.getElementById('tab-' + id);
+    if (pane) {
+      pane.innerHTML = `<div class="round-box" style="border-left:3px solid var(--accent)">Erreur d'affichage : ${esc(err.message || err)}</div>`;
+    }
+  }
 }
 
 function doWatch(id, series) {

@@ -101,6 +101,22 @@ const Feeder = {
     return save;
   },
 
+  /** Initialise académie + grilles F3/F2 pour une save existante ou nouvelle. */
+  bootstrapAcademy(save) {
+    if (!save) return save;
+    if (typeof Immersion !== 'undefined') {
+      Immersion.ensure(save);
+      if (!save.immersion?.juniorAcademy?.length) {
+        save.immersion.juniorAcademy = Immersion.defaultJuniors(save);
+      }
+    }
+    this.ensure(save);
+    if (!save.feeder?.f3?.drivers?.length) this.initSeries(save, 'f3');
+    if (!save.feeder?.f2?.drivers?.length) this.initSeries(save, 'f2');
+    if (typeof Save !== 'undefined') Save.save(save);
+    return save;
+  },
+
   emptySeries(series, save) {
     const rounds = series === 'f3' ? this.F3_ROUNDS : this.F2_ROUNDS;
     return {

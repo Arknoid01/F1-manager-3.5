@@ -112,7 +112,12 @@ const Save = {
     if (typeof Career !== 'undefined' && Career.ensureContractSystem) {
       Career.ensureContractSystem(s);
     }
-    this.save(s);
+    if (typeof Feeder !== 'undefined' && Feeder.bootstrapAcademy) {
+      Feeder.bootstrapAcademy(s);
+    } else {
+      if (typeof Immersion !== 'undefined' && Immersion.ensure) Immersion.ensure(s);
+      this.save(s);
+    }
     return s;
   },
 

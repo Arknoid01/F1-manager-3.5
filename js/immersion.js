@@ -23,7 +23,9 @@ const Immersion = {
     im.driverMorale = im.driverMorale || {};
     im.staffMorale = im.staffMorale || { value: 60, note:'Ambiance stable dans le garage.' };
     im.sponsorMood = im.sponsorMood || { value: 60, note:'Les partenaires attendent des résultats réguliers.' };
-    im.juniorAcademy = Array.isArray(im.juniorAcademy) ? im.juniorAcademy : this.defaultJuniors(save);
+    if (!Array.isArray(im.juniorAcademy) || im.juniorAcademy.length === 0) {
+      im.juniorAcademy = this.defaultJuniors(save);
+    }
     im.seasonStory = im.seasonStory || [];
     return save;
   },
@@ -473,9 +475,8 @@ const Immersion = {
       cost:1+Math.floor(Math.random()*4), progress:5+Math.floor(Math.random()*26),
       note:['À évaluer en F3','Bon retour simulateur','Potentiel brut intéressant','Travailleur discret','Très bon feeling sous pluie'][Math.floor(Math.random()*5)]
     };
-    if (typeof Feeder !== 'undefined') {
-      Feeder.ensure(save);
-      Feeder.setDevPlan(save, id, 'pace');
+    if (typeof Feeder !== 'undefined' && Feeder.setDevPlan) {
+      try { Feeder.setDevPlan(save, id, 'pace'); } catch (_) { /* feeder optional at gen time */ }
     }
     return junior;
   },
