@@ -702,6 +702,67 @@ const Feeder = {
       .map((t, i) => ({ ...t, position: i + 1 }));
   },
 
+  getPlayerTeamStanding(save, series) {
+    this.ensure(save);
+    const team = this.getTeamStandings(save, series).find(t => t.teamId === 'player_academy');
+    return {
+      position: team?.position ?? null,
+      points: team?.points ?? 0,
+      teamName: team?.teamName || this.playerAcademyTeamName(save),
+    };
+  },
+
+  notifyF2SatelliteEvents(save, before, roundResult) {
+    if (!roundResult || typeof Immersion === 'undefined') return;
+    const after = this.getPlayerTeamStanding(save, 'f2');
+    const teamName = after.teamName || this.playerAcademyTeamName(save);
+
+    const win = (roundResult.playerResults || []).find(r => r.position === 1);
+    if (win) {
+      Immersion.addNews(save, '🏆', `${teamName} — Victoire F2`,
+        `${win.name} s'impose à ${roundResult.name} (R${roundResult.round}). L'équipe satellite confirme son niveau.`,
+        'feeder');
+    }
+
+    if (before.position != null && after.position != null && after.position < before.position) {
+      const delta = before.position - after.position;
+      Immersion.addNews(save, '📈', `${teamName} — Progression F2`,
+        `L'écurie satellite monte au P${after.position} du classement constructeurs (+${delta} place${delta > 1 ? 's' : ''}, ${after.points} pts).`,
+        'feeder');
+    } else if (after.position === 1 && before.position !== 1) {
+      Immersion.addNews(save, '👑', `${teamName} — Leader F2`,
+        `Votre écurie satellite prend la tête du classement constructeurs F2 (${after.points} pts).`,
+        'feeder');
+    }
+  },
+
+  buildGpFeederReport(save, { f3Round, f2Round, f3Before, f2Before }) {
+    const mk = (series, round, before) => {
+      if (!round) return null;
+      const after = this.getPlayerTeamStanding(save, series);
+      return {
+        round: round.round,
+        name: round.name,
+        top3: (round.top3 || []).map(t => t.name),
+        playerResults: round.playerResults || [],
+        teamPos: after.position,
+        teamPts: after.points,
+        teamPosDelta: (before.position != null && after.position != null) ? before.position - after.position : 0,
+        bonus: round.bonus ? {
+          academy: round.bonus.academy,
+          f1: round.bonus.f1,
+          junior: round.bonus.junior,
+          highlights: round.bonus.highlights || [],
+        } : null,
+      };
+    };
+    return {
+      teamName: this.playerAcademyTeamName(save),
+      f3: mk('f3', f3Round, f3Before),
+      f2: mk('f2', f2Round, f2Before),
+    };
+  },
+
   roundMoney(n) {
     return Math.round((n || 0) * 10) / 10;
   },
@@ -908,31 +969,52 @@ const Feeder = {
     s.lastRound = roundResult;
     s.round = roundNum;
 
-    const playerWin = top10.find(d => d.ownedBy === save.playerTeamId);
-    if (playerWin && typeof Immersion !== 'undefined') {
-      Immersion.addNews(save, series === 'f3' ? '🏁' : '🏎️',
-        `${series.toUpperCase()} R${roundNum} — ${roundResult.name}`,
-        `${playerWin.firstName} ${playerWin.name} termine P${top10.indexOf(playerWin) + 1} pour ${playerWin.teamName}.`,
+    const playerResults = top10
+      .map((d, i) => ({ ...d, position: i + 1, pts: this.POINTS[i] || 0 }))
+      .filter(d => d.ownedBy === save.playerTeamId)
+      .map(d => ({
+        id: d.id,
+        name: `${d.firstName} ${d.name}`,
+        position: d.position,
+        points: d.pts,
+      }));
+
+    const playerWin = playerResults[0]?.position === 1 ? top10[0] : null;
+    if (playerWin && typeof Immersion !== 'undefined' && series === 'f3') {
+      Immersion.addNews(save, '🏁',
+        `F3 R${roundNum} — ${roundResult.name}`,
+        `${playerWin.firstName} ${playerWin.name} termine P1 pour ${playerWin.teamName}.`,
+        'feeder');
+    } else if (playerResults.length && typeof Immersion !== 'undefined' && series === 'f3') {
+      const best = playerResults.sort((a, b) => a.position - b.position)[0];
+      Immersion.addNews(save, '🏁',
+        `F3 R${roundNum} — ${roundResult.name}`,
+        `${best.name} termine P${best.position} pour ${this.playerAcademyTeamName(save)}.`,
         'feeder');
     }
 
-    this.applyPerformanceBonuses(save, series, roundNum, roundResult.name, top10);
+    const bonus = this.applyPerformanceBonuses(save, series, roundNum, roundResult.name, top10);
 
-    return roundResult;
+    return { ...roundResult, playerResults, bonus };
   },
 
-  afterRace(save) {
-    if (!save) return save;
+  afterRace(save, gp) {
+    if (!save) return null;
     this.ensure(save);
-    this.simulateRound(save, 'f3');
-    this.simulateRound(save, 'f2');
+    const f3Before = this.getPlayerTeamStanding(save, 'f3');
+    const f2Before = this.getPlayerTeamStanding(save, 'f2');
+    const f3Round = this.simulateRound(save, 'f3');
+    const f2Round = this.simulateRound(save, 'f2');
+    this.notifyF2SatelliteEvents(save, f2Before, f2Round);
     this.checkAutoPromotions(save);
     this.applyDevPlans(save);
     this.checkRivalInterest(save);
     this.processLoans(save);
     this.processIncomingLoans(save);
-    Save.save(save);
-    return save;
+    const report = this.buildGpFeederReport(save, { f3Round, f2Round, f3Before, f2Before });
+    if (gp) gp.feeder = report;
+    if (typeof Save !== 'undefined') Save.save(save);
+    return report;
   },
 
   checkAutoPromotions(save) {

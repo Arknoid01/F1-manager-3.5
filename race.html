@@ -544,6 +544,7 @@
     <div class="res-title">🏁 Résultats</div>
     <div class="res-sub" id="resSub"></div>
     <div id="resBody"></div>
+    <div id="resFeeder" style="margin-top:12px"></div>
     <div style="margin-top:14px;display:flex;gap:8px">
       <button class="btn btn-red" onclick="closeRes()">Fermer</button>
       <button class="btn btn-sec" onclick="window.location.href='podium.html'">Voir le podium</button>
@@ -559,6 +560,7 @@
 <script src="js/save.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/immersion.js"></script>
+<script src="js/feeder.js"></script>
 <script src="js/sponsors.js"></script>
 <script src="js/career.js"></script>
 <script src="js/profiles.js"></script>
@@ -2264,6 +2266,27 @@ function saveLastGpSummary(results, careerReward) {
   }
 }
 
+function renderFeederSummary() {
+  const el = document.getElementById('resFeeder');
+  if (!el) return;
+  const save = Save.load();
+  const feeder = save?.lastGpSummary?.feeder;
+  if (!feeder) { el.innerHTML = ''; return; }
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+  const row = (label, block) => {
+    if (!block) return '';
+    const pr = (block.playerResults || []).map(r => `${esc(r.name)} P${r.position}`).join(' · ') || '—';
+    const climb = block.teamPosDelta > 0 ? ` · +${block.teamPosDelta} place${block.teamPosDelta > 1 ? 's' : ''}` : '';
+    const bonus = block.bonus && (block.bonus.academy || block.bonus.f1)
+      ? ` · Bonus +${block.bonus.academy || 0}M€ acad.${block.bonus.f1 ? ` +${block.bonus.f1}M€ F1` : ''}` : '';
+    return `<div style="font-size:11px;padding:6px 0;border-top:1px solid rgba(255,255,255,.06)"><span style="color:var(--gold);font-weight:700">${label}</span> R${block.round} ${esc(block.name)} · P${block.teamPos || '—'} (${block.teamPts} pts)${climb} · ${pr}${bonus}</div>`;
+  };
+  el.innerHTML = `<div style="background:rgba(245,200,66,.06);border:1px solid rgba(245,200,66,.2);border-radius:10px;padding:10px 12px">
+    <div style="font-family:var(--fh);font-size:10px;letter-spacing:1px;color:var(--gold);margin-bottom:4px">🏎️ FEEDER — ${esc(feeder.teamName)}</div>
+    ${row('F3', feeder.f3)}${row('F2', feeder.f2)}
+  </div>`;
+}
+
 function showResults() {
   try { CR.stopAnim(); } catch(e) { console.warn(e); }
   let results = [];
@@ -2300,6 +2323,7 @@ function showResults() {
   } catch(e) { console.warn('[Race] triggerPostRace:', e); }
   careerReward = careerReward || Race.state?._careerReward;
   try { saveLastGpSummary(results, careerReward); } catch(e) { console.warn('[Race] sauvegarde résumé GP:', e); }
+  try { renderFeederSummary(); } catch(e) { console.warn('[Race] feeder summary:', e); }
   document.getElementById('resSub').textContent = (Race.state.isSprint ? 'Course sprint — ' : 'Grand Prix de ')
     + Race.state.circuit.name
     + (careerReward ? ` · Gains équipe : +${careerReward.reward}M € · Frais GP : -${careerReward.operatingCost || 0}M € · +${careerReward.tokens} token${careerReward.tokens > 1 ? 's' : ''}` : '')

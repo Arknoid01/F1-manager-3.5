@@ -75,7 +75,10 @@ const Immersion = {
     this.generatePaddockNews(save, gp, results, player, teamPts, dnf, sc, wet);
     this.generateInterview(save, gp, results, player, teamPts, dnf, sc, wet);
     this.progressJuniors(save);
-    if (typeof Feeder !== 'undefined' && Feeder.afterRace) Feeder.afterRace(save);
+    if (typeof Feeder !== 'undefined' && Feeder.afterRace) {
+      const feederReport = Feeder.afterRace(save, gp);
+      if (feederReport && gp && !gp.feeder) gp.feeder = feederReport;
+    }
     return save;
   },
 

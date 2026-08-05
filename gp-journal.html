@@ -150,6 +150,21 @@ function render(){
   lines.push(e('Podium', `${podium||'Podium non disponible'}. Victoire de ${winner?.driverName||'—'} pour ${winner?.teamName||'—'}.`));
   lines.push(e('Team Principal', tpQuote(gp, best, gp.teamPoints)));
   lines.push(e('Bilan management', `Gains : +${gp.reward||0}M€ · Frais GP : -${gp.operatingCost||0}M€ · Développement : +${gp.tokens||0} token(s).`));
+  if (gp.feeder) {
+    const fd = gp.feeder;
+    const fmtBlock = (label, block) => {
+      if (!block) return '';
+      const pr = (block.playerResults || []).map(r => `${r.name} P${r.position}`).join(', ') || 'aucun pilote';
+      const climb = block.teamPosDelta > 0 ? ` (+${block.teamPosDelta} place${block.teamPosDelta > 1 ? 's' : ''} au classement écurie)` : '';
+      const bonus = block.bonus && (block.bonus.academy || block.bonus.f1)
+        ? ` Bonus : +${block.bonus.academy || 0}M€ acad.${block.bonus.f1 ? ` · +${block.bonus.f1}M€ F1` : ''}.` : '';
+      return `${label} R${block.round} ${block.name} — écurie P${block.teamPos || '—'} (${block.teamPts} pts)${climb}. Vos pilotes : ${pr}.${bonus}`;
+    };
+    const parts = [fmtBlock('F3', fd.f3), fmtBlock('F2', fd.f2)].filter(Boolean);
+    if (parts.length) {
+      lines.push(e(`Feeder — ${fd.teamName || 'Academy'}`, parts.join(' ')));
+    }
+  }
 
   const rawEvents = (gp.events||[]).filter(x=>x.message).slice(-8).map(x=>e(`Tour ${x.lap||'—'}`, x.message)).join('');
   document.getElementById('content').innerHTML = `

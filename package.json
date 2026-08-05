@@ -1,0 +1,7 @@
+{
+  "name": "f1-manager",
+  "private": true,
+  "scripts": {
+    "test": "node tests/feeder.test.js"
+  }
+}

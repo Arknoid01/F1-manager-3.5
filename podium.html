@@ -142,6 +142,26 @@ function getTpInterview(teamPoints) {
   return pick(INTERVIEWS.tp_bad);
 }
 
+function renderFeederCard(feeder) {
+  if (!feeder) return '';
+  const row = (label, block, accent) => {
+    if (!block) return '';
+    const pr = (block.playerResults || []).map(r => `<span style="color:var(--gold)">${esc(r.name)} P${r.position}</span>`).join(' · ') || '<span style="color:var(--muted)">—</span>';
+    const climb = block.teamPosDelta > 0 ? `<span style="color:var(--green)">+${block.teamPosDelta} place${block.teamPosDelta > 1 ? 's' : ''}</span> · ` : '';
+    const bonus = block.bonus && (block.bonus.academy || block.bonus.f1)
+      ? `<div style="font-size:11px;color:var(--gold);margin-top:4px">Bonus : ${(block.bonus.highlights || []).map(esc).join(', ') || '—'}${block.bonus.academy ? ` · +${block.bonus.academy}M€ acad.` : ''}${block.bonus.f1 ? ` · +${block.bonus.f1}M€ F1` : ''}</div>` : '';
+    return `<div style="padding:10px 0;border-bottom:1px solid var(--line)">
+      <div style="font-family:var(--fh);font-size:11px;letter-spacing:1px;color:${accent};margin-bottom:4px">${label} · R${block.round} ${esc(block.name)}</div>
+      <div style="font-size:12px">${climb}Écurie <strong>P${block.teamPos || '—'}</strong> (${block.teamPts} pts) · ${pr}</div>${bonus}
+    </div>`;
+  };
+  return `<div class="card"><div class="kicker">Programme feeder — ${esc(feeder.teamName)}</div>
+    ${row('F3', feeder.f3, 'var(--info)')}
+    ${row('F2', feeder.f2, 'var(--gold)')}
+    <div style="font-size:11px;color:var(--muted);margin-top:8px">Championnats simulés automatiquement après ce GP.</div>
+  </div>`;
+}
+
 function render(){
  const {save,gp}=getSummary();
  if(!gp){ document.getElementById('content').innerHTML='<div class="card empty">Aucun Grand Prix terminé trouvé. Lance une course pour générer le podium.</div><div class="btns"><a class="btn sec" href="index.html">Retour HQ</a></div>'; return; }
@@ -190,6 +210,7 @@ function render(){
   <div class="card"><div class="kicker">Votre équipe</div><div class="teamres">${playerRows}</div><div class="grid" style="margin-top:10px"><div class="stat"><span>Points GP</span><b>${gp.teamPoints||0}</b></div><div class="stat"><span>Gains</span><b>+${gp.reward||0}M€</b></div><div class="stat"><span>Tokens</span><b>+${gp.tokens||0}</b></div></div></div>
   ${interviewCards||rivalCard ? `<div class="card"><div class="kicker">Interviews zone mixte</div>${rivalCard}${interviewCards}</div>` : ''}
   <div class="card"><div class="kicker">Team Principal</div>${tpCard}</div>
+  ${renderFeederCard(gp.feeder)}
   <div class="btns"><a class="btn" href="gp-journal.html">Voir le journal du GP</a></div>`;
 }
 render();
