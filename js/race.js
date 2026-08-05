@@ -428,6 +428,10 @@ const Race = {
           // Jamais en dessous du minimum réaliste
           pitTime = Math.max(minPitTime, pitTime);
 
+          if (sv?.immersion?.moodEffects?.staffStrategyRisk && Math.random() < 0.1) {
+            pitTime += 1.1;
+          }
+
           // ── Arrêt raté ──────────────────────────────────────
           const pitLevel    = pitDev?.level || 50;
           const staffBonus  = sb?.pitstop   || 0;

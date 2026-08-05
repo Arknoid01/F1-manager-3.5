@@ -118,6 +118,10 @@ const Save = {
       if (typeof Immersion !== 'undefined' && Immersion.ensure) Immersion.ensure(s);
       this.save(s);
     }
+    if (typeof Immersion !== 'undefined' && Immersion.initSeasonRivals) {
+      Immersion.initSeasonRivals(s);
+      this.save(s);
+    }
     return s;
   },
 
@@ -388,6 +392,13 @@ const Save = {
     if (typeof CareerEvents !== 'undefined') { CareerEvents.triggerPostRace(save, { results }); }
     const playerTeamId = save.playerTeamId;
 
+    const constructorPosBefore = (() => {
+      const sorted = [...F1Data.teams].sort((a, b) =>
+        (Number(save.teamStandings?.[b.id]) || 0) - (Number(save.teamStandings?.[a.id]) || 0));
+      return sorted.findIndex(t => t.id === playerTeamId) + 1;
+    })();
+    save._constructorPosBeforeGp = constructorPosBefore;
+
     save.driverStandings = save.driverStandings || {};
     save.teamStandings   = save.teamStandings || {};
     save.raceResults     = save.raceResults || [];
@@ -474,7 +485,11 @@ const Save = {
     } catch(e) { console.warn('Progression pilotes:', e); }
 
     // Récompense course de base
-    const reward = 2 + Math.round(teamPoints * 0.3) + (bestPosition <= 3 ? 3 : bestPosition <= 10 ? 1 : 0);
+    let reward = 2 + Math.round(teamPoints * 0.3) + (bestPosition <= 3 ? 3 : bestPosition <= 10 ? 1 : 0);
+    if (typeof Immersion !== 'undefined' && Immersion.getRaceRewardMultiplier) {
+      const moodMult = Immersion.getRaceRewardMultiplier(save);
+      if (moodMult < 1) reward = Math.round(reward * moodMult * 10) / 10;
+    }
 
     // Tokens performance-based + 0.5 garanti (demi-token = 1 token tous les 2 GP)
     // Nerf v2 : gains réduits pour allonger la progression R&D
@@ -896,7 +911,7 @@ const Save = {
           choices: [
             { text: pick(RESP.empathy_pos), effect: {moral:+10, confiance:+8, loyalty:+5}, choiceType:'positive' },
             { text: pick(RESP.data_neu), effect: {moral:+5, confiance:+6, pace:+1}, choiceType:'neutral' },
-            { text: pick(RESP.demand_neg), effect: {moral:-8, confiance:-6, loyalty:-4, pace:+3}, choiceType:'negative' },
+            { text: pick(RESP.demand_neg), effect: {moral:-8, confiance: moral < 40 ? -8 : -6, loyalty:-4, pace:+3}, choiceType:'negative' },
           ]
         });
       } else {

@@ -336,6 +336,7 @@ html,body{
 <div class="hq-notif-wrap" id="hqNotifBanner" style="display:none"></div>
 
 <div class="pins-layer" id="pins"></div>
+<div class="hq-alerts" id="hqAlerts" style="position:fixed;bottom:88px;left:12px;right:12px;z-index:12;max-width:420px"></div>
 <div class="hq-quick" id="hqQuick"></div>
 <div class="legend"      id="leg"></div>
 
@@ -366,6 +367,9 @@ html,body{
 <script src="js/career.js"></script>
 <script src="js/topbar.js"></script>
 <script src="js/theme.js"></script>
+<script src="js/immersion.js"></script>
+<script src="js/feeder.js"></script>
+<script src="js/events.js"></script>
 <script src="js/social-notifications.js"></script>
 <script>
 
@@ -408,6 +412,7 @@ var PINS = [
   {x:82,y:28,cat:'media',icon:'news',    name:'Actualités',    sub:'News F1 & équipe',        href:'news.html'},
   {x:90,y:45,cat:'media',icon:'social',  name:'Social',        sub:'Image & réputation',      href:'social.html'},
   {x:85,y:65,cat:'media',icon:'journal', name:'Journal',       sub:'Historique saison',       href:'gp-journal.html'},
+  {x:78,y:58,cat:'media',icon:'news',    name:'Paddock',       sub:'Réputation · Fil saison', href:'immersion.html'},
   {x:50,y:18,cat:'qg',   icon:'hq',      name:'QG',            sub:'Quartier Général',        href:'qg.html'},
   {x:28,y:68,cat:'academy', icon:'academy', name:'Académie', sub:'F3 · F2 · Réserve', href:'academy.html'},
 ];
@@ -503,6 +508,14 @@ function initHQ(){
   }
   buildLeg();
   buildQuickTiles(s);
+  buildUrgentAlerts(s);
+}
+
+function buildUrgentAlerts(saveData){
+  var el=document.getElementById('hqAlerts');
+  if(!el||!saveData||typeof Immersion==='undefined'){ if(el) el.innerHTML=''; return; }
+  var alerts=Immersion.getUrgentAlerts(saveData);
+  el.innerHTML=alerts.length ? Immersion.renderUrgentBannerHtml(alerts) : '';
 }
 
 function buildQuickTiles(saveData){
@@ -517,12 +530,22 @@ function buildQuickTiles(saveData){
   }
 
   var iconHtml=(typeof F1Icons!=='undefined')?F1Icons.svg('academy','ds-icon--md'):'🎓';
+  var paddockIcon=(typeof F1Icons!=='undefined')?F1Icons.svg('news','ds-icon--md'):'📰';
+  var rep=saveData.immersion?.teamReputation?.value ?? '—';
   el.innerHTML=
     '<a href="academy.html" class="hq-quick-tile" aria-label="Académie et Feeder Series">'+
       '<span class="hq-quick-icon">'+iconHtml+'</span>'+
       '<div class="hq-quick-body">'+
         '<div class="hq-quick-title">Académie</div>'+
         '<div class="hq-quick-sub">'+sub+'</div>'+
+      '</div>'+
+      '<span class="hq-quick-go">→</span>'+
+    '</a>'+
+    '<a href="immersion.html" class="hq-quick-tile" aria-label="Paddock et saison" style="margin-top:8px">'+
+      '<span class="hq-quick-icon">'+paddockIcon+'</span>'+
+      '<div class="hq-quick-body">'+
+        '<div class="hq-quick-title">Paddock</div>'+
+        '<div class="hq-quick-sub">Réputation '+rep+' · News · Fil de saison</div>'+
       '</div>'+
       '<span class="hq-quick-go">→</span>'+
     '</a>';

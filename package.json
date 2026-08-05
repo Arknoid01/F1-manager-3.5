@@ -2,6 +2,6 @@
   "name": "f1-manager",
   "private": true,
   "scripts": {
-    "test": "node tests/feeder.test.js"
+    "test": "node tests/feeder.test.js && node tests/immersion.test.js"
   }
 }

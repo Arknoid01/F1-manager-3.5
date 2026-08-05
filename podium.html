@@ -25,6 +25,7 @@
 <script src="js/topbar.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/immersion.js"></script>
+<script src="js/social-notifications.js"></script>
 <script>
 function fmtTime(sec){ if(!Number.isFinite(sec)) return '—'; const m=Math.floor(sec/60), s=sec-m*60; return `${m}:${s.toFixed(3).padStart(6,'0')}`; }
 function esc(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
@@ -162,6 +163,39 @@ function renderFeederCard(feeder) {
   </div>`;
 }
 
+function renderSocialCta(save) {
+  if (typeof SocialNotifications === 'undefined') return '';
+  const n = SocialNotifications.getPendingCount(save);
+  if (!n) return '';
+  return `<a href="social.html" style="display:block;text-align:center;margin-bottom:10px;padding:14px;border-radius:12px;background:var(--gold);color:#111;font-family:var(--fh);font-weight:900;text-decoration:none">${n} message${n > 1 ? 's' : ''} en attente — Répondre aux pilotes →</a>`;
+}
+
+function renderGpChoiceCard(save, gp) {
+  if (typeof Immersion === 'undefined') return '';
+  const opts = Immersion.getGpChoiceOptions(save, gp);
+  if (!opts) return '';
+  return `<div class="card"><div class="kicker">Débrief média — votre choix</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Une décision par GP. Conséquences sur réputation et sponsors.</div>
+    ${opts.map(o => `<button type="button" onclick="applyGpChoice('${o.id}')" style="display:block;width:100%;text-align:left;margin-bottom:8px;padding:12px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#ddd;cursor:pointer">
+      <strong>${o.icon} ${esc(o.label)}</strong><br><span style="font-size:11px;color:var(--muted)">${esc(o.desc)}</span>
+    </button>`).join('')}
+  </div>`;
+}
+
+function applyGpChoice(choiceId) {
+  const { save, gp } = getSummary();
+  if (!save || !gp || typeof Immersion === 'undefined') return;
+  const r = Immersion.applyGpChoice(save, choiceId, gp);
+  if (r.ok) { Save.save(save); alert('✅ ' + r.choice.label); render(); }
+  else alert(r.msg || 'Choix impossible');
+}
+
+function renderSeasonStorySnippet(save) {
+  const story = (save?.immersion?.seasonStory || []).slice(-1)[0];
+  if (!story) return '';
+  return `<div class="card" style="border-left:3px solid var(--gold)"><div class="kicker">Fil de saison</div><div style="font-size:14px;color:#ddd;line-height:1.55;font-style:italic">${esc(story.headline)}</div></div>`;
+}
+
 function render(){
  const {save,gp}=getSummary();
  if(!gp){ document.getElementById('content').innerHTML='<div class="card empty">Aucun Grand Prix terminé trouvé. Lance une course pour générer le podium.</div><div class="btns"><a class="btn sec" href="index.html">Retour HQ</a></div>'; return; }
@@ -171,36 +205,45 @@ function render(){
  const playerResults = gp.playerResults||[];
  const playerRows=playerResults.map(r=>`<div class="row"><div class="badge">P${r.position}</div><div><b style="color:${esc(r.teamColor)}">${esc(r.driverName)}</b><div class="sub">${esc(r.teamName)}</div></div><div>${r.points||0} pts</div></div>`).join('') || '<div class="sub">Aucun résultat équipe détecté.</div>';
  const bestLap=[...(gp.results||[])].filter(r=>Number.isFinite(r.bestLap)).sort((a,b)=>a.bestLap-b.bestLap)[0];
+ const storedIv = (typeof Immersion !== 'undefined') ? Immersion.getInterviewForGp(save, gp) : null;
 
- // Interviews dynamiques
- const interviewCards = playerResults.map(r => {
-   const quote = getInterview(r);
-   if (!quote) return '';
-   const pos = r.status==='dnf' ? 'Abandon' : `P${r.position}`;
-   const col = r.position===1?'var(--gold)':r.position<=3?'#ccc':r.status==='dnf'?'var(--accent)':'var(--muted)';
-   return `<div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid ${col};border-radius:14px;padding:14px;margin-bottom:10px">
-     <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:${col};margin-bottom:6px">${esc(r.driverName)} · ${pos}</div>
-     <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${quote}"</div>
+ let interviewBlock = '';
+ if (storedIv?.quotes?.length) {
+   interviewBlock = `<div class="card"><div class="kicker">Interviews — ${esc(storedIv.headline)}</div>
+     ${storedIv.quotes.map(q => {
+       const col = q.includes('Team Principal') ? 'var(--accent)' : 'var(--gold)';
+       return `<div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid ${col};border-radius:14px;padding:14px;margin-bottom:10px">
+         <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${esc(q)}"</div></div>`;
+     }).join('')}
    </div>`;
- }).join('');
+ } else {
+   const interviewCards = playerResults.map(r => {
+     const quote = getInterview(r);
+     if (!quote) return '';
+     const pos = r.status==='dnf' ? 'Abandon' : `P${r.position}`;
+     const col = r.position===1?'var(--gold)':r.position<=3?'#ccc':r.status==='dnf'?'var(--accent)':'var(--muted)';
+     return `<div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid ${col};border-radius:14px;padding:14px;margin-bottom:10px">
+       <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:${col};margin-bottom:6px">${esc(r.driverName)} · ${pos}</div>
+       <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${quote}"</div>
+     </div>`;
+   }).join('');
+   const ourIds = new Set(playerResults.map(r=>r.driverId));
+   const winner = gp.winner;
+   const winnerIsOurs = winner && playerResults.some(r=>r.driverName===winner.driverName&&r.position===1);
+   const rivalCard = winner && !winnerIsOurs ? `
+     <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:14px;padding:14px;margin-bottom:10px">
+       <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:6px">${esc(winner.driverName)} · Vainqueur</div>
+       <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${pick(INTERVIEWS.win)}"</div>
+     </div>` : '';
+   interviewBlock = (interviewCards||rivalCard) ? `<div class="card"><div class="kicker">Interviews zone mixte</div>${rivalCard}${interviewCards}</div>` : '';
+ }
 
- // Interview winner rival si pas notre pilote
- const ourIds = new Set(playerResults.map(r=>r.driverId));
- const winner = gp.winner;
- const winnerIsOurs = winner && playerResults.some(r=>r.driverName===winner.driverName&&r.position===1);
- const rivalCard = winner && !winnerIsOurs ? `
-   <div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid var(--muted);border-radius:14px;padding:14px;margin-bottom:10px">
-     <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--muted);margin-bottom:6px">${esc(winner.driverName)} · Vainqueur</div>
-     <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${pick(INTERVIEWS.win)}"</div>
-   </div>` : '';
-
- // TP interview
- const tpCard = `<div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:14px;padding:14px">
-   <div style="font-family:var(--fh);font-size:10px;letter-spacing:2px;color:var(--accent);margin-bottom:6px">Team Principal · Débrief</div>
-   <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${getTpInterview(gp.teamPoints||0)}"</div>
- </div>`;
+ const tpCard = storedIv?.quotes?.[0] ? '' : `<div class="card"><div class="kicker">Team Principal</div><div style="background:rgba(255,255,255,.04);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:14px;padding:14px">
+   <div style="font-size:13px;color:#ddd;line-height:1.6;font-style:italic">"${getTpInterview(gp.teamPoints||0)}"</div></div></div>`;
 
  document.getElementById('content').innerHTML=`
+  ${renderSeasonStorySnippet(save)}
+  ${renderSocialCta(save)}
   <div class="card"><div class="kicker">Top 3</div><div class="podium">${step(p[1],'p2')}${step(p[0],'p1')}${step(p[2],'p3')}</div></div>
   <div class="card"><div class="kicker">Bilan rapide</div><div class="grid">
     <div class="stat"><span>Vainqueur</span><b>${esc(gp.winner?.driverName||'—')}</b></div>
@@ -208,8 +251,9 @@ function render(){
     <div class="stat"><span>Meilleur tour</span><b>${bestLap?esc(bestLap.driverName)+' · '+fmtTime(bestLap.bestLap):'—'}</b></div>
   </div></div>
   <div class="card"><div class="kicker">Votre équipe</div><div class="teamres">${playerRows}</div><div class="grid" style="margin-top:10px"><div class="stat"><span>Points GP</span><b>${gp.teamPoints||0}</b></div><div class="stat"><span>Gains</span><b>+${gp.reward||0}M€</b></div><div class="stat"><span>Tokens</span><b>+${gp.tokens||0}</b></div></div></div>
-  ${interviewCards||rivalCard ? `<div class="card"><div class="kicker">Interviews zone mixte</div>${rivalCard}${interviewCards}</div>` : ''}
-  <div class="card"><div class="kicker">Team Principal</div>${tpCard}</div>
+  ${interviewBlock}
+  ${tpCard}
+  ${renderGpChoiceCard(save, gp)}
   ${renderFeederCard(gp.feeder)}
   <div class="btns"><a class="btn" href="gp-journal.html">Voir le journal du GP</a></div>`;
 }

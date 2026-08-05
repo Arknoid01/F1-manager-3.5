@@ -28,6 +28,9 @@
 <script src="js/topbar.js"></script>
 <script src="js/theme.js"></script>
 <script src="js/immersion.js"></script>
+<script src="js/social-notifications.js"></script>
+<script src="js/feeder.js"></script>
+<script src="js/events.js"></script>
 <script>
 function esc(s){return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));}
 function e(t,msg){return `<div class="entry"><b>${esc(t)}</b><p>${esc(msg)}</p></div>`;}
@@ -75,7 +78,11 @@ function keyMoment(gp, results) {
 function pick(arr) { return arr[Math.floor(Math.random()*arr.length)]; }
 
 function render(){
-  const save = Save.load();
+  let save = Save.load();
+  if (typeof Immersion !== 'undefined') {
+    Immersion.syncLatestGp(save);
+    save = Save.load();
+  }
   const gp   = save?.lastGpSummary;
   if(!gp){
     document.getElementById('content').innerHTML='<div class="card empty">Aucun journal disponible pour le moment.</div><div class="btns"><a class="btn sec" href="index.html">Retour HQ</a></div>';
@@ -150,6 +157,9 @@ function render(){
   lines.push(e('Podium', `${podium||'Podium non disponible'}. Victoire de ${winner?.driverName||'—'} pour ${winner?.teamName||'—'}.`));
   lines.push(e('Team Principal', tpQuote(gp, best, gp.teamPoints)));
   lines.push(e('Bilan management', `Gains : +${gp.reward||0}M€ · Frais GP : -${gp.operatingCost||0}M€ · Développement : +${gp.tokens||0} token(s).`));
+  if (typeof Immersion !== 'undefined') {
+    Immersion.buildJournalExtras(gp, save).forEach(x => lines.push(e(x.title, x.msg)));
+  }
   if (gp.feeder) {
     const fd = gp.feeder;
     const fmtBlock = (label, block) => {
@@ -166,8 +176,15 @@ function render(){
     }
   }
 
+  const storyLines = (save.immersion?.seasonStory || []).slice(-3).map(s =>
+    `<div style="font-size:13px;color:#ccc;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="color:var(--gold);font-family:var(--fh);font-size:10px">GP${s.race}</span> ${esc(s.headline)}</div>`
+  ).join('');
+  const socialN = (typeof SocialNotifications !== 'undefined') ? SocialNotifications.getPendingCount(save) : 0;
+  const socialCta = socialN ? `<a href="social.html" style="display:block;margin-top:12px;padding:12px;border-radius:10px;background:var(--gold);color:#111;text-align:center;font-family:var(--fh);font-weight:900;text-decoration:none">${socialN} message(s) pilote — Répondre →</a>` : '';
+
   const rawEvents = (gp.events||[]).filter(x=>x.message).slice(-8).map(x=>e(`Tour ${x.lap||'—'}`, x.message)).join('');
   document.getElementById('content').innerHTML = `
+    ${storyLines ? `<div class="card"><div class="kicker">Fil de saison</div>${storyLines}</div>` : ''}
     <div class="card"><div class="kicker">Journal du Grand Prix</div><div class="timeline">${lines.join('')}</div></div>
     ${rawEvents?`<div class="card"><div class="kicker">Moments enregistrés en course</div><div class="timeline">${rawEvents}</div></div>`:''}
     <div class="card"><div class="kicker">Conséquences</div>
@@ -178,6 +195,7 @@ function render(){
         <div class="stat"><span>Abandons</span><b>${dnf.length}</b></div>
       </div>
     </div>
+    ${socialCta}
     <div class="btns"><a class="btn" href="immersion.html">📰 Aller au paddock →</a></div>`;
 }
 render();

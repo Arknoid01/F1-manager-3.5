@@ -517,6 +517,17 @@ function goPhase(p) {
 function renderContent() {
   const content = document.getElementById('weekendContent');
   content.innerHTML = '';
+  if (typeof Immersion !== 'undefined') {
+    const alerts = Immersion.getUrgentAlerts(save).filter(a => a.href !== 'social.html' || a.level === 'high');
+    const boardAlert = alerts.find(a => a.href === 'board.html');
+    if (boardAlert) {
+      const div = document.createElement('div');
+      div.className = 'wk-card';
+      div.style.borderLeft = '3px solid var(--accent)';
+      div.innerHTML = `<div class="wk-title" style="color:var(--accent)">⚠ ${boardAlert.text}</div><div class="wk-sub">Consultez la direction avant le week-end.</div>`;
+      content.appendChild(div);
+    }
+  }
   content.appendChild(buildCircuitHero());
 
   // Flow immersif : uniquement des cartes de transition qui lisent les vraies données sauvegardées.

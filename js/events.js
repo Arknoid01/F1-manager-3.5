@@ -356,6 +356,14 @@ const CareerEvents = {
       { icon:'🧪', title:'Nouveaux composants', text:`${teamName} a apporté quelques nouveautés techniques ce week-end. L'impact sur la performance sera évalué au fil des sessions.` },
     ];
 
+    const riv = save.immersion?.seasonRivals;
+    if (riv?.driverName && Math.random() < 0.35) {
+      paddockNews.push({
+        icon: '⚔️', title: 'Rivalité saison',
+        text: `La presse oppose ${dName} à ${riv.driverName} (${riv.teamName || 'rival'}) avant ${circName}. Le duel est attendu.`,
+      });
+    }
+
     const supporterNews = [
       { icon:'🏟️', title:'Les fans sont là', text:`Les tribunes se remplissent déjà pour les essais libres. Des supporters de ${teamName} ont fait des centaines de kilomètres pour être là. Leur énergie se ressent jusqu'au garage.` },
       { icon:'🎌', title:'Ambiance tribunes', text:`Les drapeaux flottent dans les tribunes de ${circName}. Les fans locaux dominent, mais on aperçoit quelques bannières pour ${teamName} dans les virages. Le public sera chaud.` },

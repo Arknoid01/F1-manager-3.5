@@ -86,6 +86,9 @@ function init(){
       ${panel('Garage & staff',`<div class="tile-val">${clamp(im.staffMorale.value)}</div>${bar(im.staffMorale.value,'green')}<div class="tile-sub" style="margin-top:8px">${esc(im.staffMorale.note)}</div>`)}
     </div>
     ${panel('📰 Paddock news',renderNews(im.paddockNews))}
+    ${panel('📖 Fil de saison', (im.seasonStory||[]).length
+      ? (im.seasonStory.slice(-5).reverse().map(s => `<div class="quote" style="margin-bottom:8px"><span style="color:var(--gold);font-family:var(--fh);font-size:10px">GP${s.race} · ${esc(s.circuitName)}</span><div style="margin-top:4px;font-style:italic">${esc(s.headline)}</div></div>`).join(''))
+      : '<div class="empty">Le fil se construira GP après GP.</div>')}
     ${panel('🎤 Interviews post-course',renderInterviews(im.interviews))}
     <div class="btns"><a class="btn btn-sec" href="news.html">Actualités classiques</a><a class="btn btn-red" href="weekend.html">Prochain week-end</a></div>
   </section>

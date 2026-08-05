@@ -97,6 +97,7 @@
 <script src="js/save.js"></script>
 <script src="js/topbar.js"></script>
 <script src="js/theme.js"></script>
+<script src="js/immersion.js"></script>
 <script>
 const TP_QUOTES_RACE = [
   "Aujourd'hui on execute le plan. Pas d'improvisation, pas de panique. On fait confiance au travail de la semaine.",
@@ -230,6 +231,7 @@ if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStat
 
   // 3 batailles selectionnees
   const battles = [pick(BATTLES), pick(BATTLES), pick(BATTLES)].filter((b,i,a)=>a.findIndex(x=>x.title===b.title)===i).slice(0,3);
+  const contextStakes = typeof Immersion !== 'undefined' ? Immersion.getBriefingStakes(save) : [];
 
   // Spectateurs
   const spectateurs = { monaco:'200 000', silverstone:'350 000', monza:'300 000', spa:'280 000', bahrain:'42 000', barcelona:'140 000', suzuka:'180 000', baku:'85 000', singapore:'90 000', abu_dhabi:'55 000' };
@@ -286,6 +288,13 @@ if (typeof Save !== 'undefined' && Save.restoreRivalStats) Save.restoreRivalStat
         ${gapBelow!==null?`<div class="stake-row"><div class="stake-icon">⬇️</div><div class="stake-text"><strong>${esc(teamBelow.name)}</strong> est a <strong>${gapBelow} points</strong> derriere. Ne pas se laisser rattraper.</div></div>`:''}
       </div>
     </div>
+
+    ${contextStakes.length ? `<div class="section">
+      <div class="section-title">&#128172; Contexte paddock</div>
+      <div class="stakes-card">
+        ${contextStakes.map(s => `<div class="stake-row"><div class="stake-icon">${s.icon}</div><div class="stake-text">${esc(s.text)}</div></div>`).join('')}
+      </div>
+    </div>` : ''}
 
     <div class="section">
       <div class="section-title">&#129504; Strategie recommandee</div>

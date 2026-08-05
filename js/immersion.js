@@ -27,6 +27,12 @@ const Immersion = {
       im.juniorAcademy = this.defaultJuniors(save);
     }
     im.seasonStory = im.seasonStory || [];
+    im.moodEffects = im.moodEffects || { sponsorPenaltyActive: false, staffStrategyRisk: false };
+    im.lastGpChoice = im.lastGpChoice || null;
+    // Rivalité saison (1× par saison)
+    if (!im.seasonRivals || im.seasonRivals.setAtSeason !== (save.season || 2025)) {
+      this.initSeasonRivals(save);
+    }
     return save;
   },
 
@@ -72,8 +78,11 @@ const Immersion = {
 
     this.updateRecords(im, results);
     this.updateMoraleAndReputation(save, gp, results, player, teamPts);
+    this.applyMoodEffects(save);
     this.generatePaddockNews(save, gp, results, player, teamPts, dnf, sc, wet);
+    this.maybeRivalPaddockNews(save, gp, player, bestPlayer);
     this.generateInterview(save, gp, results, player, teamPts, dnf, sc, wet);
+    this.pushSeasonStory(save, gp, bestPlayer, teamPts, im.teamReputation.tags);
     this.progressJuniors(save);
     if (typeof Feeder !== 'undefined' && Feeder.afterRace) {
       const feederReport = Feeder.afterRace(save, gp);
@@ -189,7 +198,9 @@ const Immersion = {
     const _pi = _gp % 5;
     const principal = (teamPts>=10 ? _pGood[_pi] : teamPts>0 ? _pOk[_pi] : _pBad[_pi]) + ' — Team Principal';
     save.immersion.interviews.push({
-      date:new Date().toISOString(), season:gp.season||save.season, circuitName:gp.circuitName||'Grand Prix',
+      date:new Date().toISOString(), season:gp.season||save.season,
+      raceNumber: gp.raceNumber ?? save.race ?? 0,
+      circuitName:gp.circuitName||'Grand Prix',
       headline:q, quotes:[principal, driverQuote], context:{teamPts, safetyCarLaps:sc, wet, dnf:dnf.length}
     });
     save.immersion.interviews = save.immersion.interviews.slice(-30);
@@ -525,7 +536,288 @@ const Immersion = {
   top(obj, n=5, asc=false){
     return Object.entries(obj||{}).map(([id,v])=>({id, name:v.name||id, value:v.value||0}))
       .sort((a,b)=>asc?a.value-b.value:b.value-a.value).slice(0,n);
-  }
+  },
+
+  initSeasonRivals(save) {
+    if (!save) return null;
+    if (typeof F1Data === 'undefined') return null;
+    save.immersion = save.immersion || {};
+    const pid = save.playerTeamId;
+    const rivals = F1Data.drivers.filter(d => !d.retired && d.teamId && d.teamId !== pid && d.teamId !== 'free_agent');
+    const topDrv = [...rivals].sort((a, b) => (b.pace || 0) - (a.pace || 0))[0];
+    const playerPts = save.teamStandings?.[pid] || 0;
+    const teams = F1Data.teams.filter(t => t.id !== pid);
+    let teamRival = teams.map(t => ({ ...t, pts: save.teamStandings?.[t.id] || 0 }))
+      .sort((a, b) => Math.abs(a.pts - playerPts) - Math.abs(b.pts - playerPts))[0] || teams[0];
+    save.immersion.seasonRivals = {
+      driverId: topDrv?.id || null,
+      driverName: topDrv ? `${topDrv.firstName} ${topDrv.name}` : null,
+      teamId: teamRival?.id || null,
+      teamName: teamRival?.name || null,
+      setAtSeason: save.season || 2025,
+    };
+    return save.immersion.seasonRivals;
+  },
+
+  pushSeasonStory(save, gp, bestPlayer, teamPts, tags) {
+    this.ensure(save);
+    const circuit = gp.circuitName || 'Grand Prix';
+    const race = gp.raceNumber || save.race || 0;
+    let headline;
+    let tone = 'neutral';
+    if (bestPlayer?.position === 1) {
+      headline = `Après ${circuit}, le paddock s'accorde : votre projet a signé un week-end majeur.`;
+      tone = 'triumph';
+    } else if (bestPlayer?.position <= 3) {
+      headline = `Après ${circuit}, on parle surtout du podium de ${this.driverName(bestPlayer)} — momentum visible.`;
+      tone = 'solid';
+    } else if (teamPts >= 10) {
+      headline = `Après ${circuit}, la narrative est claire : régularité et points, même sans flash.`;
+      tone = 'solid';
+    } else if (bestPlayer?.status === 'dnf' || (tags || []).includes('Week-end difficile')) {
+      headline = `Après ${circuit}, le paddock questionne votre capacité à rebondir rapidement.`;
+      tone = 'crisis';
+    } else if (/pluie|humide/i.test(gp.weather || '')) {
+      headline = `Après ${circuit}, les stratèges relancent le débat météo — week-end tactique exigeant.`;
+      tone = 'drama';
+    } else {
+      headline = `Après ${circuit}, votre saison avance sans coup de théâtre — ni panique, ni euphorie.`;
+    }
+    save.immersion.seasonStory.push({
+      season: gp.season || save.season, race, circuitName: circuit, headline, tone,
+      date: gp.date || new Date().toISOString(),
+    });
+    save.immersion.seasonStory = save.immersion.seasonStory.slice(-24);
+  },
+
+  applyMoodEffects(save) {
+    this.ensure(save);
+    const im = save.immersion;
+    const prev = { ...(im.moodEffects || {}) };
+    im.moodEffects = {
+      sponsorPenaltyActive: (im.sponsorMood?.value ?? 60) < 45,
+      staffStrategyRisk: (im.staffMorale?.value ?? 60) < 45,
+    };
+    if (im.moodEffects.sponsorPenaltyActive && !prev.sponsorPenaltyActive) {
+      this.addNews(save, '💼', 'Sponsors — clause activée',
+        'Visibilité insuffisante : les gains course subissent un malus (−8 %) jusqu\'à amélioration.', 'sponsor');
+    }
+    if (im.moodEffects.staffStrategyRisk && !prev.staffStrategyRisk) {
+      this.addNews(save, '🔧', 'Garage tendu',
+        'Le staff est sous pression — risque d\'erreur au stand si l\'ambiance ne s\'améliore pas.', 'paddock');
+    }
+    return im.moodEffects;
+  },
+
+  getRaceRewardMultiplier(save) {
+    this.ensure(save);
+    return (save.immersion.sponsorMood?.value ?? 60) < 45 ? 0.92 : 1;
+  },
+
+  getBriefingStakes(save) {
+    this.ensure(save);
+    const im = save.immersion;
+    const stakes = [];
+    const pressure = save.boardPressure || 0;
+    if (pressure > 60) {
+      stakes.push({ icon: '🏛️', text: `Le board exerce une forte pression (${Math.round(pressure)}%). Un week-end faible aggraverait la situation.` });
+    } else if (pressure > 40) {
+      stakes.push({ icon: '👁️', text: `La direction vous surveille (${Math.round(pressure)}%). Les objectifs restent exigeants.` });
+    }
+    if ((im.sponsorMood?.value ?? 60) < 45) {
+      stakes.push({ icon: '💼', text: `Sponsors mécontents — ${im.sponsorMood.note || 'Ils attendent de la visibilité ce week-end.'}` });
+    }
+    if (typeof Save !== 'undefined' && Save.getPlayerDrivers) {
+      Save.getPlayerDrivers(save, save.playerTeamId).forEach(d => {
+        const conf = save.driverConfidence?.[d.id] ?? 50;
+        const moral = im.driverMorale?.[d.id]?.value ?? 60;
+        if (conf < 40 || moral < 40) {
+          stakes.push({ icon: '😤', text: `${d.firstName} ${d.name} en crise de confiance (conf. ${conf}, moral ${moral}).` });
+        }
+      });
+    }
+    const riv = im.seasonRivals;
+    if (riv?.driverName) {
+      stakes.push({ icon: '⚔️', text: `Rivalité saison : ${riv.driverName} (${riv.teamName || '—'}) reste la référence.` });
+    }
+    return stakes.slice(0, 4);
+  },
+
+  getUrgentAlerts(save) {
+    if (!save?.playerTeamId) return [];
+    const alerts = [];
+    if (typeof Feeder !== 'undefined' && Feeder.getPendingPoaching) {
+      const n = Feeder.getPendingPoaching(save).length;
+      if (n) alerts.push({ level: 'high', text: `${n} alerte(s) poaching sur vos juniors`, href: 'academy.html' });
+    }
+    if (typeof CareerEvents !== 'undefined' && CareerEvents.evaluateObjectives) {
+      const ev = CareerEvents.evaluateObjectives(save);
+      if (ev.racesDone >= 3 && ev.score < 40) {
+        alerts.push({ level: 'high', text: 'Objectifs board en danger', href: 'board.html' });
+      }
+    }
+    if ((save.boardPressure || 0) > 65) {
+      alerts.push({ level: 'high', text: `Pression direction : ${Math.round(save.boardPressure)}%`, href: 'board.html' });
+    }
+    if (typeof Feeder !== 'undefined' && Feeder.getPerformanceSummary) {
+      const perf = Feeder.getPerformanceSummary(save);
+      if (perf.f2TeamPos === 1) {
+        alerts.push({ level: 'info', text: `${perf.teamName} — leader F2`, href: 'academy.html' });
+      } else if (perf.f2TeamPos && perf.f2TeamPos <= 3) {
+        alerts.push({ level: 'info', text: `Écurie F2 satellite P${perf.f2TeamPos}`, href: 'academy.html' });
+      }
+    }
+    if (typeof SocialNotifications !== 'undefined') {
+      const n = SocialNotifications.getPendingCount(save);
+      if (n > 0) alerts.push({ level: 'medium', text: `${n} message(s) pilote en attente`, href: 'social.html' });
+    }
+    return alerts;
+  },
+
+  renderUrgentBannerHtml(alerts) {
+    if (!alerts?.length) return '';
+    return alerts.slice(0, 3).map(a =>
+      `<a href="${a.href}" style="display:block;padding:10px 12px;margin-bottom:6px;border-radius:8px;text-decoration:none;font-size:12px;border:1px solid ${a.level === 'high' ? 'var(--accent)' : 'var(--gold)'};background:${a.level === 'high' ? 'rgba(232,0,61,.08)' : 'rgba(245,200,66,.06)'};color:#ddd">⚠ ${this.esc(a.text)} →</a>`
+    ).join('');
+  },
+
+  getInterviewForGp(save, gp) {
+    this.ensure(save);
+    if (!gp) return null;
+    const season = gp.season || save.season;
+    const rn = gp.raceNumber ?? save.race;
+    const cn = gp.circuitName;
+    return (save.immersion.interviews || []).slice().reverse().find(i =>
+      i.season === season && (i.raceNumber === rn || i.circuitName === cn)
+    ) || null;
+  },
+
+  buildJournalExtras(gp, save) {
+    const lines = [];
+    if (/pluie|humide/i.test(gp.weather || '')) {
+      lines.push({ title: 'Météo', msg: `Conditions ${gp.weather} — stratégie pneus et visibilité au cœur du week-end.` });
+    }
+    if ((gp.safetyCarLaps || 0) > 0) {
+      lines.push({ title: 'Safety Car', msg: `${gp.safetyCarLaps} tour(s) neutralisé(s) — fenêtres pit décisives.` });
+    }
+    const before = gp.constructorPosBefore;
+    const after = gp.constructorPosAfter;
+    if (before && after && after < before) {
+      lines.push({ title: 'Championnat', msg: `Gain de ${before - after} place(s) constructeurs (P${before} → P${after}).` });
+    } else if (before && after && after > before) {
+      lines.push({ title: 'Championnat', msg: `Recul constructeurs P${before} → P${after}.` });
+    }
+    const riv = save.immersion?.seasonRivals;
+    if (riv?.teamName && after > before) {
+      lines.push({ title: 'Rivalité', msg: `${riv.teamName} capitalise dans la course au classement.` });
+    }
+    const story = (save.immersion?.seasonStory || []).slice(-1)[0];
+    if (story?.headline) lines.push({ title: 'Fil de saison', msg: story.headline });
+    const im = save.immersion;
+    if ((im?.staffMorale?.value ?? 60) < 45) {
+      lines.push({ title: 'Garage', msg: `Ambiance tendue (${im.staffMorale.value}/100) — ${im.staffMorale.note}` });
+    }
+    return lines;
+  },
+
+  maybeRivalPaddockNews(save, gp, player, bestPlayer) {
+    const riv = save.immersion?.seasonRivals;
+    if (!riv?.driverId || Math.random() > 0.4) return;
+    const results = gp.results || [];
+    const rivRes = results.find(r => (r.driverId || r.driver?.id) === riv.driverId);
+    if (!rivRes) return;
+    const best = bestPlayer || player.slice().sort((a, b) => (a.position || 99) - (b.position || 99))[0];
+    if (rivRes.position < (best?.position || 99)) {
+      this.addNews(save, '⚔️', 'Rivalité — week-end',
+        `${riv.driverName} (${riv.teamName}) vous coiffe — P${rivRes.position} vs votre P${best?.position || '—'}.`, 'paddock');
+    } else if (best && best.position < rivRes.position) {
+      this.addNews(save, '⚔️', 'Rivalité — week-end',
+        `Vous devancez ${riv.driverName} (P${best.position} vs P${rivRes.position}).`, 'paddock');
+    }
+  },
+
+  getContextRadioLines(save) {
+    this.ensure(save);
+    const lines = [];
+    const im = save.immersion;
+    if ((save.boardPressure || 0) > 60) lines.push('🎧 Radio : le board attend des points — pas de marge.');
+    if ((im.sponsorMood?.value ?? 60) < 45) lines.push('🎧 Radio : sponsors nerveux — visibilité à maximiser.');
+    const riv = im.seasonRivals;
+    if (riv?.driverName) lines.push(`🎧 Radio : ${riv.driverName} est la cible directe.`);
+    if (typeof Save !== 'undefined' && Save.getPlayerDrivers) {
+      Save.getPlayerDrivers(save, save.playerTeamId).forEach(d => {
+        if ((im.driverMorale?.[d.id]?.value ?? 60) < 40) {
+          lines.push(`🎧 Radio : ${d.firstName} semble fragile — restez factuel.`);
+        }
+      });
+    }
+    return lines;
+  },
+
+  getGpChoiceOptions(save, gp) {
+    const race = gp?.raceNumber ?? save.race;
+    if (save.immersion?.lastGpChoice?.race === race) return null;
+    return [
+      { id: 'defend_driver', icon: '🎤', label: 'Défendre le pilote en conférence', desc: 'Média +4 · Sponsors +3', effects: { media: 4, sponsor: 3 } },
+      { id: 'stay_quiet', icon: '🤐', label: 'Rester discret', desc: 'Pas de risque médiatique.', effects: {} },
+      { id: 'blame_car', icon: '🔧', label: 'Pointer la voiture / stratégie', desc: 'Tech +4 · Moral pilotes −3', effects: { tech: 4, moral: -3 } },
+    ];
+  },
+
+  applyGpChoice(save, choiceId, gp) {
+    this.ensure(save);
+    const raceNum = gp?.raceNumber ?? save.race;
+    if (save.immersion?.lastGpChoice?.race === raceNum) {
+      return { ok: false, msg: 'Choix déjà effectué pour ce GP.' };
+    }
+    const allOpts = [
+      { id: 'defend_driver', icon: '🎤', label: 'Défendre le pilote en conférence', desc: 'Média +4 · Sponsors +3', effects: { media: 4, sponsor: 3 } },
+      { id: 'stay_quiet', icon: '🤐', label: 'Rester discret', desc: 'Pas de risque médiatique.', effects: {} },
+      { id: 'blame_car', icon: '🔧', label: 'Pointer la voiture / stratégie', desc: 'Tech +4 · Moral pilotes −3', effects: { tech: 4, moral: -3 } },
+    ];
+    const choice = allOpts.find(o => o.id === choiceId);
+    if (!choice) return { ok: false, msg: 'Choix invalide.' };
+    if (!save.reputation || typeof save.reputation !== 'object') {
+      save.reputation = { sport: 50, media: 50, tech: 50, finance: 50 };
+    }
+    const r = save.reputation;
+    if (choice.effects.media) r.media = Math.min(100, (r.media || 50) + choice.effects.media);
+    if (choice.effects.tech) r.tech = Math.min(100, (r.tech || 50) + choice.effects.tech);
+    if (choice.effects.sponsor) {
+      save.immersion.sponsorMood.value = Math.min(100, (save.immersion.sponsorMood.value || 60) + choice.effects.sponsor);
+    }
+    if (choice.effects.moral) {
+      Object.values(save.immersion.driverMorale || {}).forEach(m => {
+        if (m) m.value = Math.max(5, Math.min(100, (m.value || 60) + choice.effects.moral));
+      });
+    }
+    save.immersion.lastGpChoice = {
+      race: gp?.raceNumber ?? save.race, choiceId, label: choice.label,
+      at: new Date().toISOString(),
+    };
+    this.addNews(save, '📋', 'Débrief média', choice.label, 'paddock');
+    return { ok: true, choice };
+  },
+
+  getSeasonReviewNarrative(save) {
+    this.ensure(save);
+    const im = save.immersion;
+    const stories = (im.seasonStory || []).slice(-5);
+    const promoted = (im.juniorAcademy || []).filter(j => j.promoted);
+    const feederHist = save.feeder?.history?.slice(-1)[0];
+    const parts = [];
+    if (stories.length) {
+      parts.push(`<strong>Fil de saison</strong> — ${stories.map(s => this.esc(s.headline)).join(' ')}`);
+    }
+    if (promoted.length) {
+      parts.push(`<strong>Académie</strong> — ${promoted.map(j => `${j.firstName} ${j.name} promu F1`).join(', ')}.`);
+    }
+    if (feederHist?.f2?.teamPos) {
+      parts.push(`<strong>Feeder</strong> — Écurie F2 P${feederHist.f2.teamPos} (${feederHist.f2.teamPts || 0} pts).`);
+    }
+    parts.push(`<strong>Garage</strong> — Sponsors ${im.sponsorMood?.value ?? '—'}/100 · Staff ${im.staffMorale?.value ?? '—'}/100 · Réputation ${im.teamReputation?.value ?? '—'}/100.`);
+    return parts.join('<br><br>');
+  },
 };
 
 if (typeof window !== 'undefined') window.Immersion = Immersion;

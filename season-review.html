@@ -291,6 +291,7 @@ function render() {
 
     <!-- NARRATIVE -->
     <div class="narrative">${getNarrative(myPos)}</div>
+    ${typeof Immersion !== 'undefined' ? `<div class="narrative" style="font-style:normal;margin-top:0">${Immersion.getSeasonReviewNarrative(save)}</div>` : ''}
 
     <!-- STATS SAISON -->
     <div class="section">

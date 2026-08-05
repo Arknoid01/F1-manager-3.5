@@ -1664,6 +1664,14 @@ function initRaceBroadcast() {
     messages.push(lapEvent(0, 'engineer', `🎧 Ingénieur : nos voitures partent P${pCars.map(c => c.position).join(' / P')}. Objectif : course propre et fenêtres de pit surveillées.`));
     pCars.forEach(c => { RaceNarrative.lastPlayerPos[c.driver.id] = c.position; });
   }
+  try {
+    const sv = Save.load();
+    if (sv && typeof Immersion !== 'undefined') {
+      Immersion.getContextRadioLines(sv).slice(0, 2).forEach((line, i) => {
+        messages.push(lapEvent(0, i === 0 ? 'engineer' : 'radio', line));
+      });
+    }
+  } catch (_) { /* optional context */ }
   addEvents(messages);
 }
 
@@ -2236,6 +2244,12 @@ function saveLastGpSummary(results, careerReward) {
       weather: weatherLabel,
       totalLaps: Race.state.totalLaps || circuit.laps || null,
       safetyCarLaps: Race.state.safetyCar?.laps || 0,
+      constructorPosBefore: save._constructorPosBeforeGp ?? null,
+      constructorPosAfter: (() => {
+        const sorted = [...F1Data.teams].sort((a, b) =>
+          (Number(save.teamStandings?.[b.id]) || 0) - (Number(save.teamStandings?.[a.id]) || 0));
+        return sorted.findIndex(t => t.id === playerTeamId) + 1;
+      })(),
       winner: normalized[0] || null,
       podium: normalized.slice(0, 3),
       playerTeamId,
